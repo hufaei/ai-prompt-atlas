@@ -45,6 +45,9 @@ jobs:
             mkdir -p "_site/notes/${slug}"
             cp docs/index.html "_site/notes/${slug}/index.html"
           done
+          legacy="claude-sonnet-5-claude-code-2.1.207"
+          mkdir -p "_site/notes/${legacy}"
+          cp docs/index.html "_site/notes/${legacy}/index.html"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

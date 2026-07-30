@@ -86,7 +86,7 @@
     }
 
     .home-hero {
-      margin-bottom: 32px;
+      margin-bottom: 22px;
     }
 
     .home-kicker {
@@ -120,11 +120,69 @@
       font-size: 18px;
     }
 
+    .snapshot-band {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      margin: 0 0 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--line);
+      box-shadow: 0 2px 10px rgba(32, 33, 36, 0.03);
+    }
+
+    .snapshot-band span {
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--muted);
+      padding: 15px 18px;
+      font-size: 13px;
+    }
+
+    .snapshot-band strong {
+      display: block;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .note-groups {
+      display: grid;
+      gap: 42px;
+    }
+
+    .note-group {
+      display: grid;
+      gap: 16px;
+    }
+
+    .group-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    .group-heading h2 {
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: -0.02em;
+    }
+
+    .group-heading p {
+      margin: 0;
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
     .note-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 18px;
-      max-width: 1000px;
     }
 
     .note-card {
@@ -279,6 +337,22 @@
       font-size: 13px;
     }
 
+    .learning-path {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      border: 1px solid #d8e2f3;
+      border-radius: 8px;
+      background: #f3f7fd;
+      color: var(--accent-ink);
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+
+    .learning-path strong {
+      flex: 0 0 auto;
+    }
+
     .article {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -413,6 +487,21 @@
         grid-template-columns: 1fr;
       }
 
+      .snapshot-band {
+        grid-template-columns: 1fr;
+        margin-bottom: 32px;
+      }
+
+      .group-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .group-heading p {
+        text-align: left;
+      }
+
       .home-hero p {
         font-size: 16px;
       }
@@ -440,59 +529,97 @@
         slug: "gpt-5.6-codex-runtime",
         title: "GPT-5.6 / Codex Runtime",
         heading: "GPT-5.6 / Codex Runtime",
+        group: "OpenAI runtimes",
         family: "OpenAI · Codex",
-        badge: "最新快照",
+        badge: "Agent Runtime",
         latest: true,
-        snapshot: "源快照 · 2026-07-12",
-        meta: "模型行为、Runtime 能力、skills、工具路由与验证交付",
+        snapshot: "源快照 · 2026-07-30",
+        meta: "从模型行为、破坏性动作到 Skills、工具与实时语音协作",
+        learningPath: "先看行为与授权边界，再沿工具路由走到验证交付。",
         file: "content/gpt-5.6-codex-runtime.md",
         image: "assets/mindmaps/gpt-5.6-codex-runtime.png"
-      },
-      {
-        slug: "claude-sonnet-5-claude-code-2.1.207",
-        title: "Claude Sonnet 5 / Claude Code 2.1.207",
-        heading: "Claude Sonnet 5 / Claude Code 2.1.207",
-        family: "Anthropic · Claude",
-        badge: "最新快照",
-        latest: true,
-        snapshot: "源快照 · 2026-07-12",
-        meta: "助手底座、技能系统、配置诊断、评审与上下文续作",
-        file: "content/claude-sonnet-5-claude-code-2.1.207.md",
-        image: "assets/mindmaps/claude-sonnet-5-claude-code-2.1.207.png"
       },
       {
         slug: "gpt-5.5-prompt-framework",
         title: "GPT-5.5 Prompt Framework",
         heading: "GPT-5.5 提示词框架",
+        group: "OpenAI runtimes",
         family: "OpenAI",
-        badge: "通用框架",
+        badge: "Source Routing",
         latest: false,
-        snapshot: "已按 2026-07-12 源快照复核",
-        meta: "source-of-truth 路由、边界、工具契约",
+        snapshot: "源快照 · 2026-07-30",
+        meta: "source of truth、个人上下文、富响应与工具契约",
+        learningPath: "先掌握事实来源的路由，再看产品层怎样接入上下文与富响应。",
         file: "content/gpt-5.5-prompt-framework.md",
         image: "assets/mindmaps/gpt-5.5-prompt-framework.png"
+      },
+      {
+        slug: "claude-sonnet-5-claude-code",
+        title: "Claude Sonnet 5 / Claude Code",
+        heading: "Claude Sonnet 5 / Claude Code",
+        group: "Anthropic systems",
+        family: "Anthropic · Claude",
+        badge: "Auto Memory",
+        latest: true,
+        snapshot: "源快照 · 2026-07-30",
+        meta: "助手底座、auto memory、scratchpad、agents、skills 与 tools",
+        learningPath: "区分 Assistant Base 与 Coding Runtime，再理解状态如何跨会话延续。",
+        file: "content/claude-sonnet-5-claude-code.md",
+        image: "assets/mindmaps/claude-sonnet-5-claude-code.png"
       },
       {
         slug: "claude-fable-5-claude-code-prompt-framework",
         title: "Claude Fable 5 / Claude Code",
         heading: "Claude Fable 5 / Claude Code",
-        family: "Anthropic",
-        badge: "工程基线",
+        group: "Anthropic systems",
+        family: "Anthropic · Claude",
+        badge: "Engineering Loop",
         latest: false,
-        snapshot: "已按 2026-07-12 源快照复核",
-        meta: "工作区证据、工程执行、验证、Git 边界",
+        snapshot: "源快照 · 2026-07-30",
+        meta: "Harness、memory、scratchpad、工程闭环与时间型工具",
+        learningPath: "沿 Harness 走完工作区取证、执行、验证和交付闭环。",
         file: "content/claude-fable-5-claude-code-prompt-framework.md",
         image: "assets/mindmaps/claude-fable-5-claude-code-prompt-framework.png"
+      },
+      {
+        slug: "claude-opus-5-claude-code",
+        title: "Claude Opus 5 / Claude Code",
+        heading: "Claude Opus 5 / Claude Code",
+        group: "Anthropic systems",
+        family: "Anthropic · Claude",
+        badge: "Two Surfaces",
+        latest: true,
+        snapshot: "源快照 · 2026-07-30",
+        meta: "Claude.ai 行为与记忆，加上 Claude Code 交付、纠错和工具层",
+        learningPath: "先分清 Claude.ai 与 Claude Code，再比较两种 memory 和 source authority。",
+        file: "content/claude-opus-5-claude-code.md",
+        image: "assets/mindmaps/claude-opus-5-claude-code.png"
+      },
+      {
+        slug: "claude-design-skills",
+        title: "Claude Design Skills",
+        heading: "Claude Design Skills",
+        group: "Anthropic systems",
+        family: "Anthropic · Design",
+        badge: "Design Runtime",
+        latest: true,
+        snapshot: "源快照 · 2026-07-30",
+        meta: "Design Components、22 个 Skills、starter components 与工程 handoff",
+        learningPath: "从交付物路由到组件、skill、预览验证，再走向工程交接。",
+        file: "content/claude-design-skills.md",
+        image: "assets/mindmaps/claude-design-skills.png"
       },
       {
         slug: "grok-prompt-evolution",
         title: "Grok Prompt Evolution",
         heading: "Grok 提示词演进",
+        group: "Other model families",
         family: "xAI",
-        badge: "演进笔记",
-        latest: false,
-        snapshot: "已按 2026-07-12 源快照复核",
-        meta: "X/web、工具注册、render、多 agent、sandbox",
+        badge: "Grok 4.5",
+        latest: true,
+        snapshot: "源快照 · 2026-07-30",
+        meta: "X/web、连接器发现、memory、sandbox、image 与 render 路由",
+        learningPath: "顺着版本演进看工具注册怎样变成完整产品运行时。",
         file: "content/grok-prompt-evolution.md",
         image: "assets/mindmaps/grok-prompt-evolution.png"
       },
@@ -500,15 +627,39 @@
         slug: "gemini-prompt-family",
         title: "Gemini Prompt Family",
         heading: "Gemini 提示词家族",
+        group: "Other model families",
         family: "Google",
-        badge: "家族笔记",
+        badge: "Web UI Family",
         latest: false,
-        snapshot: "已按 2026-07-12 源快照复核",
-        meta: "Pro gate、Flash Web UI、Nano Banana API",
+        snapshot: "源快照 · 2026-07-30",
+        meta: "Pro gate、Flash 事实工具与 Web UI、Nano Banana 图像契约",
+        learningPath: "先看总控 gate，再把事实工具、Web 组件和图像执行连成一条链。",
         file: "content/gemini-prompt-family.md",
         image: "assets/mindmaps/gemini-prompt-family.png"
       }
     ];
+
+    const groupDefinitions = [
+      {
+        name: "OpenAI runtimes",
+        title: "OpenAI Runtimes",
+        description: "先学 source routing，再看完整工作区 agent 如何持续执行。"
+      },
+      {
+        name: "Anthropic systems",
+        title: "Anthropic Systems",
+        description: "比较助手行为、Claude Code runtime 与可执行设计 skills。"
+      },
+      {
+        name: "Other model families",
+        title: "Other Model Families",
+        description: "观察 X/web 产品工具和 Gemini Web UI 编排的不同路线。"
+      }
+    ];
+
+    const legacyRoutes = {
+      "claude-sonnet-5-claude-code-2.1.207": "claude-sonnet-5-claude-code"
+    };
 
     const app = document.getElementById("app");
     const currentLabel = document.getElementById("currentLabel");
@@ -564,6 +715,29 @@
       return `${routeBase()}notes/${note.slug}/`;
     }
 
+    function renderCard(note) {
+      return `
+        <a class="note-card" data-latest="${note.latest}" href="${noteHref(note)}">
+          <div class="card-topline">
+            <span class="family-tag">${escapeHtml(note.family)}</span>
+            <span class="status-badge">${escapeHtml(note.badge)}</span>
+          </div>
+          <div class="card-copy">
+            <h2>${escapeHtml(note.title)}</h2>
+            <p>${escapeHtml(note.meta)}</p>
+          </div>
+          <div class="card-snapshot">${escapeHtml(note.snapshot)}</div>
+        </a>
+      `;
+    }
+
+    function redirectLegacyRoute(slug) {
+      const target = legacyRoutes[slug];
+      if (!target) return false;
+      location.replace(`${routeBase()}notes/${target}/`);
+      return true;
+    }
+
     function redirectLegacyHash() {
       if (onNotesPath() || !location.hash) return false;
       const legacySlug = location.hash.replace(/^#/, "");
@@ -579,25 +753,28 @@
       homeLink.href = "./";
       app.innerHTML = `
         <section class="home-hero">
-          <div class="home-kicker">Learning Snapshot · 2026-07-12</div>
+          <div class="home-kicker">Learning Snapshot · 2026-07-30</div>
           <h1>AI Prompt Atlas</h1>
           <p>模型提示词、Agent Runtime 与 Skills 学习图谱</p>
         </section>
-        <section class="note-grid" aria-label="学习笔记列表">
-          ${notes.map(note => `
-            <a class="note-card" data-latest="${note.latest}" href="${noteHref(note)}">
-              <div class="card-topline">
-                <span class="family-tag">${escapeHtml(note.family)}</span>
-                <span class="status-badge">${escapeHtml(note.badge)}</span>
+        <div class="snapshot-band" aria-label="快照信息">
+          <span><strong>2026-07-30</strong>当前学习快照</span>
+          <span><strong>8 份学习图谱</strong>图片 + 原文式笔记</span>
+          <span><strong>Source-pinned</strong>固定来源快照</span>
+        </div>
+        <div class="note-groups">
+          ${groupDefinitions.map(group => `
+            <section class="note-group" aria-labelledby="${group.name.replaceAll(" ", "-")}">
+              <header class="group-heading">
+                <h2 id="${group.name.replaceAll(" ", "-")}">${escapeHtml(group.title)}</h2>
+                <p>${escapeHtml(group.description)}</p>
+              </header>
+              <div class="note-grid">
+                ${notes.filter(note => note.group === group.name).map(renderCard).join("")}
               </div>
-              <div class="card-copy">
-                <h2>${escapeHtml(note.title)}</h2>
-                <p>${escapeHtml(note.meta)}</p>
-              </div>
-              <div class="card-snapshot">${escapeHtml(note.snapshot)}</div>
-            </a>
+            </section>
           `).join("")}
-        </section>
+        </div>
       `;
     }
 
@@ -621,6 +798,10 @@
             <img src="${asset(note.image)}" alt="${escapeHtml(note.heading)} 学习图谱">
             <figcaption>学习图谱用于先建立整体结构，下面的 Markdown 负责展开细节。</figcaption>
           </figure>
+          <div class="learning-path">
+            <strong>阅读路径</strong>
+            <span>${escapeHtml(note.learningPath)}</span>
+          </div>
           <article class="article">
             <div class="empty">正在加载 Markdown。</div>
           </article>
@@ -649,36 +830,28 @@
           <p>当前路由：${escapeHtml(slug || "(empty)")}</p>
         </section>
         <section class="note-grid">
-          ${notes.map(note => `
-            <a class="note-card" data-latest="${note.latest}" href="${noteHref(note)}">
-              <div class="card-topline">
-                <span class="family-tag">${escapeHtml(note.family)}</span>
-                <span class="status-badge">${escapeHtml(note.badge)}</span>
-              </div>
-              <div class="card-copy">
-                <h2>${escapeHtml(note.title)}</h2>
-                <p>${escapeHtml(note.meta)}</p>
-              </div>
-              <div class="card-snapshot">${escapeHtml(note.snapshot)}</div>
-            </a>
-          `).join("")}
+          ${notes.map(renderCard).join("")}
         </section>
       `;
     }
 
     const slug = currentSlug();
-    const note = notes.find(item => item.slug === slug);
 
     window.addEventListener("hashchange", redirectLegacyHash);
 
     if (redirectLegacyHash()) {
       // Navigation continues through location.replace.
+    } else if (redirectLegacyRoute(slug)) {
+      // Stable route navigation continues through location.replace.
     } else if (!slug) {
       renderHome();
-    } else if (note) {
-      renderNote(note);
     } else {
-      renderNotFound(slug);
+      const note = notes.find(item => item.slug === slug);
+      if (note) {
+        renderNote(note);
+      } else {
+        renderNotFound(slug);
+      }
     }
   </script>
 </body>

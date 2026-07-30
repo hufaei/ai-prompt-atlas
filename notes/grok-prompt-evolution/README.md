@@ -1,8 +1,8 @@
 # Grok Prompt Evolution Notes
 
-这份笔记用于复习本地仓库里的 Grok 系列提示词演进。它不是官方模型说明，而是基于 `grok-3`、`grok-4`、`grok-4.1-beta`、`grok-4.2`、`grok-4.3-beta` 的 prompt engineering 学习整理。
+这份笔记用于复习固定源快照里的 Grok 系列提示词演进。它不是官方模型说明，而是基于 `grok-3` 到当前 `grok-4.5` 的 prompt engineering 学习整理。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@5c86715f453f0eca188451a48bf5b165831d8b29`（2026-07-12）复核。本页保留版本演进作为理解工具注册方式的背景，但当前结论以该源快照为准。
+> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。本页保留版本演进作为理解工具注册方式的背景，但当前结论以该源快照为准。
 
 ## 一句话核心
 
@@ -41,6 +41,31 @@ Grok 4.2 把 Grok 设定为 team leader，并给它 `chatroom_send` 和 `wait` �
 Grok 4.3 beta 去掉了 4.2 的 team leader 设定，改成 remote sandbox runtime。它声明 sandbox 不是用户本地电脑，并提供 web/X/image/file/bash/render/skills。
 
 这一步明显往 agent runtime 靠近：能读写文件、跑 bash、处理图片、渲染文件、调用文档类 skills。但它仍然缺少 Claude Code 那种清晰的任务列表、测试验证、Git 边界和完成标准。
+
+### Grok 4.5：产品工具、连接器、记忆与沙箱合流
+
+Grok 4.5 保留远程 sandbox，但把产品运行时扩展得更完整：
+
+- X 仍然是一等来源：keyword、semantic、user、thread 和 video 各有独立工具。
+- `search_connected_tools` 与 `call_connected_tool` 形成“先发现 schema、再调用”的两步连接器协议。
+- `edit_memory` 与注入的 User Info / Memories 把持久个性化变成显式层。
+- `read_file`、`edit_file`、`write_file`、`bash` 组成远程文件与代码执行面。
+- 图片搜索、生成和编辑同时存在，但简单的一次性请求优先走 render component；需要插入文档或继续迭代时才保存成文件。
+- Render Components 不只展示图片，还负责 citation、searched/generated/edited image 与 file preview。
+- Skills 出现在工具和用户上下文之间，表明专用文档/媒体工作流会进一步约束执行顺序。
+
+这次升级最值得学的是两种**先发现、再执行**的路由：
+
+```text
+Connected service:
+search_connected_tools -> inspect exact schema -> call_connected_tool
+
+Generated visual:
+one-shot user preview -> render component
+project asset or iterative edit -> generate/edit tool -> saved file -> render
+```
+
+它比“看到 Gmail 就直接猜一个参数调用”更可靠，也比所有图片请求都保存到 sandbox 更符合产品体验。
 
 ## 为什么表现可能不稳
 
@@ -91,7 +116,7 @@ Grok teaches product capability registration.
 
 ## 原文式可复用模板：Product + Tool + Render Runtime
 
-这份母版沿用 Grok 4.3 Beta 的产品提示词形态：基础行为之后直接描述远程环境，再注册工具、渲染组件和 skills。具体的 X 搜索、图像、文件与沙箱函数被替换成同位置的通用槽位。
+这份母版沿用 Grok 4.5 的产品提示词形态：基础行为之后直接描述远程环境，再注册工具、渲染组件、skills、用户信息和 memory。具体的 X 搜索、连接器、图像、文件与沙箱函数被替换成同位置的通用槽位。
 
 ```text
 You are {{ASSISTANT_NAME = ...}}, built by {{PROVIDER = ...}}.
@@ -203,6 +228,25 @@ A selected skill governs the ordered workflow for its domain. Load it before act
 use its bundled resources, and report a real blocker if a required resource or
 permission is absent.
 
+## User Info
+
+Injected user fields: {{USER_INFO_FIELDS = ...}}
+Relevance gate: {{USER_INFO_RELEVANCE_GATE = ...}}
+Sensitive-field policy: {{USER_INFO_SENSITIVE_POLICY = ...}}
+
+User information is irrelevant to most requests. Apply it only when it materially
+improves the current answer, and never expose internal profile mechanics.
+
+## Memories
+
+Memory location and format: {{MEMORY_STORE = ...}}
+Allowed durable facts: {{MEMORY_WRITE_CRITERIA = ...}}
+Duplicate/update/delete behavior: {{MEMORY_MUTATION_RULES = ...}}
+Application gate: {{MEMORY_APPLICATION_GATE = ...}}
+
+Do not use memory as the source of truth for a connected service, document, file,
+or current external fact. Route those through their dedicated tools.
+
 ## Completion behavior
 
 Before final output, verify tool-created files or remote state through
@@ -220,13 +264,17 @@ uncertainty, and avoid exposing raw function arguments or internal coordination.
 6. 多 agent 结果由谁去重、验证和裁决？
 7. 文件/代码任务有没有补上测试、Git 和交付闭环？
 8. render 组件是在增加可检查性，还是只是展示产品能力？
+9. 用户信息和 memory 是否真的改变答案，还是只是表演式个性化？
+10. 图片请求应该直接 render，还是需要先保存为项目资产？
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `5c86715f453f0eca188451a48bf5b165831d8b29`：
+以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
 
-- [Grok 3](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/xAI/grok-3.md)
-- [Grok 4](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/xAI/grok-4.md)
-- [Grok 4.1 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/xAI/grok-4.1-beta.md)
-- [Grok 4.2](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/xAI/grok-4.2.md)
-- [Grok 4.3 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/xAI/grok-4.3-beta.md)
+- [Grok 3](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-3.md)
+- [Grok 4](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.md)
+- [Grok 4.1 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.1-beta.md)
+- [Grok 4.2](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.2.md)
+- [Grok 4.3 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.3-beta.md)
+- [Grok 4.5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.5.md)
+- [Grok Build](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-build.md)

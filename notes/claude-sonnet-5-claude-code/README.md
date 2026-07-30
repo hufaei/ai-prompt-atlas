@@ -1,17 +1,17 @@
-# Claude Sonnet 5 / Claude Code 2.1.207 Notes
+# Claude Sonnet 5 / Claude Code Notes
 
-这份笔记把 Claude Sonnet 5 的通用助手提示词，与 Claude Code 在 2.1.207 快照附近出现的 skills、配置诊断、代码评审和上下文压缩协议组合起来学习。它不是官方模型说明，也不是完整产品文档，而是可复习、可迁移的 prompt engineering 快照。
+这份笔记把 Claude Sonnet 5 的通用助手提示词，与当前 Claude Code Sonnet 5 的系统、auto memory、agents、skills、工具注册表和上下文协议组合起来学习。它不是官方模型说明，也不是完整产品文档，而是可复习、可迁移的 prompt engineering 快照。
 
-> 源快照：`asgeirtj/system_prompts_leaks@5c86715f453f0eca188451a48bf5b165831d8b29`（2026-07-12）。仓库没有一份名为“Claude Code 2.1.207 完整基础提示词”的单文件；2.1.207 在这里主要由 compact/rewind/continuation 增量材料体现，基础工程 agent 结构则参考已有 Claude Code 与 bundled skills。
+> 源快照：`asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）。本页按稳定主题维护，不再把路由绑定到某个 Claude Code 小版本；旧的 `2.1.207` 页面地址只作为兼容入口。
 
 ## 一句话核心
 
-Claude Sonnet 5 提供 **通用助手底座**，Claude Code 用 **工作区与 skills** 把它变成工程执行代理，而 2.1.207 的 compact 协议让长任务在上下文切换后仍能保持用户意图、技术状态和安全边界。
+Claude Sonnet 5 提供 **通用助手底座**；当前 Claude Code Sonnet 5 用 **工作区、auto memory、agents、skills 与工具契约** 把它变成能持续执行的工程代理。
 
 ```text
 Sonnet defines the assistant baseline.
-Claude Code turns playbooks into execution.
-Compact preserves continuity across context boundaries.
+Claude Code composes memory, workspace state, skills, and tools.
+Evidence and context management preserve continuity.
 ```
 
 ## 两层理解：Assistant Base + Coding Runtime
@@ -19,10 +19,39 @@ Compact preserves continuity across context boundaries.
 | 层 | 主要材料 | 解决的问题 |
 | --- | --- | --- |
 | Sonnet 5 通用助手层 | `claude-sonnet-5.md` | 身份、当前事实、工具使用、安全、记忆、连接器、Artifacts、视觉和输出 |
-| Claude Code 工程层 | Claude Code prompts + bundled skills | 工作区证据、配置、诊断、评审、Git、执行和验证 |
-| 2.1.207 上下文层 | compact、rewind、continuation | 长会话压缩、局部回退、续作状态与消息归属 |
+| Claude Code Sonnet 5 工程层 | `claude-code-sonnet-5.md` + bundled skills | 做任务、谨慎执行、auto memory、scratchpad、agents、skills、tools 与验证 |
 
-把三层混成一份“大 prompt”会失去学习重点。更好的方式是问：**这一条规则是在塑造助手、扩展工程能力，还是维持长任务连续性？**
+把两层混成一份“大 prompt”会失去学习重点。更好的方式是问：**这一条规则是在塑造助手，还是在约束一个有状态的工程运行时？**
+
+## 当前 Claude Code Sonnet 5 的运行时骨架
+
+当前文件开头不再只是“你是一个 coding agent”，而是依次建立：
+
+1. `System`：身份、授权安全测试边界和 URL 约束。
+2. `Doing tasks`：读懂目标、在信息足够时推进、完成真实产出。
+3. `Executing actions with care`：区分本地可逆动作与影响共享系统的动作。
+4. `Using your tools`：工具调用要服务于任务，不把工具存在当作授权。
+5. `Tone and style`：输出短、直接、适合终端阅读。
+6. `auto memory`：按类型保存跨会话稳定事实，并限制不该保存的内容。
+7. `Environment` 与 `Scratchpad Directory`：把持久工作区和临时文件位置分开。
+8. `Context management`：长任务接近上下文边界时保存可继续执行的状态。
+9. `Agents`、`Skills`、`Tools`：把能力注册成可路由的运行时模块。
+
+这说明 Claude Code 的核心已经不是一段“编程风格”，而是**有记忆、有临时区、有上下文迁移、有能力目录的任务执行系统**。
+
+### Auto memory 不是普通聊天记忆
+
+当前 Sonnet 5 文件把记忆按项目、反馈、用户、参考资料等类型组织，并明确规定什么不应写入、怎样保存、什么时候读取，以及在推荐前怎样重新核实。可复用的重点是：
+
+```text
+Store durable facts with provenance and scope.
+Do not turn transient task state, sensitive material, or guesses into memory.
+Before applying memory to a recommendation, verify that it is still relevant.
+```
+
+### Scratchpad 把临时产物从工作区剥离
+
+临时抓取、解析中间件和可丢弃文件被要求进入 session-specific scratchpad，而不是污染仓库或通用 `/tmp`。这是一条很实用的工程边界：**持久产物、用户项目和执行临时态必须有不同生命周期**。
 
 ## Sonnet 5：通用助手底座
 
@@ -134,7 +163,7 @@ Define review scope
 
 这对学习导图尤其重要：包含精确术语时，应优先确定性 SVG/HTML 排版；需要氛围、场景或插画时，再使用生成式图像。工具选择应服从信息准确性。
 
-## 2.1.207 Compact：长任务的状态转移协议
+## Compact：长任务的状态转移协议
 
 上下文压缩不是普通摘要。它要把旧会话转成下一段执行可以直接使用的状态。
 
@@ -152,7 +181,7 @@ Define review scope
 
 ### Fake-user-turn 防护
 
-2.1.207 的 compact 材料特别强调消息归属：只有真正的 user-role turn 才能被列为用户请求；assistant 自己引用的 `user:`、`Human:` 或示例对话不能被误认成授权、确认或用户要求。
+Compact 材料特别强调消息归属：只有真正的 user-role turn 才能被列为用户请求；assistant 自己引用的 `user:`、`Human:` 或示例对话不能被误认成授权、确认或用户要求。
 
 这是非常关键的安全原则：**摘要不只是压缩信息，也必须保存 provenance。**
 
@@ -326,10 +355,12 @@ the unfinished task is complete.
 
 ## 和 Fable 5 / Claude Code 基线的差异
 
-| 维度 | Fable 5 / Claude Code 基线 | Sonnet 5 + Claude Code 2.1.207 快照 |
+| 维度 | Fable 5 / Claude Code 基线 | 当前 Sonnet 5 / Claude Code |
 | --- | --- | --- |
 | 主体 | 工程执行代理 | 通用助手底座 + 模块化工程工作流 |
 | 工具观 | Read/Grep/Edit/Bash/Agent 等工程工具 | tools + bundled skills + connectors + artifacts |
+| 记忆 | 简洁 memory 文件约定 | auto memory 类型、禁写项、读取与推荐前复核 |
+| 临时态 | 工作区与环境 | 独立 scratchpad directory |
 | 配置 | Git 与权限是边界 | 增加 scope、hooks、permissions、doctor 的专门协议 |
 | 评审 | 作为工程任务之一 | effort 显式控制召回率与验证强度 |
 | 视觉 | 浏览器结果与产物检查 | Visualizer、dataviz、artifact design 分工更细 |
@@ -340,7 +371,7 @@ the unfinished task is complete.
 
 ## 复习问题
 
-1. 当前规则属于 Sonnet 助手底座、Claude Code 工程层，还是 compact 上下文层？
+1. 当前规则属于 Sonnet 助手底座，还是 Claude Code 工程运行时？
 2. 这是稳定知识还是需要搜索核验的当前事实？
 3. 哪个 workspace 证据能证明问题和改动？
 4. 是否已有匹配任务的 skill？它的 gate 和 definition of done 是什么？
@@ -353,15 +384,15 @@ the unfinished task is complete.
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `5c86715f453f0eca188451a48bf5b165831d8b29`：
+以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
 
-- [Claude Sonnet 5 通用助手提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/claude-sonnet-5.md)
-- [Claude Code Fable 5 基线（2.1.172）](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/claude-code-2.1.172-fable-5.md)
-- [Compact bundled skill](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/bundled-skills/compact.md)
-- [2.1.207 rewind summarization](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/compact-rewind-summarization-2.1.207.md)
-- [2.1.207 continuation message](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/compact-continuation-message-2.1.207.md)
-- [`update-config` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/bundled-skills/update-config.md)
-- [`doctor` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/bundled-skills/doctor/SKILL.md)
-- [`code-review` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/bundled-skills/code-review.md)
-- [`dataviz` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/bundled-skills/dataviz/SKILL.md)
-- [`artifact-design` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/bundled-skills/artifact-design.md)
+- [Claude Sonnet 5 通用助手提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/claude-sonnet-5.md)
+- [Claude Code Sonnet 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-sonnet-5.md)
+- [Compact slash command](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/slash-commands/compact.md)
+- [Compact rewind summarization](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/slash-commands/compact-rewind-summarization.md)
+- [Compact continuation message](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/slash-commands/compact-continuation-message.md)
+- [`update-config` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/update-config.md)
+- [`doctor` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/doctor.md)
+- [`code-review` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/code-review/SKILL.md)
+- [`dataviz` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/dataviz/SKILL.md)
+- [`artifact-design` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/artifacts/artifact-design.md)

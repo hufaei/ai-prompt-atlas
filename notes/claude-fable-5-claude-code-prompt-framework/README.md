@@ -1,8 +1,8 @@
 # Claude Fable 5 / Claude Code Prompt Framework Notes
 
-这份笔记用于复习 Claude Fable 5 风格的 Claude Code 系统提示词。它不是官方模型说明，而是基于本地提示词材料压缩出的 prompt engineering 学习模板。
+这份笔记用于复习当前 Claude Fable 5 与 Claude Code Fable 5 系统提示词。它不是官方模型说明，而是基于固定源快照整理出的 prompt engineering 学习模板。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@5c86715f453f0eca188451a48bf5b165831d8b29`（2026-07-12）复核。原有工程闭环和九步模板完整保留；更新重点是把本页定位为 Claude Code 的工程 agent 基线。
+> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。原文式 Claude Code Harness 母版完整保留；当前补充重点是 memory、scratchpad、cron、DesignSync 和完整工具目录。
 
 ## 一句话核心
 
@@ -171,6 +171,42 @@ limits. Do not claim success from a plan, an agent report, or an uninspected dif
 6. Git 是独立边界：commit 和 push 只在用户明确要求时执行。
 7. 多 agent 是扩展能力：适合广泛搜索、并行审查和大规模迁移，但不应代替主 agent 的最终判断。
 
+## 当前 Fable 5 Runtime：从工程闭环到有状态执行
+
+当前 `claude-code-fable-5.md` 仍然以 `Harness` 与 `Communicating with the user` 开始，但运行时已经比旧版工程骨架更完整：
+
+| 层 | 当前结构 | 学习重点 |
+| --- | --- | --- |
+| 会话 | Session guidance、Environment、gitStatus、claudeMd、currentDate | 当前项目事实必须来自注入状态，而不是模型臆测 |
+| 记忆 | Memory | 保存跨会话稳定事实，同时保留来源、原因与应用方式 |
+| 临时态 | Scratchpad Directory | 临时文件进入会话专用目录，不污染仓库 |
+| 上下文 | Context management | 长任务保存目标、决策、验证与未完成工作 |
+| 协作 | Agent、Task、SendMessage、ReportFindings | 拆分任务但保留主代理的整合责任 |
+| 时间 | Cron、Monitor、ScheduleWakeup、RemoteTrigger | 定时、持续观察和远程触发是不同契约 |
+| 设计 | Artifact、DesignSync、NotebookEdit | 代码之外的产物也有创建、同步和验证路径 |
+| 工程工具 | Bash、Read、Edit、Write、WebFetch、WebSearch、Workflow | 每类事实和副作用绑定到专用工具 |
+
+### Memory：记录的不只是事实
+
+当前 Claude Code Fable 5 的 memory 格式要求：反馈和项目记忆不仅写“是什么”，还要写 `Why` 与 `How to apply`，相关记忆可以互相链接。它把记忆从便签变成**带适用条件的工程知识**。
+
+### Scratchpad：临时态必须有生命周期
+
+源提示词明确给出会话 scratchpad，并要求临时文件进入该目录。可复用含义是：不要把下载文件、解析中间产物、截图或一次性脚本混进用户项目；任务完成后，哪些是交付物、哪些可丢弃，应当一眼可分。
+
+### Cron、Monitor 与 ScheduleWakeup 不是一回事
+
+- Cron：在明确时间点运行一次或周期任务。
+- Monitor：持续观察某个外部状态。
+- ScheduleWakeup：让当前会话在未来继续。
+- RemoteTrigger：与外部触发源建立约定。
+
+把它们都抽象成“稍后再做”会丢失触发条件、生命周期和所有权，这是设计 agent runtime 时容易忽略的差别。
+
+### DesignSync：设计状态也是工作区证据
+
+DesignSync 说明当前运行时不仅处理代码和文本，还可能把设计工具状态同步进任务上下文。它应该和 Git、文件、浏览器一样被当作一种 source of truth：要读取真实状态、精确修改、再验证用户看到的结果。
+
 ## 和 GPT-5.5 框架的差异
 
 | 维度 | GPT-5.5 风格 | Fable 5 / Claude Code 风格 |
@@ -204,13 +240,13 @@ Fable 5 / Claude Code: drive the engineering task through workspace evidence, ed
 
 Fable 5 在 Claude Code 场景里的重点是更强的 agent 行为：能做就做，少问阻塞式问题；对可逆动作保持推进；对破坏性、外部发布、权限、Git 操作保持边界。它把“代码助手”进一步推向“工程执行代理”。
 
-## 和当前 Sonnet 5 / 2.1.207 快照的关系
+## 和当前 Sonnet 5 / Claude Code 快照的关系
 
-本页最适合学习“工程任务怎样闭环”：工作区取证、保守编辑、验证、Git 边界和交付。新的 [Claude Sonnet 5 / Claude Code 2.1.207](../claude-sonnet-5-claude-code-2.1.207/) 笔记则把视角扩大到通用助手底座、bundled skills、配置诊断、评审 effort 和 compact 上下文续作。
+本页最适合学习“工程任务怎样闭环”：工作区取证、保守编辑、验证、Git 边界和交付。[Claude Sonnet 5 / Claude Code](../claude-sonnet-5-claude-code/) 笔记则把视角扩大到通用助手底座、auto memory、bundled skills、配置诊断、评审 effort 和 compact 上下文续作。
 
 ```text
 Fable 5 baseline = drive the engineering task to completion.
-Sonnet 5 + Claude Code 2.1.207 snapshot = compose assistant behavior,
+Sonnet 5 + current Claude Code = compose assistant behavior,
 specialized skills, and context continuity around that completion loop.
 ```
 
@@ -226,9 +262,9 @@ specialized skills, and context continuity around that completion loop.
 
 ## 来源索引
 
-以下链接固定到本笔记复核时使用的源快照 `5c86715f453f0eca188451a48bf5b165831d8b29`：
+以下链接固定到本笔记复核时使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
 
-- [Claude Code 2.1.172 Fable 5](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/claude-code-2.1.172-fable-5.md)
-- [Claude Code Opus 4.6](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/claude-code-opus-4.6.md)
-- [Claude Code Opus 4.8](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/Claude%20Code/claude-code-opus-4.8.md)
-- [Claude Sonnet 5](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Anthropic/claude-sonnet-5.md)
+- [Claude Fable 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/claude-fable-5.md)
+- [Claude Code Fable 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-fable-5.md)
+- [Claude Code Opus 4.6](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-opus-4.6.md)
+- [Claude Code Opus 4.8](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-opus-4.8.md)

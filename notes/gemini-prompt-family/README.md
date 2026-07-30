@@ -2,7 +2,7 @@
 
 这份笔记用于复习本地仓库里的 Gemini 3 系列与 Nano Banana 2 API。它不是官方模型说明，而是基于 `gemini-3.1-pro`、`gemini-3.5-flash`、`nano-banana-2-api` 的 prompt engineering 学习整理。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@5c86715f453f0eca188451a48bf5b165831d8b29`（2026-07-12）复核。正文的三层分工、可复用模板和复习问题完整保留；来源统一改为可在线审查的固定链接。
+> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。正文的三层分工、可复用模板和复习问题完整保留；当前 Flash 的 Python、Web、Workspace 与 YouTube 工具契约已纳入。
 
 ## 一句话核心
 
@@ -225,6 +225,42 @@ Answer first, then render the answer into the right Web component only when the 
 Pro decides whether a response should become visual or interactive.
 Flash decides how to safely render that response in a Web UI.
 ```
+
+### 当前 Flash 的四类事实工具
+
+当前 `gemini-3.5-flash.md` 在 UI 组件与上下文之后追加了四个实际工具 schema。它们让“Web UI 执行 prompt”不只负责渲染，也能先取得不同类型的证据：
+
+| 工具 | 权威范围 | 关键输入 |
+| --- | --- | --- |
+| `google:ds_python_interpreter` | 隔离 Linux 容器中的计算、数据分析与算法脚本 | 精确 Python `code` |
+| `google:search` | 需要最新知识或事实核验的公开 Web | `queries` 数组 |
+| `gemkick_corpus:search` | 用户 Google Workspace 内容，目前明确为 Gmail / Google Drive | 自然语言 `query`，可选 `corpus` |
+| `youtube:search` | 视频、频道或播放列表发现 | `query`，可选 `result_type` |
+
+这四种工具不能互相替代：
+
+```text
+Calculation or data transformation -> Python interpreter
+Current public fact -> Google Search
+User email or Drive file -> Workspace corpus
+Video/channel/playlist discovery -> YouTube Search
+```
+
+尤其值得注意的是 Workspace 工具：查询词应只包含与邮件或文件有关的信息；对话历史里的关键词只有在真的帮助检索时才带入。它把“利用上下文”限制在源权威范围内，避免把无关个人信息拼进检索。
+
+### 从事实工具到 UI 组件
+
+当前 Flash 更完整的链路是：
+
+```text
+识别问题需要哪类事实
+-> 调用对应 source-specific tool
+-> 取得并压缩证据
+-> 先给核心答案
+-> 只有结构或视觉真的增益理解时，再选择 LMDX 组件
+```
+
+也就是说，`<Image>`、`<Timeline>`、`<Sequence>` 和 `<GenerateWidget>` 是展示层，不是事实来源。先选组件再反推内容，会把 UI 语法误当成 reasoning。
 
 ## Nano Banana 2 API：图像执行契约
 
@@ -478,11 +514,13 @@ Gemini is not only answering; it is deciding the presentation surface.
 7. 这是图片生成任务，还是交互教学任务？
 8. 组件输出是否遵守语法边界？
 9. 有没有版权、隐私、敏感数据或事实来源边界？
+10. 当前事实应该走 Web、Workspace、YouTube 还是 Python？
+11. 组件展示是否建立在已取得的证据上？
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `5c86715f453f0eca188451a48bf5b165831d8b29`：
+以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
 
-- [Gemini 3.1 Pro](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Google/gemini-3.1-pro.md)
-- [Gemini 3.5 Flash](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Google/gemini-3.5-flash.md)
-- [Nano Banana 2 API](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/Google/nano-banana-2-api.md)
+- [Gemini 3.1 Pro](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Google/gemini-3.1-pro.md)
+- [Gemini 3.5 Flash](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Google/gemini-3.5-flash.md)
+- [Nano Banana 2 API](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Google/nano-banana-2-api.md)

@@ -14,8 +14,8 @@
       </style>
       <rect width="1600" height="900" fill="rgba(255,255,255,0.40)"/>
       <rect x="46" y="38" width="1508" height="128" rx="28" fill="rgba(255,255,255,0.88)" stroke="#d8d5cc"/>
-      <text x="80" y="95" class="title" text-anchor="start">GPT-5.6 / Codex Runtime 学习图谱</text>
-      <text x="82" y="134" class="subtitle" text-anchor="start">行为定协作，Runtime 定能力，授权定动作，验证定完成</text>
+      <text x="80" y="95" class="title" text-anchor="start">Grok Prompt Evolution 学习图谱</text>
+      <text x="82" y="134" class="subtitle" text-anchor="start">从产品能力清单演进为 X / Web / 连接器 / Memory / Sandbox Runtime</text>
       <line x1="70" y1="374" x2="1490" y2="374" stroke="#c7d0da" stroke-width="2"/>
       <path d="M 290 374 L 310 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 530 374 L 550 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 770 374 L 790 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 1010 374 L 1030 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 1250 374 L 1270 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/>
       
@@ -24,17 +24,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#7399d1" stroke-width="2"/>
         <circle cx="102" cy="264" r="18" fill="#eaf2ff" stroke="#7399d1" stroke-width="2"/>
         <text x="102" y="271" class="index" text-anchor="middle">1</text>
-        <text x="132" y="273" class="node-title" text-anchor="start">行为层</text>
+        <text x="132" y="273" class="node-title" text-anchor="start">基础与安全</text>
         <line x1="92" y1="306" x2="268" y2="306" stroke="#7399d1" opacity="0.38"/>
         
         <circle cx="97" cy="347" r="4" fill="#7399d1"/>
-        <text x="112" y="353" class="bullet" text-anchor="start">Personality</text>
+        <text x="112" y="353" class="bullet" text-anchor="start">同语言回应</text>
       
         <circle cx="97" cy="395" r="4" fill="#7399d1"/>
-        <text x="112" y="401" class="bullet" text-anchor="start">commentary / final</text>
+        <text x="112" y="401" class="bullet" text-anchor="start">能力与不确定性</text>
       
         <circle cx="97" cy="443" r="4" fill="#7399d1"/>
-        <text x="112" y="449" class="bullet" text-anchor="start">协作主体</text>
+        <text x="112" y="449" class="bullet" text-anchor="start">高优先级安全壳</text>
       
       </g>
     
@@ -43,17 +43,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#6fa991" stroke-width="2"/>
         <circle cx="342" cy="264" r="18" fill="#e9f6f1" stroke="#6fa991" stroke-width="2"/>
         <text x="342" y="271" class="index" text-anchor="middle">2</text>
-        <text x="372" y="273" class="node-title" text-anchor="start">授权层</text>
+        <text x="372" y="273" class="node-title" text-anchor="start">环境与上下文</text>
         <line x1="332" y1="306" x2="508" y2="306" stroke="#6fa991" opacity="0.38"/>
         
         <circle cx="337" cy="347" r="4" fill="#6fa991"/>
-        <text x="352" y="353" class="bullet" text-anchor="start">判断请求类型</text>
+        <text x="352" y="353" class="bullet" text-anchor="start">远程 sandbox</text>
       
         <circle cx="337" cy="395" r="4" fill="#6fa991"/>
-        <text x="352" y="401" class="bullet" text-anchor="start">自治不扩张范围</text>
+        <text x="352" y="401" class="bullet" text-anchor="start">静态目录快照</text>
       
         <circle cx="337" cy="443" r="4" fill="#6fa991"/>
-        <text x="352" y="449" class="bullet" text-anchor="start">危险动作收窄</text>
+        <text x="352" y="449" class="bullet" text-anchor="start">不是用户本机</text>
       
       </g>
     
@@ -62,17 +62,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#d7a557" stroke-width="2"/>
         <circle cx="582" cy="264" r="18" fill="#fff3df" stroke="#d7a557" stroke-width="2"/>
         <text x="582" y="271" class="index" text-anchor="middle">3</text>
-        <text x="612" y="273" class="node-title" text-anchor="start">来源与 Skills</text>
+        <text x="612" y="273" class="node-title" text-anchor="start">X / Web</text>
         <line x1="572" y1="306" x2="748" y2="306" stroke="#d7a557" opacity="0.38"/>
         
         <circle cx="577" cy="347" r="4" fill="#d7a557"/>
-        <text x="592" y="353" class="bullet" text-anchor="start">先读项目规则</text>
+        <text x="592" y="353" class="bullet" text-anchor="start">keyword / semantic</text>
       
         <circle cx="577" cy="395" r="4" fill="#d7a557"/>
-        <text x="592" y="401" class="bullet" text-anchor="start">完整读取 Skill</text>
+        <text x="592" y="401" class="bullet" text-anchor="start">user / thread / video</text>
       
         <circle cx="577" cy="443" r="4" fill="#d7a557"/>
-        <text x="592" y="449" class="bullet" text-anchor="start">复用模板资源</text>
+        <text x="592" y="449" class="bullet" text-anchor="start">网页与图片搜索</text>
       
       </g>
     
@@ -81,17 +81,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#9b84cf" stroke-width="2"/>
         <circle cx="822" cy="264" r="18" fill="#f1edff" stroke="#9b84cf" stroke-width="2"/>
         <text x="822" y="271" class="index" text-anchor="middle">4</text>
-        <text x="852" y="273" class="node-title" text-anchor="start">Runtime</text>
+        <text x="852" y="273" class="node-title" text-anchor="start">连接器与记忆</text>
         <line x1="812" y1="306" x2="988" y2="306" stroke="#9b84cf" opacity="0.38"/>
         
         <circle cx="817" cy="347" r="4" fill="#9b84cf"/>
-        <text x="832" y="353" class="bullet" text-anchor="start">apps 与 tools</text>
+        <text x="832" y="353" class="bullet" text-anchor="start">先发现工具 schema</text>
       
         <circle cx="817" cy="395" r="4" fill="#9b84cf"/>
-        <text x="832" y="401" class="bullet" text-anchor="start">Shell / Web</text>
+        <text x="832" y="401" class="bullet" text-anchor="start">再执行连接器</text>
       
         <circle cx="817" cy="443" r="4" fill="#9b84cf"/>
-        <text x="832" y="449" class="bullet" text-anchor="start">Browser / Computer</text>
+        <text x="832" y="449" class="bullet" text-anchor="start">User Info / Memories</text>
       
       </g>
     
@@ -100,17 +100,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#d98772" stroke-width="2"/>
         <circle cx="1062" cy="264" r="18" fill="#fff0ec" stroke="#d98772" stroke-width="2"/>
         <text x="1062" y="271" class="index" text-anchor="middle">5</text>
-        <text x="1092" y="273" class="node-title" text-anchor="start">实时语音</text>
+        <text x="1092" y="273" class="node-title" text-anchor="start">Image / Render</text>
         <line x1="1052" y1="306" x2="1228" y2="306" stroke="#d98772" opacity="0.38"/>
         
         <circle cx="1057" cy="347" r="4" fill="#d98772"/>
-        <text x="1072" y="353" class="bullet" text-anchor="start">FEM 保持响应</text>
+        <text x="1072" y="353" class="bullet" text-anchor="start">一次预览走 render</text>
       
         <circle cx="1057" cy="395" r="4" fill="#d98772"/>
-        <text x="1072" y="401" class="bullet" text-anchor="start">BEM 负责执行</text>
+        <text x="1072" y="401" class="bullet" text-anchor="start">项目资产走 tool</text>
       
         <circle cx="1057" cy="443" r="4" fill="#d98772"/>
-        <text x="1072" y="449" class="bullet" text-anchor="start">STATUS / COMPLETE</text>
+        <text x="1072" y="449" class="bullet" text-anchor="start">Citation / File</text>
       
       </g>
     
@@ -119,27 +119,27 @@
           fill="rgba(255,255,255,0.94)" stroke="#65a7b2" stroke-width="2"/>
         <circle cx="1302" cy="264" r="18" fill="#eaf6f8" stroke="#65a7b2" stroke-width="2"/>
         <text x="1302" y="271" class="index" text-anchor="middle">6</text>
-        <text x="1332" y="273" class="node-title" text-anchor="start">验证交付</text>
+        <text x="1332" y="273" class="node-title" text-anchor="start">Files / Skills</text>
         <line x1="1292" y1="306" x2="1468" y2="306" stroke="#65a7b2" opacity="0.38"/>
         
         <circle cx="1297" cy="347" r="4" fill="#65a7b2"/>
-        <text x="1312" y="353" class="bullet" text-anchor="start">保护工作区</text>
+        <text x="1312" y="353" class="bullet" text-anchor="start">read / edit / write</text>
       
         <circle cx="1297" cy="395" r="4" fill="#65a7b2"/>
-        <text x="1312" y="401" class="bullet" text-anchor="start">检查真实结果</text>
+        <text x="1312" y="401" class="bullet" text-anchor="start">bash 执行</text>
       
         <circle cx="1297" cy="443" r="4" fill="#65a7b2"/>
-        <text x="1312" y="449" class="bullet" text-anchor="start">终态才算完成</text>
+        <text x="1312" y="449" class="bullet" text-anchor="start">Skills 管工作流</text>
       
       </g>
     
       <rect x="70" y="566" width="1420" height="112" rx="22" fill="rgba(239,246,255,0.94)" stroke="#b7cbe3" stroke-width="2"/>
       <text x="100" y="603" class="band-label" text-anchor="start">REUSABLE SOURCE SHAPE</text>
-      <text x="100" y="644" class="band-copy" text-anchor="start">原结构复用：Personality → Working with the user → Rules → Destructive actions → Skills → Runtime slots</text>
+      <text x="100" y="644" class="band-copy" text-anchor="start">原结构复用：Base behavior → Environment → Context → Tools → Render components → Skills → User info → Memories</text>
       <rect x="70" y="710" width="1420" height="104" rx="22" fill="rgba(255,248,230,0.95)" stroke="#dfbf73" stroke-width="2"/>
       <circle cx="108" cy="762" r="22" fill="#fff3c9" stroke="#d7a542" stroke-width="2"/>
       <text x="108" y="771" class="hook" text-anchor="middle">!</text>
-      <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：模型提示词不是完整 Runtime；工具存在也不等于获得授权。</text>
+      <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：Grok 最值得学的是产品能力注册；最需要补的是统一的完成与验证骨架。</text>
       <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@1e82828 · 2026-07-30</text>
     </svg>
   

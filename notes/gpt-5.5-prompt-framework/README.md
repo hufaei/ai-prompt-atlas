@@ -2,7 +2,7 @@
 
 这份笔记用于复习 GPT-5.5 风格系统提示词的核心框架。它不是官方模型说明，而是一个可复用的 prompt engineering 压缩模板。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@5c86715f453f0eca188451a48bf5b165831d8b29`（2026-07-12）复核。原有九步模板完整保留；新增内容用于说明它在当前 Codex runtime 中的位置。
+> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。原文式母版完整保留；新增内容用于说明 GPT-5.5 Instant 怎样把通用框架接到用户上下文、文件检索、富响应和真实工具。
 
 ## 一句话核心
 
@@ -174,9 +174,61 @@ Final-answer verbosity: {{OUTPUT_VERBOSITY = ...}}
 Additional model-specific constraints: {{MODEL_RESPONSE_RULES = ...}}
 ```
 
+## Instant 产品层：框架怎样接入真实数据与富响应
+
+`gpt-5.5-instant.md` 展示的不是另一套抽象工程原则，而是通用判断骨架进入产品后的完整装配。当前快照可以压缩成四层：
+
+| 层 | 源中的职责 | 可复用结论 |
+| --- | --- | --- |
+| User context | User Knowledge、Recent Conversation、Model Set Context、`personal_context` | 上下文只有在改变正确答案时才使用；不要让用户重复已有事实 |
+| Source of truth | `file_search`、Gmail 或第三方连接器 | 文档、邮箱和外部应用必须回到对应专用来源，不能拿记忆代替 |
+| Response spec | image group、entity、URL citation、图像生成规则 | 富响应组件有格式、价值 gate 和禁用场景，不是装饰性输出 |
+| Tool runtime | web、python、automations、file_search、Gmail 等 | 每种能力通过用途、参数、通道和返回结构注入 |
+
+### 1. Personal context 是有 gate 的事实入口
+
+源提示词要求：建议、规划、工作项目、日程和可能被用户偏好改变的答案，应先判断用户上下文是否会 materially improve the answer。与此同时，无关记忆不能为了“显得个性化”而被硬塞进回答。
+
+这可以抽象成：
+
+```text
+Use personal context only when it changes correctness, specificity,
+or prevents an unnecessary question. Never use it as a substitute
+for a requested document or connected application.
+```
+
+### 2. 文件与连接器各自拥有 source authority
+
+当前材料把来源路由写得很硬：找用户文件就用 `file_search`；用户明确问邮箱就用 Gmail；第三方应用使用其连接器。记忆最多提示“应该去哪里查”，不能成为文档内容本身。
+
+这正是本页框架里 `Retrieval and source-of-truth layer` 的产品化实例：不是“尽量查证”，而是把每类事实绑定到指定入口。
+
+### 3. 富响应也需要完成标准
+
+Image Group、Entity 和 URL citation 都有明确语法，并且规定高价值/低价值场景。尤其值得记住的是：精确比较、数学准确、代码任务和本来就应由图表或生成工具完成的内容，不应该为了丰富版面而强插图片组。
+
+因此富响应和工具调用一样，需要回答四个问题：
+
+1. 它是否比纯文字降低理解成本？
+2. 它的结构是否满足渲染协议？
+3. 它是否会替代更准确的 artifact？
+4. 用户最终能否看到并使用它？
+
+## 产品化后的完整路由
+
+```text
+当前请求
+-> 检查已有上下文是否能避免重复提问
+-> 把文件、邮箱、第三方应用路由到各自 source of truth
+-> 选择文字、富响应组件或生成型 artifact
+-> 通过明确工具契约执行
+-> 将观察事实、工具结果和模型判断分开
+-> 输出符合产品渲染协议的答案
+```
+
 ## 当前快照里的位置
 
-这份九步框架仍然适合作为通用请求路由器。当前 GPT-5.6 / Codex 材料没有推翻它，而是在它外面加上了更完整的工程 runtime：共享工作区、commentary/final 双通道、skills、自治执行、Git 现场保护和专用 artifact 工作流。
+这份源结构框架仍然适合作为通用请求路由器。当前 GPT-5.6 / Codex 材料没有推翻它，而是在它外面加上了更完整的工程 runtime：共享工作区、commentary/final 双通道、skills、自治执行、Git 现场保护和专用 artifact 工作流。
 
 可以把两者理解成：
 
@@ -185,7 +237,7 @@ GPT-5.5 = 一次请求的通用判断骨架
 GPT-5.6 / Codex = 骨架 + 工作区 + skills + 工具运行时 + 持续交付
 ```
 
-因此复习顺序建议是：先熟悉本页九步路由，再阅读 [GPT-5.6 / Codex Runtime](../gpt-5.6-codex-runtime/) 理解这些原则怎样进入完整 agent runtime。
+因此复习顺序建议是：先熟悉本页的 source-of-truth 与工具契约，再阅读 [GPT-5.6 / Codex Runtime](../gpt-5.6-codex-runtime/) 理解这些原则怎样进入完整 agent runtime。
 
 ## 复习问题
 
@@ -198,9 +250,9 @@ GPT-5.6 / Codex = 骨架 + 工作区 + skills + 工具运行时 + 持续交付
 
 ## 来源索引
 
-以下链接固定到本笔记复核时使用的源快照 `5c86715f453f0eca188451a48bf5b165831d8b29`：
+以下链接固定到本笔记复核时使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
 
-- [GPT-5.5 Codex 行为提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/OpenAI/Codex/gpt-5.5.md)
-- [GPT-5.5 Thinking](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/OpenAI/gpt-5.5-thinking.md)
-- [GPT-5.5 Instant](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/OpenAI/gpt-5.5-instant.md)
-- [GPT-5.5 API](https://github.com/asgeirtj/system_prompts_leaks/blob/5c86715f453f0eca188451a48bf5b165831d8b29/OpenAI/gpt-5.5-api.md)
+- [GPT-5.5 Codex 行为提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/gpt-5.5.md)
+- [GPT-5.5 Thinking](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.5-thinking.md)
+- [GPT-5.5 Instant](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.5-instant.md)
+- [GPT-5.5 API](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.5-api.md)

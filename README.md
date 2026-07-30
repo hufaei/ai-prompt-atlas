@@ -1,35 +1,41 @@
-# Personal Codex Skills
+# AI Prompt Atlas
 
-Installable personal Codex skills. This repository is private and stores reusable skills that can be installed globally or into a project.
+Source-pinned learning notes for model prompts, agent runtimes, tool contracts, and reusable skills. The public reader combines one 16:9 learning map with a detailed Markdown note for every topic.
 
-## Skills
-
-- `prune-merged-worktrees`: audit and clean local Git branches and linked worktrees while preserving branches not merged into a base branch.
-
-## Notes
-
-- `notes/gpt-5.6-codex-runtime`: GPT-5.6/Codex runtime notes for reviewing model behavior, workspace rules, skills, tool routing, authorization, browser/computer layers, verification, and delivery.
-- `notes/claude-sonnet-5-claude-code-2.1.207`: Claude Sonnet 5 and Claude Code 2.1.207 snapshot notes for reviewing assistant behavior, bundled skills, configuration/doctor workflows, review effort, artifacts, and compact continuity.
-- `notes/gpt-5.5-prompt-framework`: GPT-5.5-style system prompt framework notes for reviewing task routing, source-of-truth mapping, safety boundaries, tool contracts, and final-response shaping.
-- `notes/claude-fable-5-claude-code-prompt-framework`: Claude Fable 5 / Claude Code-style prompt framework notes for reviewing workspace evidence, coding-agent autonomy, tool routing, verification, Git boundaries, and differences from GPT-5.5.
-- `notes/grok-prompt-evolution`: Grok prompt evolution notes for reviewing X/web-first routing, tool schemas, render components, multi-agent experiments, remote sandbox behavior, and differences from GPT-5.5 and Claude Code.
-- `notes/gemini-prompt-family`: Gemini prompt family notes for reviewing Gemini Pro orchestration gates, Gemini Flash Web UI rendering, Nano Banana image tool contracts, and differences from GPT-5.5, Claude/Fable, and Grok.
-
-All six notes are maintained as a current learning snapshot rather than a repository changelog. The current source boundary is `asgeirtj/system_prompts_leaks@5c86715f453f0eca188451a48bf5b165831d8b29` (2026-07-12); each note links to immutable source files at that commit.
-
-## GitHub Pages Notes Site
-
-The prompt engineering notes can be published as a static GitHub Pages reader. The workflow in `.github/workflows/pages.yml` builds `docs/index.html` and copies every `notes/*/README.md` into the Pages artifact.
-
-Public notes URL:
+Public site:
 
 ```text
 https://hufaei.github.io/ai-prompt-atlas/
 ```
 
+## Current Learning Snapshot
+
+- `notes/gpt-5.6-codex-runtime`: model behavior, destructive actions, Sol, skills, full runtime, browser/computer control, and realtime voice cooperation.
+- `notes/gpt-5.5-prompt-framework`: source-of-truth routing, user context, file/connector authority, rich responses, and tool contracts.
+- `notes/claude-sonnet-5-claude-code`: assistant base, auto memory, scratchpad, context management, agents, skills, and current Claude Code tools.
+- `notes/claude-fable-5-claude-code-prompt-framework`: engineering harness, memory, scratchpad, time-based tools, workspace evidence, Git, and verified delivery.
+- `notes/claude-opus-5-claude-code`: Claude.ai behavior and memory filesystem alongside Claude Code delivery, correction, agent, skill, and tool layers.
+- `notes/claude-design-skills`: Design Components, the current skill catalog, starter components, visible verification, exports, and Claude Code handoff.
+- `notes/grok-prompt-evolution`: Grok 3 through Grok 4.5, X/web tools, connectors, memory, sandbox files, image routing, render components, and skills.
+- `notes/gemini-prompt-family`: Gemini Pro gates, Gemini Flash fact tools and Web UI rendering, plus Nano Banana image execution contracts.
+
+All eight notes are maintained as a current learning snapshot rather than a repository changelog. The current source boundary is `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94` (2026-07-30); each note links to immutable source files at that commit.
+
+The reusable prompt examples preserve the recognizable source order and writing style. Product-specific model names, tools, paths, schemas, and policies are replaced with `{{FIELD = ...}}` slots so the template can be adapted without reducing the original prompt to a generic numbered checklist.
+
+## GitHub Pages
+
+The prompt engineering notes can be published as a static GitHub Pages reader. The workflow in `.github/workflows/pages.yml` builds `docs/index.html` and copies every `notes/*/README.md` into the Pages artifact.
+
 In repository settings, set Pages source to **GitHub Actions**. For private repositories, GitHub Pages availability and private site visibility depend on the GitHub plan and organization/enterprise settings.
 
-## Install From GitHub
+## Included Codex Skill
+
+The repository also keeps one installable personal Codex skill:
+
+- `prune-merged-worktrees`: audit and clean local Git branches and linked worktrees while preserving branches not merged into a base branch.
+
+Install it from GitHub:
 
 In Codex, install any skill path from this repository:
 
