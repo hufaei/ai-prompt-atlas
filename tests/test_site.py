@@ -8,18 +8,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "docs" / "index.html"
-SNAPSHOT = "5c86715f453f0eca188451a48bf5b165831d8b29"
+SNAPSHOT = "1e828287e8290a9ba175349689dc4d5aaa4bbc94"
 EXPECTED_SLUGS = {
     "gpt-5.6-codex-runtime",
-    "claude-sonnet-5-claude-code-2.1.207",
     "gpt-5.5-prompt-framework",
+    "claude-sonnet-5-claude-code",
     "claude-fable-5-claude-code-prompt-framework",
+    "claude-opus-5-claude-code",
+    "claude-design-skills",
     "grok-prompt-evolution",
     "gemini-prompt-family",
 }
-NEW_SLUGS = {
-    "gpt-5.6-codex-runtime",
-    "claude-sonnet-5-claude-code-2.1.207",
+LEGACY_ROUTES = {
+    "claude-sonnet-5-claude-code-2.1.207": "claude-sonnet-5-claude-code",
 }
 
 
@@ -53,7 +54,9 @@ class SiteContractTests(unittest.TestCase):
     def assert_source_shaped_template(
         self, slug: str, markers: tuple[str, ...], minimum_slots: int = 8
     ):
-        note = (ROOT / "notes" / slug / "README.md").read_text(encoding="utf-8")
+        path = ROOT / "notes" / slug / "README.md"
+        self.assertTrue(path.is_file(), f"missing Markdown note for {slug}")
+        note = path.read_text(encoding="utf-8")
         prompt = reusable_prompt(slug)
         slots = re.findall(r"\{\{[A-Z0-9_]+\s*=\s*\.\.\.\}\}", prompt)
         self.assertGreaterEqual(len(prompt), 2200, slug)
@@ -112,7 +115,7 @@ class SiteContractTests(unittest.TestCase):
             minimum_slots=12,
         )
         self.assert_source_shaped_template(
-            "claude-sonnet-5-claude-code-2.1.207",
+            "claude-sonnet-5-claude-code",
             (
                 "# Assistant base layer",
                 "<tone_and_formatting>",
@@ -125,6 +128,30 @@ class SiteContractTests(unittest.TestCase):
                 "# Delivery",
             ),
             minimum_slots=14,
+        )
+        self.assert_source_shaped_template(
+            "claude-opus-5-claude-code",
+            (
+                "# Assistant behavior layer",
+                "## Memory filesystem",
+                "# Coding runtime layer",
+                "## Harness and delivery",
+                "## Agents and skills",
+                "## Tool contract",
+            ),
+            minimum_slots=14,
+        )
+        self.assert_source_shaped_template(
+            "claude-design-skills",
+            (
+                "# Design agent",
+                "## Workflow",
+                "## Design Components",
+                "## Skill routing",
+                "## Starter components",
+                "## Verification and handoff",
+            ),
+            minimum_slots=12,
         )
 
     def test_grok_and_gemini_notes_use_source_shaped_parameterized_prompts(self):
@@ -166,18 +193,33 @@ class SiteContractTests(unittest.TestCase):
 
     def test_site_brand_is_consistent_across_reader_surfaces(self):
         html = INDEX.read_text(encoding="utf-8")
-        self.assertEqual(html.count("AI Prompt Atlas"), 6)
+        self.assertGreaterEqual(html.count("AI Prompt Atlas"), 5)
         self.assertIn("模型提示词、Agent Runtime 与 Skills 学习图谱", html)
         self.assertNotIn("Prompt Engineering Notes", html)
 
-    def test_catalog_contains_exactly_the_six_learning_notes(self):
+    def test_catalog_contains_exactly_the_eight_learning_notes(self):
         self.assertEqual(catalog_slugs(), EXPECTED_SLUGS)
 
     def test_catalog_has_scanability_metadata_for_every_note(self):
         html = INDEX.read_text(encoding="utf-8")
         self.assertEqual(html.count("family:"), len(EXPECTED_SLUGS))
+        self.assertEqual(html.count("group:"), len(EXPECTED_SLUGS))
         self.assertEqual(html.count("badge:"), len(EXPECTED_SLUGS))
         self.assertEqual(html.count("snapshot:"), len(EXPECTED_SLUGS))
+        self.assertEqual(html.count("learningPath:"), len(EXPECTED_SLUGS))
+
+    def test_homepage_identifies_the_current_snapshot(self):
+        html = INDEX.read_text(encoding="utf-8")
+        self.assertIn("Learning Snapshot · 2026-07-30", html)
+        self.assertIn("8 份学习图谱", html)
+        self.assertIn("固定来源快照", html)
+
+    def test_legacy_sonnet_route_targets_the_stable_slug(self):
+        html = INDEX.read_text(encoding="utf-8")
+        for legacy, current in LEGACY_ROUTES.items():
+            with self.subTest(legacy=legacy):
+                self.assertEqual(html.count(f'slug: "{legacy}"'), 0)
+                self.assertIn(f'"{legacy}": "{current}"', html)
 
     def test_detail_grid_children_can_shrink_to_a_mobile_viewport(self):
         html = INDEX.read_text(encoding="utf-8")
@@ -215,8 +257,8 @@ class SiteContractTests(unittest.TestCase):
                 self.assertIn(SNAPSHOT, text)
                 self.assertNotIn("C:\\Users\\", text)
 
-    def test_new_mindmaps_are_exactly_1600_by_900(self):
-        for slug in NEW_SLUGS:
+    def test_every_mindmap_is_exactly_1600_by_900(self):
+        for slug in EXPECTED_SLUGS:
             path = ROOT / "docs" / "assets" / "mindmaps" / f"{slug}.png"
             if not path.is_file():
                 self.fail(f"missing mind map for {slug}")
@@ -248,6 +290,14 @@ class SiteContractTests(unittest.TestCase):
                     self.assertTrue(
                         (site / "assets" / "mindmaps" / f"{slug}.png").is_file()
                     )
+
+            for legacy, current in LEGACY_ROUTES.items():
+                route = site / "notes" / legacy
+                route.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(INDEX, route / "index.html")
+                with self.subTest(legacy=legacy):
+                    self.assertTrue((route / "index.html").is_file())
+                    self.assertTrue((site / "notes" / current / "index.html").is_file())
 
 
 if __name__ == "__main__":
