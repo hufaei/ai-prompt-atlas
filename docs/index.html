@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f3f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0c10" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231d1d1f'/%3E%3Cpath d='M17 45 27 18h10l10 27h-8l-2-7H27l-2 7Zm12-14h6l-3-9Z' fill='white'/%3E%3C/svg%3E">
   <title>AI Prompt Atlas</title>
   <style>
     :root {
@@ -506,15 +509,1371 @@
         font-size: 16px;
       }
     }
+
+    /* Apple Editorial Glass */
+    :root {
+      color-scheme: light dark;
+      --bg: #f2f3f5;
+      --bg-deep: #e7eaf0;
+      --panel: rgba(255, 255, 255, 0.72);
+      --panel-solid: #ffffff;
+      --ink: #17181b;
+      --muted: #676b73;
+      --line: rgba(23, 24, 27, 0.1);
+      --line-strong: rgba(23, 24, 27, 0.17);
+      --accent: #1467e8;
+      --accent-soft: rgba(20, 103, 232, 0.1);
+      --accent-ink: #0756c7;
+      --warm-soft: rgba(228, 146, 20, 0.12);
+      --warm-ink: #925600;
+      --code: rgba(23, 24, 27, 0.055);
+      --table: rgba(23, 24, 27, 0.025);
+      --glass: rgba(255, 255, 255, 0.66);
+      --glass-strong: rgba(255, 255, 255, 0.84);
+      --shadow: 0 24px 70px rgba(25, 32, 45, 0.1), 0 2px 10px rgba(25, 32, 45, 0.05);
+      --shadow-hover: 0 34px 90px rgba(25, 32, 45, 0.16), 0 4px 14px rgba(25, 32, 45, 0.07);
+      --radius: 24px;
+      --spring-y: 0px;
+      --spring-scale: 1;
+      --spring-rx: 0deg;
+      --spring-ry: 0deg;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
+    }
+
+    body {
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 82% 7%, rgba(71, 129, 255, 0.17), transparent 28rem),
+        radial-gradient(circle at 12% 25%, rgba(147, 112, 219, 0.1), transparent 31rem),
+        linear-gradient(180deg, #f8f8fa 0, var(--bg) 37rem, var(--bg-deep) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      letter-spacing: -0.006em;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: radial-gradient(rgba(23, 24, 27, 0.035) 0.7px, transparent 0.7px);
+      background-size: 11px 11px;
+      content: "";
+      pointer-events: none;
+      mask-image: linear-gradient(to bottom, black, transparent 56%);
+    }
+
+    ::selection {
+      background: rgba(20, 103, 232, 0.2);
+    }
+
+    a,
+    button {
+      touch-action: manipulation;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border: 0;
+      background: transparent;
+      padding: 12px clamp(12px, 2.5vw, 26px) 0;
+      pointer-events: none;
+    }
+
+    .nav {
+      position: relative;
+      min-height: 58px;
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 18px;
+      background: var(--glass);
+      box-shadow: 0 10px 34px rgba(25, 32, 45, 0.08), inset 0 1px rgba(255, 255, 255, 0.72);
+      padding: 10px 14px;
+      backdrop-filter: saturate(150%) blur(24px);
+      -webkit-backdrop-filter: saturate(150%) blur(24px);
+      pointer-events: auto;
+      transition: background 220ms ease, border-color 220ms ease, box-shadow 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .site-header.is-scrolled .nav {
+      border-color: var(--line);
+      background: var(--glass-strong);
+      box-shadow: 0 16px 42px rgba(25, 32, 45, 0.12), inset 0 1px rgba(255, 255, 255, 0.65);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 690;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #24262b, #08090b);
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.22), 0 5px 12px rgba(12, 14, 18, 0.19);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.06em;
+    }
+
+    .nav-actions {
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.46);
+      color: var(--muted);
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 610;
+      white-space: nowrap;
+    }
+
+    .reading-progress {
+      position: absolute;
+      right: 18px;
+      bottom: -1px;
+      left: 18px;
+      height: 2px;
+      overflow: hidden;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .reading-progress span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #0a84ff, #7057ff);
+      transform: scaleX(0);
+      transform-origin: left;
+      will-change: transform;
+    }
+
+    .shell {
+      width: min(100%, 1260px);
+      max-width: none;
+      margin: 0 auto;
+      padding: clamp(28px, 5vw, 68px) clamp(18px, 4vw, 42px) 100px;
+    }
+
+    .home-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);
+      align-items: center;
+      gap: clamp(42px, 7vw, 96px);
+      min-height: min(68vh, 650px);
+      margin: 0 0 30px;
+      padding: clamp(28px, 5vw, 74px) 0;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-kicker {
+      gap: 7px;
+      margin-bottom: 22px;
+      border-color: rgba(20, 103, 232, 0.15);
+      background: rgba(255, 255, 255, 0.55);
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.75);
+      color: var(--accent-ink);
+      padding: 7px 11px;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      backdrop-filter: blur(14px);
+    }
+
+    .home-kicker::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34c759;
+      box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.12);
+      content: "";
+    }
+
+    .home-hero h1 {
+      max-width: 10ch;
+      margin-bottom: 18px;
+      font-size: clamp(54px, 8vw, 104px);
+      font-weight: 720;
+      line-height: 0.91;
+      letter-spacing: -0.065em;
+      text-wrap: balance;
+    }
+
+    .home-hero p {
+      max-width: 620px;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.42;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+    }
+
+    .hero-stage {
+      position: relative;
+      min-height: 390px;
+      perspective: 1200px;
+    }
+
+    .atlas-panel {
+      position: absolute;
+      inset: 20px 0 24px 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: 34px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.42)),
+        radial-gradient(circle at 86% 8%, rgba(0, 122, 255, 0.2), transparent 42%);
+      box-shadow: 0 45px 100px rgba(25, 32, 45, 0.16), inset 0 1px rgba(255, 255, 255, 0.92);
+      padding: clamp(26px, 4vw, 42px);
+      transform: rotateY(-4deg) rotateX(1.5deg);
+      transform-origin: center left;
+      backdrop-filter: saturate(135%) blur(28px);
+      -webkit-backdrop-filter: saturate(135%) blur(28px);
+    }
+
+    .atlas-panel::before,
+    .atlas-panel::after {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      content: "";
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .atlas-panel::before {
+      top: -120px;
+      right: -90px;
+      background: rgba(56, 132, 255, 0.22);
+    }
+
+    .atlas-panel::after {
+      bottom: -150px;
+      left: -110px;
+      background: rgba(153, 92, 214, 0.12);
+    }
+
+    .stage-topline,
+    .stage-footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .stage-eyebrow,
+    .stage-footer {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .stage-count {
+      position: absolute;
+      top: clamp(24px, 4vw, 42px);
+      right: clamp(26px, 4vw, 42px);
+      z-index: 1;
+      font-size: clamp(64px, 9vw, 100px);
+      font-weight: 720;
+      line-height: 1;
+      letter-spacing: -0.075em;
+    }
+
+    .stage-map {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 12px;
+      margin: 72px 0 26px;
+    }
+
+    .stage-node {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: max-content;
+      max-width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.63);
+      box-shadow: 0 9px 25px rgba(25, 32, 45, 0.08), inset 0 1px rgba(255, 255, 255, 0.82);
+      padding: 10px 14px 10px 10px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 660;
+      backdrop-filter: blur(12px);
+    }
+
+    .stage-node:nth-child(2) {
+      margin-left: 17%;
+    }
+
+    .stage-node:nth-child(3) {
+      margin-left: 7%;
+    }
+
+    .node-icon {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    .stage-footer {
+      justify-content: flex-start;
+      text-transform: none;
+    }
+
+    .stage-footer::before {
+      width: 28px;
+      height: 1px;
+      background: var(--line-strong);
+      content: "";
+    }
+
+    .snapshot-band {
+      gap: 0;
+      margin-bottom: clamp(54px, 8vw, 94px);
+      border-color: rgba(255, 255, 255, 0.66);
+      border-radius: 22px;
+      background: var(--glass);
+      box-shadow: 0 18px 60px rgba(25, 32, 45, 0.09), inset 0 1px rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+
+    .snapshot-band span {
+      position: relative;
+      background: transparent;
+      padding: 20px 24px;
+      font-size: 12px;
+    }
+
+    .snapshot-band span + span::before {
+      position: absolute;
+      top: 18px;
+      bottom: 18px;
+      left: 0;
+      width: 1px;
+      background: var(--line);
+      content: "";
+    }
+
+    .snapshot-band strong {
+      margin-bottom: 3px;
+      font-size: 16px;
+      font-weight: 680;
+      letter-spacing: -0.02em;
+    }
+
+    .note-groups {
+      gap: clamp(58px, 8vw, 92px);
+    }
+
+    .note-group {
+      gap: 22px;
+    }
+
+    .group-heading {
+      align-items: center;
+      border-bottom-color: var(--line);
+      padding: 0 2px 15px;
+    }
+
+    .group-heading h2 {
+      font-size: clamp(26px, 3vw, 34px);
+      font-weight: 680;
+      letter-spacing: -0.045em;
+    }
+
+    .group-heading p {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .note-grid {
+      gap: clamp(18px, 2.5vw, 28px);
+    }
+
+    .note-card {
+      position: relative;
+      display: flex;
+      min-height: 0;
+      overflow: hidden;
+      gap: 0;
+      border-color: rgba(255, 255, 255, 0.69);
+      border-radius: var(--radius);
+      background: var(--glass);
+      padding: 0;
+      box-shadow: var(--shadow);
+      transform: perspective(1100px) translate3d(0, var(--spring-y), 0) scale(var(--spring-scale)) rotateX(var(--spring-rx)) rotateY(var(--spring-ry));
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: border-color 180ms ease, box-shadow 220ms ease;
+      backdrop-filter: saturate(125%) blur(22px);
+      -webkit-backdrop-filter: saturate(125%) blur(22px);
+    }
+
+    .note-card::after {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 35%);
+      content: "";
+      pointer-events: none;
+    }
+
+    .note-card:hover,
+    .note-card:focus-visible {
+      border-color: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-hover);
+      outline: none;
+    }
+
+    .note-card:focus-visible {
+      box-shadow: var(--shadow-hover), 0 0 0 4px rgba(20, 103, 232, 0.22);
+    }
+
+    .card-visual {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 16 / 9.25;
+      background: linear-gradient(135deg, var(--code), rgba(20, 103, 232, 0.08));
+      transform: translateZ(12px);
+    }
+
+    .card-visual::after {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(10, 12, 16, 0.02) 35%, rgba(10, 12, 16, 0.5) 100%);
+      content: "";
+    }
+
+    .card-preview {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 650ms cubic-bezier(0.16, 1, 0.3, 1), filter 250ms ease;
+    }
+
+    .note-card:hover .card-preview {
+      transform: scale(1.028);
+    }
+
+    .card-index,
+    .card-family-overlay {
+      position: absolute;
+      z-index: 2;
+      bottom: 14px;
+      color: rgba(255, 255, 255, 0.94);
+    }
+
+    .card-index {
+      left: 17px;
+      font-size: 12px;
+      font-weight: 730;
+      letter-spacing: 0.08em;
+    }
+
+    .card-family-overlay {
+      right: 17px;
+      max-width: 70%;
+      overflow: hidden;
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: 0.05em;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .card-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 17px;
+      padding: clamp(20px, 3vw, 28px);
+      transform: translateZ(8px);
+    }
+
+    .card-topline {
+      justify-content: flex-start;
+      min-height: 0;
+    }
+
+    .family-tag,
+    .status-badge {
+      padding: 4px 9px;
+      font-size: 10px;
+      font-weight: 710;
+    }
+
+    .family-tag {
+      background: var(--code);
+    }
+
+    .status-badge {
+      border-color: rgba(20, 103, 232, 0.14);
+    }
+
+    .note-card h2 {
+      max-width: 22ch;
+      font-size: clamp(25px, 3vw, 34px);
+      font-weight: 680;
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+    }
+
+    .note-card p {
+      max-width: 54ch;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .card-copy {
+      gap: 11px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    .card-snapshot {
+      margin: 0;
+      border: 0;
+      padding: 0;
+      font-size: 11px;
+    }
+
+    .card-arrow {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      color: var(--ink);
+      font-size: 15px;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    .note-card:hover .card-arrow {
+      background: var(--ink);
+      color: var(--panel-solid);
+    }
+
+    .note-page {
+      gap: 28px;
+    }
+
+    .note-hero {
+      display: grid;
+      gap: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 30px;
+      background: var(--glass);
+      box-shadow: 0 20px 70px rgba(25, 32, 45, 0.09), inset 0 1px rgba(255, 255, 255, 0.78);
+      padding: clamp(28px, 5vw, 58px);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .note-breadcrumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: max-content;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .note-breadcrumb:hover {
+      color: var(--ink);
+    }
+
+    .note-title {
+      gap: 12px;
+    }
+
+    .note-title h1 {
+      max-width: 18ch;
+      font-size: clamp(40px, 7vw, 76px);
+      font-weight: 710;
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      text-wrap: balance;
+    }
+
+    .note-title p {
+      max-width: 700px;
+      font-size: clamp(16px, 2vw, 20px);
+      line-height: 1.45;
+    }
+
+    .snapshot-line {
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .mindmap {
+      overflow: hidden;
+      border-color: rgba(255, 255, 255, 0.7);
+      border-radius: 26px;
+      background: var(--glass-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .mindmap-button {
+      position: relative;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border: 0;
+      background: var(--panel-solid);
+      padding: 0;
+      cursor: zoom-in;
+      text-align: inherit;
+      view-transition-name: active-note-image;
+    }
+
+    .mindmap img {
+      transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), filter 220ms ease;
+    }
+
+    .mindmap-button:hover img {
+      transform: scale(1.012);
+      filter: brightness(0.96);
+    }
+
+    .mindmap-button:active img {
+      transform: scale(0.994);
+    }
+
+    .zoom-hint {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.66);
+      border-radius: 999px;
+      background: rgba(20, 22, 27, 0.78);
+      box-shadow: 0 7px 22px rgba(10, 12, 16, 0.2);
+      color: #fff;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 650;
+      backdrop-filter: blur(14px);
+    }
+
+    .mindmap figcaption {
+      border-top-color: var(--line);
+      padding: 13px 18px;
+      font-size: 12px;
+    }
+
+    .learning-path {
+      border-color: rgba(20, 103, 232, 0.13);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--ink);
+      padding: 15px 18px;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(18px);
+    }
+
+    .learning-path strong {
+      color: var(--accent-ink);
+    }
+
+    .reading-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      align-items: start;
+      gap: 24px;
+    }
+
+    .article {
+      border-color: rgba(255, 255, 255, 0.7);
+      border-radius: 26px;
+      background: var(--glass-strong);
+      box-shadow: var(--shadow);
+      padding: clamp(28px, 5vw, 60px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .article h1 {
+      font-size: clamp(30px, 4vw, 46px);
+      font-weight: 690;
+      letter-spacing: -0.045em;
+    }
+
+    .article h2 {
+      border-top-color: var(--line);
+      padding-top: 30px;
+      font-size: clamp(23px, 3vw, 29px);
+      font-weight: 680;
+      letter-spacing: -0.035em;
+      scroll-margin-top: 100px;
+    }
+
+    .article h3 {
+      font-weight: 660;
+      letter-spacing: -0.025em;
+      scroll-margin-top: 100px;
+    }
+
+    .article pre {
+      border-color: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      background: #17181c;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.05);
+      padding: 20px;
+    }
+
+    .toc-shell {
+      position: sticky;
+      top: 94px;
+      max-height: calc(100vh - 118px);
+      overflow: auto;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 20px;
+      background: var(--glass);
+      box-shadow: 0 13px 40px rgba(25, 32, 45, 0.08), inset 0 1px rgba(255, 255, 255, 0.72);
+      padding: 18px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .toc-title {
+      display: block;
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 760;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .toc {
+      display: grid;
+      gap: 3px;
+    }
+
+    .toc a {
+      border-radius: 10px;
+      color: var(--muted);
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 540;
+      line-height: 1.35;
+      text-decoration: none;
+      transition: background 160ms ease, color 160ms ease;
+    }
+
+    .toc a[data-level="3"] {
+      padding-left: 18px;
+      font-size: 11px;
+    }
+
+    .toc a:hover,
+    .toc a.is-active {
+      background: var(--accent-soft);
+      color: var(--accent-ink);
+    }
+
+    .back-to-top {
+      position: fixed;
+      right: clamp(16px, 3vw, 32px);
+      bottom: clamp(16px, 3vw, 30px);
+      z-index: 40;
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 50%;
+      background: var(--glass-strong);
+      box-shadow: 0 16px 42px rgba(25, 32, 45, 0.16), inset 0 1px rgba(255, 255, 255, 0.76);
+      color: var(--ink);
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(14px) scale(0.92);
+      pointer-events: none;
+      transition: opacity 200ms ease, transform 450ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms ease;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .back-to-top.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .back-to-top:active {
+      transform: scale(0.94);
+    }
+
+    .image-viewer {
+      width: 100vw;
+      max-width: none;
+      height: 100dvh;
+      max-height: none;
+      overflow: hidden;
+      border: 0;
+      background: transparent;
+      padding: clamp(12px, 3vw, 34px);
+    }
+
+    .image-viewer::backdrop {
+      background: rgba(7, 9, 13, 0.72);
+      backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%);
+    }
+
+    .viewer-shell {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      place-items: center;
+    }
+
+    .viewer-frame {
+      position: relative;
+      display: grid;
+      max-width: 100%;
+      max-height: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 24px;
+      background: rgba(250, 250, 252, 0.94);
+      box-shadow: 0 50px 140px rgba(0, 0, 0, 0.5);
+      padding: 12px;
+      transform-origin: center;
+    }
+
+    .viewer-frame img {
+      display: block;
+      max-width: min(94vw, 1800px);
+      max-height: calc(100dvh - 104px);
+      border-radius: 15px;
+      object-fit: contain;
+    }
+
+    .viewer-caption {
+      position: absolute;
+      right: 20px;
+      bottom: 19px;
+      left: 20px;
+      overflow: hidden;
+      color: #4f535b;
+      font-size: 11px;
+      font-weight: 620;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .viewer-close {
+      position: absolute;
+      top: max(18px, env(safe-area-inset-top));
+      right: max(18px, env(safe-area-inset-right));
+      z-index: 2;
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      border-radius: 50%;
+      background: rgba(20, 22, 27, 0.62);
+      color: #fff;
+      cursor: pointer;
+      font-size: 19px;
+      backdrop-filter: blur(16px);
+    }
+
+    .viewer-close:active {
+      transform: scale(0.92);
+    }
+
+    .motion-ready .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .motion-ready .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .motion-ready .note-card.reveal,
+    .motion-ready .note-card.reveal.is-visible {
+      transform: perspective(1100px) translate3d(0, var(--spring-y), 0) scale(var(--spring-scale)) rotateX(var(--spring-rx)) rotateY(var(--spring-ry));
+    }
+
+    .motion-ready .note-card.reveal {
+      translate: 0 24px;
+      transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), translate 720ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease, box-shadow 220ms ease;
+      transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms, 0ms;
+    }
+
+    .motion-ready .note-card.reveal.is-visible {
+      translate: 0 0;
+    }
+
+    @view-transition {
+      navigation: auto;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 360ms;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    ::view-transition-group(active-note-image) {
+      animation-duration: 520ms;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d0f13;
+        --bg-deep: #08090c;
+        --panel: rgba(28, 30, 36, 0.7);
+        --panel-solid: #1b1d22;
+        --ink: #f2f3f5;
+        --muted: #a2a6af;
+        --line: rgba(255, 255, 255, 0.1);
+        --line-strong: rgba(255, 255, 255, 0.17);
+        --accent: #5ba4ff;
+        --accent-soft: rgba(76, 151, 255, 0.14);
+        --accent-ink: #86bdff;
+        --warm-soft: rgba(255, 174, 46, 0.13);
+        --warm-ink: #ffc36a;
+        --code: rgba(255, 255, 255, 0.07);
+        --table: rgba(255, 255, 255, 0.035);
+        --glass: rgba(25, 27, 33, 0.63);
+        --glass-strong: rgba(29, 31, 37, 0.84);
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(0, 0, 0, 0.22);
+        --shadow-hover: 0 38px 100px rgba(0, 0, 0, 0.44), 0 4px 16px rgba(0, 0, 0, 0.28);
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 82% 7%, rgba(47, 110, 233, 0.23), transparent 29rem),
+          radial-gradient(circle at 12% 25%, rgba(131, 74, 195, 0.13), transparent 32rem),
+          linear-gradient(180deg, #111319 0, var(--bg) 38rem, var(--bg-deep) 100%);
+      }
+
+      body::before {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.04) 0.7px, transparent 0.7px);
+      }
+
+      .nav,
+      .note-card,
+      .snapshot-band,
+      .note-hero,
+      .mindmap,
+      .article,
+      .toc-shell,
+      .back-to-top {
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow), inset 0 1px rgba(255, 255, 255, 0.07);
+      }
+
+      .nav-actions,
+      .card-arrow {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .atlas-panel {
+        border-color: rgba(255, 255, 255, 0.12);
+        background:
+          linear-gradient(145deg, rgba(45, 48, 58, 0.88), rgba(26, 28, 34, 0.6)),
+          radial-gradient(circle at 86% 8%, rgba(0, 122, 255, 0.24), transparent 42%);
+        box-shadow: 0 48px 110px rgba(0, 0, 0, 0.46), inset 0 1px rgba(255, 255, 255, 0.11);
+      }
+
+      .stage-node {
+        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(38, 41, 49, 0.72);
+        box-shadow: 0 11px 28px rgba(0, 0, 0, 0.22), inset 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .mindmap-button,
+      .viewer-frame {
+        background: #f6f7f9;
+      }
+
+      .learning-path {
+        background: rgba(25, 27, 33, 0.62);
+      }
+
+      .card-arrow {
+        color: var(--ink);
+      }
+
+      .note-card:hover .card-arrow {
+        background: #f2f3f5;
+        color: #17181b;
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .home-hero {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr);
+        gap: 38px;
+      }
+
+      .hero-stage {
+        min-height: 350px;
+      }
+
+      .reading-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .toc-shell {
+        position: relative;
+        top: auto;
+        grid-row: 1;
+        max-height: none;
+      }
+
+      .toc {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 800px) {
+      .site-header {
+        padding: 8px 10px 0;
+      }
+
+      .nav {
+        min-height: 52px;
+        flex-direction: row;
+        align-items: center;
+        border-radius: 16px;
+        padding: 8px 10px;
+      }
+
+      .brand-mark {
+        width: 32px;
+        height: 32px;
+      }
+
+      .shell {
+        padding-top: 24px;
+      }
+
+      .home-hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 38px 0 20px;
+      }
+
+      .home-hero h1 {
+        max-width: 9ch;
+      }
+
+      .hero-stage {
+        min-height: 340px;
+      }
+
+      .atlas-panel {
+        inset: 0 6px 18px;
+        transform: rotateY(-2.5deg) rotateX(1deg);
+      }
+
+      .note-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .note-card h2 {
+        max-width: 28ch;
+      }
+
+      .group-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .group-heading p {
+        max-width: 600px;
+        text-align: left;
+      }
+
+      .toc {
+        display: flex;
+        width: max-content;
+        max-width: none;
+      }
+
+      .toc-shell {
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: none;
+      }
+
+      .toc-shell::-webkit-scrollbar {
+        display: none;
+      }
+
+      .toc a,
+      .toc a[data-level="3"] {
+        padding: 8px 10px;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .nav-actions {
+        max-width: 44vw;
+        overflow: hidden;
+        padding: 6px 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .brand {
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .shell {
+        padding-right: 14px;
+        padding-left: 14px;
+      }
+
+      .home-hero {
+        gap: 22px;
+        padding-top: 34px;
+      }
+
+      .home-hero h1 {
+        font-size: clamp(52px, 18vw, 74px);
+      }
+
+      .home-hero p {
+        font-size: 17px;
+      }
+
+      .hero-stage {
+        min-height: 300px;
+      }
+
+      .atlas-panel {
+        border-radius: 27px;
+        padding: 24px;
+      }
+
+      .stage-count {
+        top: 24px;
+        right: 24px;
+        font-size: 68px;
+      }
+
+      .stage-map {
+        margin: 23px 0 20px;
+      }
+
+      .stage-node {
+        padding: 8px 11px 8px 8px;
+      }
+
+      .snapshot-band {
+        grid-template-columns: 1fr;
+        margin-bottom: 58px;
+      }
+
+      .snapshot-band span {
+        padding: 16px 18px;
+      }
+
+      .snapshot-band span + span::before {
+        top: 0;
+        right: 18px;
+        bottom: auto;
+        left: 18px;
+        width: auto;
+        height: 1px;
+      }
+
+      .note-card {
+        border-radius: 21px;
+      }
+
+      .card-body {
+        padding: 20px;
+      }
+
+      .note-card h2 {
+        font-size: 27px;
+      }
+
+      .note-hero {
+        border-radius: 24px;
+        padding: 25px 22px;
+      }
+
+      .note-title h1 {
+        font-size: clamp(38px, 12vw, 56px);
+      }
+
+      .mindmap,
+      .article {
+        border-radius: 21px;
+      }
+
+      .article {
+        padding: 25px 20px;
+      }
+
+      .learning-path {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .zoom-hint {
+        right: 12px;
+        bottom: 12px;
+      }
+
+      .viewer-frame {
+        border-radius: 18px;
+        padding: 7px;
+      }
+
+      .viewer-frame img {
+        border-radius: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .note-card {
+        transform: none !important;
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      :root {
+        --glass: var(--panel-solid);
+        --glass-strong: var(--panel-solid);
+      }
+
+      .nav,
+      .note-card,
+      .snapshot-band,
+      .note-hero,
+      .article,
+      .toc-shell,
+      .learning-path,
+      .back-to-top,
+      .image-viewer::backdrop {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+    }
+
+    @media (prefers-contrast: more) {
+      :root {
+        --line: currentColor;
+      }
+
+      .nav,
+      .note-card,
+      .snapshot-band,
+      .note-hero,
+      .mindmap,
+      .article,
+      .toc-shell {
+        border-width: 2px;
+      }
+    }
   </style>
 </head>
 <body>
   <header class="site-header">
     <nav class="nav">
-      <a class="brand" id="homeLink" href="./">AI Prompt Atlas</a>
+      <a class="brand" id="homeLink" href="./">
+        <span class="brand-mark" aria-hidden="true">AI</span>
+        <span>AI Prompt Atlas</span>
+      </a>
       <div class="nav-actions">
         <span id="currentLabel">全部笔记</span>
       </div>
+      <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
     </nav>
   </header>
 
@@ -522,8 +1881,23 @@
     <div class="empty">正在加载。</div>
   </main>
 
+  <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部">↑</button>
+
+  <dialog class="image-viewer" id="imageViewer" aria-labelledby="viewerCaption">
+    <button class="viewer-close" id="viewerClose" type="button" aria-label="关闭图谱预览">×</button>
+    <div class="viewer-shell">
+      <figure class="viewer-frame">
+        <img id="viewerImage" alt="">
+        <figcaption class="viewer-caption" id="viewerCaption"></figcaption>
+      </figure>
+    </div>
+  </dialog>
+
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!reducedMotion.matches) document.documentElement.classList.add("motion-ready");
+
     const notes = [
       {
         slug: "gpt-5.6-codex-runtime",
@@ -664,6 +2038,17 @@
     const app = document.getElementById("app");
     const currentLabel = document.getElementById("currentLabel");
     const homeLink = document.getElementById("homeLink");
+    const siteHeader = document.querySelector(".site-header");
+    const readingProgress = document.getElementById("readingProgress");
+    const backToTop = document.getElementById("backToTop");
+    const imageViewer = document.getElementById("imageViewer");
+    const viewerImage = document.getElementById("viewerImage");
+    const viewerCaption = document.getElementById("viewerCaption");
+    const viewerClose = document.getElementById("viewerClose");
+    const viewerFrame = imageViewer.querySelector(".viewer-frame");
+    let revealObserver;
+    let sectionObserver;
+    let viewerAnimations = [];
 
     function escapeHtml(value) {
       return value
@@ -704,9 +2089,15 @@
     function enhanceArticleLinks() {
       app.querySelectorAll(".article a[href]").forEach(link => {
         const href = link.getAttribute("href");
-        if (href && !href.startsWith("#")) {
-          link.target = "_blank";
-          link.rel = "noreferrer";
+        if (!href || href.startsWith("#")) return;
+        try {
+          const target = new URL(href, location.href);
+          if (target.origin !== location.origin) {
+            link.target = "_blank";
+            link.rel = "noreferrer";
+          }
+        } catch {
+          // Leave malformed or custom-protocol links untouched.
         }
       });
     }
@@ -716,17 +2107,28 @@
     }
 
     function renderCard(note) {
+      const index = String(notes.indexOf(note) + 1).padStart(2, "0");
       return `
-        <a class="note-card" data-latest="${note.latest}" href="${noteHref(note)}">
-          <div class="card-topline">
-            <span class="family-tag">${escapeHtml(note.family)}</span>
-            <span class="status-badge">${escapeHtml(note.badge)}</span>
+        <a class="note-card spring-surface reveal" data-latest="${note.latest}" href="${noteHref(note)}">
+          <div class="card-visual">
+            <img class="card-preview" src="${asset(note.image)}" alt="" loading="lazy">
+            <span class="card-index">${index}</span>
+            <span class="card-family-overlay">${escapeHtml(note.family)}</span>
           </div>
-          <div class="card-copy">
-            <h2>${escapeHtml(note.title)}</h2>
-            <p>${escapeHtml(note.meta)}</p>
+          <div class="card-body">
+            <div class="card-topline">
+              <span class="family-tag">${escapeHtml(note.family)}</span>
+              <span class="status-badge">${escapeHtml(note.badge)}</span>
+            </div>
+            <div class="card-copy">
+              <h2>${escapeHtml(note.title)}</h2>
+              <p>${escapeHtml(note.meta)}</p>
+            </div>
+            <div class="card-footer">
+              <div class="card-snapshot">${escapeHtml(note.snapshot)}</div>
+              <span class="card-arrow" aria-hidden="true">↗</span>
+            </div>
           </div>
-          <div class="card-snapshot">${escapeHtml(note.snapshot)}</div>
         </a>
       `;
     }
@@ -749,15 +2151,31 @@
 
     function renderHome() {
       document.title = "AI Prompt Atlas";
-      currentLabel.textContent = "全部笔记";
+      currentLabel.textContent = `${notes.length} 份学习图谱`;
       homeLink.href = "./";
       app.innerHTML = `
-        <section class="home-hero">
-          <div class="home-kicker">Learning Snapshot · 2026-07-30</div>
-          <h1>AI Prompt Atlas</h1>
-          <p>模型提示词、Agent Runtime 与 Skills 学习图谱</p>
+        <section class="home-hero reveal">
+          <div class="hero-copy">
+            <div class="home-kicker">Learning Snapshot · 2026-07-30</div>
+            <h1>AI Prompt Atlas</h1>
+            <p>把模型提示词、Agent Runtime 与 Skills，整理成可快速进入的学习图谱。</p>
+          </div>
+          <div class="hero-stage" aria-hidden="true">
+            <div class="atlas-panel">
+              <div class="stage-topline">
+                <span class="stage-eyebrow">Curated Learning System</span>
+                <span class="stage-count">${String(notes.length).padStart(2, "0")}</span>
+              </div>
+              <div class="stage-map">
+                <div class="stage-node"><span class="node-icon">◎</span><span>Source &amp; behavior</span></div>
+                <div class="stage-node"><span class="node-icon">⌘</span><span>Runtime &amp; tools</span></div>
+                <div class="stage-node"><span class="node-icon">◇</span><span>Skills &amp; delivery</span></div>
+              </div>
+              <div class="stage-footer">One source-pinned snapshot</div>
+            </div>
+          </div>
         </section>
-        <div class="snapshot-band" aria-label="快照信息">
+        <div class="snapshot-band reveal" aria-label="快照信息">
           <span><strong>2026-07-30</strong>当前学习快照</span>
           <span><strong>8 份学习图谱</strong>图片 + 原文式笔记</span>
           <span><strong>Source-pinned</strong>固定来源快照</span>
@@ -765,7 +2183,7 @@
         <div class="note-groups">
           ${groupDefinitions.map(group => `
             <section class="note-group" aria-labelledby="${group.name.replaceAll(" ", "-")}">
-              <header class="group-heading">
+              <header class="group-heading reveal">
                 <h2 id="${group.name.replaceAll(" ", "-")}">${escapeHtml(group.title)}</h2>
                 <p>${escapeHtml(group.description)}</p>
               </header>
@@ -776,6 +2194,7 @@
           `).join("")}
         </div>
       `;
+      initializeDynamicUI(app);
     }
 
     async function renderNote(note) {
@@ -784,37 +2203,58 @@
       homeLink.href = routeBase();
       app.innerHTML = `
         <section class="note-page">
-          <header class="note-title">
-            <h1>${escapeHtml(note.heading)}</h1>
-            <p>${escapeHtml(note.meta)}</p>
-            <div class="snapshot-line">
-              <span>${escapeHtml(note.family)}</span>
-              <span class="dot" aria-hidden="true">•</span>
-              <span>${escapeHtml(note.snapshot)}</span>
-              <span class="status-badge">${escapeHtml(note.badge)}</span>
+          <header class="note-hero reveal">
+            <a class="note-breadcrumb" href="${routeBase()}"><span aria-hidden="true">←</span> 返回图谱目录</a>
+            <div class="note-title">
+              <h1>${escapeHtml(note.heading)}</h1>
+              <p>${escapeHtml(note.meta)}</p>
+              <div class="snapshot-line">
+                <span>${escapeHtml(note.family)}</span>
+                <span class="dot" aria-hidden="true">•</span>
+                <span>${escapeHtml(note.snapshot)}</span>
+                <span class="status-badge">${escapeHtml(note.badge)}</span>
+              </div>
             </div>
           </header>
-          <figure class="mindmap">
-            <img src="${asset(note.image)}" alt="${escapeHtml(note.heading)} 学习图谱">
+          <figure class="mindmap reveal">
+            <button
+              class="mindmap-button"
+              type="button"
+              data-viewer-src="${asset(note.image)}"
+              data-viewer-title="${escapeHtml(note.heading)} 学习图谱"
+              aria-label="放大预览 ${escapeHtml(note.heading)} 学习图谱"
+            >
+              <img src="${asset(note.image)}" alt="${escapeHtml(note.heading)} 学习图谱">
+              <span class="zoom-hint"><span aria-hidden="true">⌕</span> 点击放大</span>
+            </button>
             <figcaption>学习图谱用于先建立整体结构，下面的 Markdown 负责展开细节。</figcaption>
           </figure>
-          <div class="learning-path">
+          <div class="learning-path reveal">
             <strong>阅读路径</strong>
             <span>${escapeHtml(note.learningPath)}</span>
           </div>
-          <article class="article">
-            <div class="empty">正在加载 Markdown。</div>
-          </article>
+          <div class="reading-layout">
+            <article class="article reveal">
+              <div class="empty">正在加载 Markdown。</div>
+            </article>
+            <aside class="toc-shell reveal" id="tocShell" hidden>
+              <span class="toc-title">On this page</span>
+              <nav class="toc" id="toc" aria-label="本页目录"></nav>
+            </aside>
+          </div>
         </section>
       `;
 
       const article = app.querySelector(".article");
+      initializeDynamicUI(app);
       try {
         const response = await fetch(asset(note.file), { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const markdown = await response.text();
         article.innerHTML = renderMarkdown(markdown);
         enhanceArticleLinks();
+        buildTableOfContents();
+        updatePageChrome();
       } catch (error) {
         article.innerHTML = `<div class="empty">无法加载 ${escapeHtml(note.file)}。</div>`;
       }
@@ -825,15 +2265,277 @@
       currentLabel.textContent = "未找到笔记";
       homeLink.href = routeBase();
       app.innerHTML = `
-        <section class="home-hero">
-          <h1>没有找到这份学习笔记</h1>
-          <p>当前路由：${escapeHtml(slug || "(empty)")}</p>
+        <section class="home-hero reveal">
+          <div class="hero-copy">
+            <div class="home-kicker">Route not found</div>
+            <h1>没有找到这份学习笔记</h1>
+            <p>当前路由：${escapeHtml(slug || "(empty)")}</p>
+          </div>
         </section>
         <section class="note-grid">
           ${notes.map(renderCard).join("")}
         </section>
       `;
+      initializeDynamicUI(app);
     }
+
+    function initReveal(root) {
+      if (revealObserver) revealObserver.disconnect();
+      const elements = [...root.querySelectorAll(".reveal")];
+      elements.forEach((element, index) => {
+        element.style.setProperty("--reveal-delay", `${Math.min(index % 5, 4) * 45}ms`);
+      });
+
+      if (reducedMotion.matches || !("IntersectionObserver" in window)) {
+        elements.forEach(element => element.classList.add("is-visible"));
+        return;
+      }
+
+      revealObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+
+      elements.forEach(element => revealObserver.observe(element));
+    }
+
+    function initSpringCards(root) {
+      if (reducedMotion.matches) return;
+
+      root.querySelectorAll(".spring-surface").forEach(card => {
+        if (card.dataset.springReady) return;
+        card.dataset.springReady = "true";
+
+        const state = { rx: 0, ry: 0, y: 0, scale: 1 };
+        const velocity = { rx: 0, ry: 0, y: 0, scale: 0 };
+        const target = { rx: 0, ry: 0, y: 0, scale: 1 };
+        let frame = 0;
+        let previous = performance.now();
+
+        const draw = () => {
+          card.style.setProperty("--spring-rx", `${state.rx.toFixed(3)}deg`);
+          card.style.setProperty("--spring-ry", `${state.ry.toFixed(3)}deg`);
+          card.style.setProperty("--spring-y", `${state.y.toFixed(3)}px`);
+          card.style.setProperty("--spring-scale", state.scale.toFixed(4));
+        };
+
+        const tick = now => {
+          const dt = Math.min((now - previous) / 1000, 0.032);
+          previous = now;
+          let moving = false;
+
+          Object.keys(state).forEach(key => {
+            const stiffness = key === "scale" ? 360 : 285;
+            const damping = key === "scale" ? 36 : 33;
+            const acceleration = stiffness * (target[key] - state[key]) - damping * velocity[key];
+            velocity[key] += acceleration * dt;
+            state[key] += velocity[key] * dt;
+            if (Math.abs(target[key] - state[key]) > 0.001 || Math.abs(velocity[key]) > 0.001) moving = true;
+          });
+
+          draw();
+          frame = moving ? requestAnimationFrame(tick) : 0;
+        };
+
+        const move = () => {
+          if (frame) return;
+          previous = performance.now();
+          frame = requestAnimationFrame(tick);
+        };
+
+        const resetTilt = () => {
+          target.rx = 0;
+          target.ry = 0;
+          target.y = 0;
+          target.scale = 1;
+          move();
+        };
+
+        card.addEventListener("pointermove", event => {
+          if (event.pointerType !== "mouse") return;
+          const rect = card.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          target.rx = y * -3.2;
+          target.ry = x * 4.2;
+          target.y = -6;
+          move();
+        });
+
+        card.addEventListener("pointerdown", event => {
+          target.scale = 0.985;
+          if (event.pointerType !== "mouse") target.y = -2;
+          move();
+        });
+        card.addEventListener("pointerup", () => {
+          target.scale = 1;
+          move();
+        });
+        card.addEventListener("pointercancel", resetTilt);
+        card.addEventListener("pointerleave", resetTilt);
+        card.addEventListener("blur", resetTilt);
+      });
+    }
+
+    function buildTableOfContents() {
+      if (sectionObserver) sectionObserver.disconnect();
+      const article = app.querySelector(".article");
+      const tocShell = document.getElementById("tocShell");
+      const toc = document.getElementById("toc");
+      if (!article || !tocShell || !toc) return;
+
+      const headings = [...article.querySelectorAll("h2, h3")];
+      if (!headings.length) {
+        tocShell.hidden = true;
+        return;
+      }
+
+      headings.forEach((heading, index) => {
+        heading.id = `section-${index + 1}`;
+      });
+
+      toc.innerHTML = headings.map(heading => `
+        <a href="#${heading.id}" data-level="${heading.tagName.slice(1)}">${escapeHtml(heading.textContent.trim())}</a>
+      `).join("");
+      tocShell.hidden = false;
+      article.classList.add("is-visible");
+      tocShell.classList.add("is-visible");
+
+      if (!("IntersectionObserver" in window)) return;
+      const links = new Map([...toc.querySelectorAll("a")].map(link => [link.hash.slice(1), link]));
+      sectionObserver = new IntersectionObserver(entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (!visible) return;
+        links.forEach(link => link.classList.remove("is-active"));
+        links.get(visible.target.id)?.classList.add("is-active");
+      }, { rootMargin: "-92px 0px -68% 0px", threshold: 0 });
+      headings.forEach(heading => sectionObserver.observe(heading));
+    }
+
+    function cancelViewerAnimations() {
+      viewerAnimations.forEach(animation => animation.cancel());
+      viewerAnimations = [];
+    }
+
+    function openImageViewer(source, event) {
+      cancelViewerAnimations();
+      viewerImage.src = source.dataset.viewerSrc;
+      viewerImage.alt = source.dataset.viewerTitle;
+      viewerCaption.textContent = source.dataset.viewerTitle;
+
+      const rect = source.getBoundingClientRect();
+      const originX = event?.clientX ? event.clientX - rect.left : rect.width / 2;
+      const originY = event?.clientY ? event.clientY - rect.top : rect.height / 2;
+      viewerFrame.style.transformOrigin = `${Math.max(0, originX)}px ${Math.max(0, originY)}px`;
+
+      if (!imageViewer.open) imageViewer.showModal();
+      if (reducedMotion.matches) return;
+
+      viewerAnimations = [
+        imageViewer.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 260, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" }
+        ),
+        viewerFrame.animate(
+          [
+            { opacity: 0, transform: "translateY(18px) scale(0.9)" },
+            { opacity: 1, transform: "translateY(0) scale(1)" }
+          ],
+          { duration: 460, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" }
+        )
+      ];
+      viewerAnimations.at(-1).finished.catch(() => {}).finally(() => {
+        viewerAnimations = [];
+      });
+    }
+
+    async function closeImageViewer() {
+      if (!imageViewer.open) return;
+      cancelViewerAnimations();
+      if (reducedMotion.matches) {
+        imageViewer.close();
+        return;
+      }
+
+      viewerAnimations = [
+        imageViewer.animate(
+          [{ opacity: 1 }, { opacity: 0 }],
+          { duration: 180, easing: "cubic-bezier(0.32, 0, 0.67, 0)", fill: "both" }
+        ),
+        viewerFrame.animate(
+          [
+            { opacity: 1, transform: "translateY(0) scale(1)" },
+            { opacity: 0, transform: "translateY(12px) scale(0.96)" }
+          ],
+          { duration: 190, easing: "cubic-bezier(0.32, 0, 0.67, 0)", fill: "both" }
+        )
+      ];
+      await Promise.allSettled(viewerAnimations.map(animation => animation.finished));
+      viewerAnimations = [];
+      imageViewer.close();
+    }
+
+    function initializeDynamicUI(root) {
+      initReveal(root);
+      initSpringCards(root);
+
+      root.querySelectorAll("[data-viewer-src]").forEach(button => {
+        button.addEventListener("click", event => openImageViewer(button, event));
+      });
+
+      root.querySelectorAll(".note-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const visual = card.querySelector(".card-visual");
+          if (visual) visual.style.viewTransitionName = "active-note-image";
+        });
+      });
+
+      requestAnimationFrame(updatePageChrome);
+    }
+
+    function updatePageChrome() {
+      const scrollTop = window.scrollY;
+      siteHeader.classList.toggle("is-scrolled", scrollTop > 12);
+      backToTop.classList.toggle("is-visible", scrollTop > Math.max(520, window.innerHeight * 0.75));
+
+      const article = app.querySelector(".article");
+      if (!article) {
+        readingProgress.style.transform = "scaleX(0)";
+        return;
+      }
+
+      const articleTop = article.getBoundingClientRect().top + scrollTop;
+      const distance = Math.max(1, article.offsetHeight - window.innerHeight + 160);
+      const progress = Math.min(1, Math.max(0, (scrollTop - articleTop + 110) / distance));
+      readingProgress.style.transform = `scaleX(${progress})`;
+    }
+
+    let scrollFrame = 0;
+    window.addEventListener("scroll", () => {
+      if (scrollFrame) return;
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = 0;
+        updatePageChrome();
+      });
+    }, { passive: true });
+    window.addEventListener("resize", updatePageChrome, { passive: true });
+
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: reducedMotion.matches ? "auto" : "smooth" });
+    });
+    viewerClose.addEventListener("click", closeImageViewer);
+    imageViewer.addEventListener("click", event => {
+      if (event.target === imageViewer || event.target.classList.contains("viewer-shell")) closeImageViewer();
+    });
+    imageViewer.addEventListener("cancel", event => {
+      event.preventDefault();
+      closeImageViewer();
+    });
 
     const slug = currentSlug();
 
