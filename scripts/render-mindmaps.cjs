@@ -11,6 +11,8 @@ try {
 const root = path.resolve(__dirname, "..");
 const outputDir = path.join(root, "docs/assets/mindmaps");
 const sourceDir = path.join(outputDir, "source");
+const thumbnailDir = path.join(outputDir, "thumbs");
+const webpDir = path.join(outputDir, "webp");
 const background = path.join(sourceDir, "atlas-background.png");
 
 const palettes = [
@@ -251,6 +253,8 @@ function renderSvg(map) {
 
 async function main() {
   fs.mkdirSync(sourceDir, { recursive: true });
+  fs.mkdirSync(thumbnailDir, { recursive: true });
+  fs.mkdirSync(webpDir, { recursive: true });
   for (const map of maps) {
     const svg = renderSvg(map);
     const svgPath = path.join(sourceDir, `${map.slug}.svg`);
@@ -262,7 +266,16 @@ async function main() {
         .composite([{ input: Buffer.from(svg) }])
         .png({ compressionLevel: 9 })
         .toFile(pngPath);
-      console.log(`${map.slug}: ${pngPath}`);
+      const thumbnailPath = path.join(thumbnailDir, `${map.slug}.webp`);
+      const webpPath = path.join(webpDir, `${map.slug}.webp`);
+      await sharp(pngPath)
+        .resize(960, 540, { fit: "cover" })
+        .webp({ quality: 72, effort: 6, smartSubsample: true })
+        .toFile(thumbnailPath);
+      await sharp(pngPath)
+        .webp({ quality: 84, effort: 6, smartSubsample: true })
+        .toFile(webpPath);
+      console.log(`${map.slug}: PNG + homepage/detail WebP variants`);
     } else {
       console.log(`${map.slug}: ${svgPath} (PNG export skipped: install sharp)`);
     }

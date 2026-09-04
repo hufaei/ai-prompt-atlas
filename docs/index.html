@@ -985,6 +985,12 @@
       content: "";
     }
 
+    .card-visual picture {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
     .card-preview {
       display: block;
       width: 100%;
@@ -1183,6 +1189,10 @@
       cursor: zoom-in;
       text-align: inherit;
       view-transition-name: active-note-image;
+    }
+
+    .mindmap-button picture {
+      display: block;
     }
 
     .mindmap img {
@@ -1893,7 +1903,6 @@
     </div>
   </dialog>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!reducedMotion.matches) document.documentElement.classList.add("motion-ready");
@@ -2106,6 +2115,27 @@
       return routeBase() + path;
     }
 
+    function mindmapVariant(path, folder) {
+      return path
+        .replace("assets/mindmaps/", `assets/mindmaps/${folder}/`)
+        .replace(/\.png$/i, ".webp");
+    }
+
+    let markdownParserPromise;
+    function loadMarkdownParser() {
+      if (window.marked) return Promise.resolve();
+      if (markdownParserPromise) return markdownParserPromise;
+      markdownParserPromise = new Promise(resolve => {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = resolve;
+        document.head.appendChild(script);
+      });
+      return markdownParserPromise;
+    }
+
     function renderMarkdown(markdown) {
       if (window.marked) {
         marked.use({ gfm: true, breaks: false });
@@ -2139,7 +2169,10 @@
       return `
         <a class="note-card spring-surface reveal" data-latest="${note.latest}" href="${noteHref(note)}">
           <div class="card-visual">
-            <img class="card-preview" src="${asset(note.image)}" alt="" loading="lazy">
+            <picture>
+              <source srcset="${asset(mindmapVariant(note.image, "thumbs"))}" type="image/webp">
+              <img class="card-preview" src="${asset(note.image)}" alt="" loading="lazy" decoding="async" fetchpriority="low" width="960" height="540">
+            </picture>
             <span class="card-index">${index}</span>
             <span class="card-family-overlay">${escapeHtml(note.family)}</span>
           </div>
@@ -2252,7 +2285,10 @@
               data-viewer-title="${escapeHtml(note.heading)} 学习图谱"
               aria-label="放大预览 ${escapeHtml(note.heading)} 学习图谱"
             >
-              <img src="${asset(note.image)}" alt="${escapeHtml(note.heading)} 学习图谱">
+              <picture>
+                <source srcset="${asset(mindmapVariant(note.image, "webp"))}" type="image/webp">
+                <img src="${asset(note.image)}" alt="${escapeHtml(note.heading)} 学习图谱" decoding="async" width="1600" height="900">
+              </picture>
               <span class="zoom-hint"><span aria-hidden="true">⌕</span> 点击放大</span>
             </button>
             <figcaption>学习图谱用于先建立整体结构，下面的 Markdown 负责展开细节。</figcaption>
@@ -2275,10 +2311,12 @@
 
       const article = app.querySelector(".article");
       initializeDynamicUI(app);
+      const markdownParser = loadMarkdownParser();
       try {
         const response = await fetch(asset(note.file), { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const markdown = await response.text();
+        await markdownParser;
         article.innerHTML = renderMarkdown(markdown);
         enhanceArticleLinks();
         buildTableOfContents();
