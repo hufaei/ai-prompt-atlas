@@ -1,8 +1,8 @@
 # Claude Design Skills Notes
 
-这份笔记学习 Claude Design 当前系统提示词、22 个设计 skills 与 10 个 starter components 怎样组成一个可执行的设计运行时。它不是 Claude Design 的官方教程；重点是把可复用的流程、组件契约和验证方法从产品专用细节中抽出来。
+这份笔记学习 Claude Design 当前系统提示词、19 个用户可调用 skills、2 个内部 skills 与 10 个 starter components 怎样组成一个可执行的设计运行时。它不是 Claude Design 的官方教程；重点是把可复用的流程、组件契约和验证方法从产品专用细节中抽出来。
 
-> 源快照：`asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）。Skills 与 starter components 均来自该固定树，不根据目录名推测未出现的能力。
+> 源快照：`asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）。Skills 与 starter components 均来自该固定树；数量按目录 README 区分用户可调用与内部能力，不根据文件名推测运行时暴露状态。
 
 ## 一句话核心
 
@@ -53,7 +53,7 @@ Design Component（DC）是这套运行时的核心交付单元。源提示词�
 
 ## Skills：按交付物路由能力
 
-当前目录包含 22 个 skills，可以按意图分成五组：
+当前目录包含 21 个 skills：19 个出现在 slash menu，`hi-fi-design` 与 `options` 是可由系统取用但不由用户直接选择的内部 skills。可以按意图分成五组：
 
 ### 1. 探索与定义
 
@@ -75,7 +75,7 @@ Design Component（DC）是这套运行时的核心交付单元。源提示词�
 
 ### 4. 输入、研究与输出
 
-- `read-pdf`、`web-research`：先取得真实内容。
+- `web-research`：先取得真实网络内容。当前目录 README 明确记录 `read-pdf` 已移除，即使主提示词的旧工作流仍有遗留提及，也不能把它算作可用 skill。
 - `save-as-pdf`、`save-as-standalone-html`：输出到可分发格式。
 
 ### 5. 工程衔接
@@ -95,11 +95,19 @@ Skill 的意义不是给模型增加“灵感关键词”，而是为不同交�
 | `macos-window.jsx`、`browser-window.jsx` | 桌面窗口与浏览器容器 |
 | `deck-stage.js`、`doc-page.js` | 幻灯片和文档页面 |
 | `image-slot.js` | 稳定管理图像占位与替换 |
-| `animations-v2.jsx` | 复用动画模式 |
+| `animations-v3.jsx` | 连续时间轴、场景剪辑、播放与视频导出 |
 | `three-d-stage.js` | 3D 场景容器 |
 | `tweaks-panel.jsx` | 暴露可调参数 |
 
 Starter component 解决的是**重复结构的可靠性**。设备边框、文档纸张、deck 舞台和调参面板不应该每次重新发明；复用它们可以把注意力留给内容层级、交互和视觉判断。
+
+### 当前重组里最值得学习的契约
+
+- `animated-video` 必须以 `animations_v3.jsx` 的单一 authored-time clock 为事实来源；场景列表、播放长度和画面插值不能各自维护一套时间。
+- `make-a-doc` 与 `flier` 统一建立在 `doc-page.js` 的分页模型上，先决定 flowing pages 还是 fixed sheet。
+- `create-design-system` 把全局 CSS 入口、tokens、font-face、可发现组件和 UI kits 写成编译器契约，不靠目录名猜内容。
+- `handoff-to-claude-code` 要交付设计引用、保真级别、屏幕布局、交互、状态、tokens、资产和未决约束，而不是只丢一张截图。
+- `export-as-pptx-editable` 与 screenshots 版本继续明确区分结构可编辑和像素保真。
 
 ## Verification：预览、反馈锚点与 Claude Code handoff
 
@@ -226,9 +234,9 @@ interaction states, dimensions, known constraints, and unresolved decisions.
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [Claude Design system prompt](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/claude-design.md)
-- [Claude Design Skills directory](https://github.com/asgeirtj/system_prompts_leaks/tree/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Design/Skills)
-- [Claude Design Starter components](https://github.com/asgeirtj/system_prompts_leaks/tree/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Design/Starter%20components)
-
+- [Claude Design system prompt](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/claude-design.md)
+- [Claude Design Skills directory](https://github.com/asgeirtj/system_prompts_leaks/tree/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/skills)
+- [Claude Design Skills inventory](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/skills/README.md)
+- [Claude Design Starter components](https://github.com/asgeirtj/system_prompts_leaks/tree/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/starter-components)

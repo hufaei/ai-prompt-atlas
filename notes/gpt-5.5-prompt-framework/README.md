@@ -2,7 +2,7 @@
 
 这份笔记用于复习 GPT-5.5 风格系统提示词的核心框架。它不是官方模型说明，而是一个可复用的 prompt engineering 压缩模板。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。原文式母版完整保留；新增内容用于说明 GPT-5.5 Instant 怎样把通用框架接到用户上下文、文件检索、富响应和真实工具。
+> 已按源快照 `asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）复核。原文式母版完整保留；当前文件仍用于说明 GPT-5.5 Instant 怎样把通用框架接到用户上下文、文件检索、富响应和真实工具。
 
 ## 一句话核心
 
@@ -250,9 +250,9 @@ GPT-5.6 / Codex = 骨架 + 工作区 + skills + 工具运行时 + 持续交付
 
 ## 来源索引
 
-以下链接固定到本笔记复核时使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记复核时使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [GPT-5.5 Codex 行为提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/gpt-5.5.md)
-- [GPT-5.5 Thinking](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.5-thinking.md)
-- [GPT-5.5 Instant](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.5-instant.md)
-- [GPT-5.5 API](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.5-api.md)
+- [GPT-5.5 Codex 行为提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/gpt-5.5.md)
+- [GPT-5.5 Thinking](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/gpt-5.5-thinking.md)
+- [GPT-5.5 Instant](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/gpt-5.5-instant.md)
+- [GPT-5.5 API](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/gpt-5.5-api.md)

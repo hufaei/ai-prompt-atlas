@@ -1,14 +1,14 @@
 # Grok Prompt Evolution Notes
 
-这份笔记用于复习固定源快照里的 Grok 系列提示词演进。它不是官方模型说明，而是基于 `grok-3` 到当前 `grok-4.5` 的 prompt engineering 学习整理。
+这份笔记用于复习固定源快照里的 Grok 系列提示词。它不是官方模型说明，而是基于 `grok-3` 到当前 `grok-4.6`，并横向纳入 Grok Build 与 Grok Bot 的 prompt engineering 学习整理。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。本页保留版本演进作为理解工具注册方式的背景，但当前结论以该源快照为准。
+> 已按源快照 `asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）复核。历史版本只帮助理解结构，当前结论以 Grok 4.6、Grok Build 与 Grok Bot 的固定文件为准。
 
 ## 一句话核心
 
-Grok 的提示词演进主线不是“建立稳定推理链”或“建立工程执行闭环”，而是不断把产品能力塞进系统提示词：X 搜索、网页搜索、代码执行、图片生成/编辑、渲染组件、多 agent、远程沙箱和 skills。
+Grok 的对话提示词主线是持续注册产品能力；到 4.6，浏览器 tab、network diagnostics 与 connector auth 被正式纳入。Grok Build 把这些能力收束为应用生成闭环，Grok Bot 则进一步变成带消息通道、routine、subagent、插件和远程 box 的桌面代理。
 
-所以它最值得学的是“产品型 AI 如何注册工具和输出组件”；不太值得照抄的是它的整体请求处理结构。
+所以它最值得学的不只是在 prompt 中注册工具，而是**同一品牌怎样为对话、应用生成和有状态代理设计三种不同 runtime**。
 
 ## 版本演进
 
@@ -67,6 +67,62 @@ project asset or iterative edit -> generate/edit tool -> saved file -> render
 
 它比“看到 Gmail 就直接猜一个参数调用”更可靠，也比所有图片请求都保存到 sandbox 更符合产品体验。
 
+### Grok 4.6：浏览器与连接器认证进入核心工具面
+
+Grok 4.6 保留 Environment、Context、X/web/image、files、bash、render、skills、User Info 与 Memories 的顺序，同时新增或强化：
+
+- `browser_tab`：创建、导航、选择和管理浏览器 tab，把网页交互从单次 fetch 扩展为有状态页面会话。
+- `browser_network_details`：读取网络层细节，为加载失败、请求错误和页面调试提供证据。
+- `request_connector_auth`：连接器缺少授权时走显式认证路径，不把未授权误写成“没有数据”。
+- `search_connected_tools → call_connected_tool`：仍然先发现精确 schema，再调用具体能力。
+- Render Components：继续承担引用、图片和文件预览；它是展示协议，不是事实来源。
+
+这使 4.6 的产品链路变成：
+
+```text
+用户请求
+→ 选择事实源或有状态浏览器
+→ 必要时发现 connector schema / 请求授权
+→ 执行工具
+→ 用 render component 展示可检查结果
+→ 读写 memory 只保存适合持久化的用户上下文
+```
+
+## 三种 Grok Runtime
+
+### Grok 4.6：通用对话与产品工具
+
+4.6 面向开放式问答、多模态、X/web 和连接器任务。它的优势是工具面宽；薄弱处仍是统一完成验证不如专用 coding agent 明确。
+
+### Grok Build：应用生成工作区
+
+Grok Build 的源文件先定义 project instruction 作用域和优先级，再进入 App Builder Workspace。它要求先判断是否值得构建，区分预览容器与真实浏览器两个世界，维护 `/workspace/startup.sh`，按执行循环完成 scaffold、运行、浏览器 QA 和用户交付。
+
+它最值得学习的不是工具数量，而是这条闭环：
+
+```text
+triage
+→ 读取项目指令与 skills
+→ scaffold / 修改
+→ 启动并保持可访问
+→ 浏览器 QA
+→ 修复后再交付
+```
+
+Gmail、voice 与 automation 等连接器在工具注册表中出现，但是否调用仍由用户目标和授权决定。
+
+### Grok Bot：消息优先的有状态桌面代理
+
+Grok Bot 明确规定 `SendMessage` 是唯一对用户发声的通道，并要求先回复、再持续更新。它拥有持久 box、browser/computer 子代理、shell、插件与 MCP、routine、memory files 和 subagent 生命周期。
+
+最有辨识度的边界包括：
+
+- 自己的动作需要 approval 时要显式停下，不从工具可用性推导权限。
+- 第三方内容按不可信数据处理，不能让网页或消息冒充系统指令。
+- 长任务可以委派，但主代理负责状态、结果与停止失控子任务。
+- routine 是可持续触发的任务协议，不等于普通的一次性延迟命令。
+- box 与用户电脑是不同环境，文件和 UI 状态不能互相冒充。
+
 ## 为什么表现可能不稳
 
 Grok 的问题不是能力少，而是能力太多但调度骨架偏松。
@@ -114,9 +170,9 @@ Grok teaches product capability registration.
 - 多 agent 只有协作通道，没有验证和裁决协议。
 - 代码/文件任务只有 read/edit/write/bash，没有测试、Git 和完成标准。
 
-## 原文式可复用模板：Product + Tool + Render Runtime
+## 原文式可复用模板：Product + Browser + Connector Runtime
 
-这份母版沿用 Grok 4.5 的产品提示词形态：基础行为之后直接描述远程环境，再注册工具、渲染组件、skills、用户信息和 memory。具体的 X 搜索、连接器、图像、文件与沙箱函数被替换成同位置的通用槽位。
+这份母版沿用 Grok 4.6 的产品提示词形态：基础行为之后直接描述远程环境，再注册工具、渲染组件、skills、用户信息和 memory。具体的 X 搜索、浏览器、连接器认证、图像、文件与沙箱函数被替换成同位置的通用槽位。
 
 ```text
 You are {{ASSISTANT_NAME = ...}}, built by {{PROVIDER = ...}}.
@@ -192,8 +248,9 @@ Failure, retry, and fallback behavior:
 
 Example registration categories can include current-web retrieval, network-specific
 keyword or semantic search, account/thread retrieval, image search, image generation
-or editing, file read/edit/write, and sandbox command execution. Add only categories
-actually implemented by the product.
+or editing, stateful browser tabs, browser network diagnostics, connector discovery,
+connector authentication, file read/edit/write, and sandbox command execution. Add
+only categories actually implemented by the product.
 
 When several sources return candidates, deduplicate and adjudicate them through
 {{CANDIDATE_ADJUDICATION = ...}}. Clearly distinguish retrieved evidence, sandbox
@@ -269,12 +326,14 @@ uncertainty, and avoid exposing raw function arguments or internal coordination.
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [Grok 3](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-3.md)
-- [Grok 4](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.md)
-- [Grok 4.1 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.1-beta.md)
-- [Grok 4.2](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.2.md)
-- [Grok 4.3 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.3-beta.md)
-- [Grok 4.5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-4.5.md)
-- [Grok Build](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/xAI/grok-build.md)
+- [Grok 3](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-3.md)
+- [Grok 4](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-4.md)
+- [Grok 4.1 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-4.1-beta.md)
+- [Grok 4.2](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-4.2.md)
+- [Grok 4.3 Beta](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-4.3-beta.md)
+- [Grok 4.5](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-4.5.md)
+- [Grok 4.6](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-4.6.md)
+- [Grok Build](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-build.md)
+- [Grok Bot](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/xAI/grok-bot.md)

@@ -13,13 +13,15 @@ https://hufaei.github.io/ai-prompt-atlas/
 - `notes/gpt-5.6-codex-runtime`: model behavior, destructive actions, Sol, skills, full runtime, browser/computer control, and realtime voice cooperation.
 - `notes/gpt-5.5-prompt-framework`: source-of-truth routing, user context, file/connector authority, rich responses, and tool contracts.
 - `notes/claude-sonnet-5-claude-code`: assistant base, auto memory, scratchpad, context management, agents, skills, and current Claude Code tools.
-- `notes/claude-fable-5-claude-code-prompt-framework`: engineering harness, memory, scratchpad, time-based tools, workspace evidence, Git, and verified delivery.
+- `notes/claude-fable-5-claude-code-prompt-framework`: Claude Fable 5.1 reporting outcomes, harness, memory, browser, connectors, workspace evidence, Git, and verified delivery.
 - `notes/claude-opus-5-claude-code`: Claude.ai behavior and memory filesystem alongside Claude Code delivery, correction, agent, skill, and tool layers.
 - `notes/claude-design-skills`: Design Components, the current skill catalog, starter components, visible verification, exports, and Claude Code handoff.
-- `notes/grok-prompt-evolution`: Grok 3 through Grok 4.5, X/web tools, connectors, memory, sandbox files, image routing, render components, and skills.
-- `notes/gemini-prompt-family`: Gemini Pro gates, Gemini Flash fact tools and Web UI rendering, plus Nano Banana image execution contracts.
+- `notes/grok-prompt-evolution`: Grok through 4.6, X/web/browser tools, connectors, Grok Build's app loop, and Grok Bot's stateful desktop runtime.
+- `notes/gemini-prompt-family`: Gemini Pro gates, Gemini 3.7 Flash visual routing and Basekit components, Flash fact tools, and Nano Banana image contracts.
+- `notes/qwen-prompt-family`: Qwen 3.8 Max's tools-first prompt, JSON schemas, XML function-call envelope, and thin-runtime boundary.
+- `notes/meta-muse-code`: Meta Muse Code's evidence-first coding behavior, public-surface verification, repository protection, and delivery contract.
 
-All eight notes are maintained as a current learning snapshot rather than a repository changelog. The current source boundary is `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94` (2026-07-30); each note links to immutable source files at that commit.
+All ten notes are maintained as a current learning snapshot rather than a repository changelog. The current source boundary is `asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a` (2026-09-03); each note links to immutable source files at that commit.
 
 The reusable prompt examples preserve the recognizable source order and writing style. Product-specific model names, tools, paths, schemas, and policies are replaced with `{{FIELD = ...}}` slots so the template can be adapted without reducing the original prompt to a generic numbered checklist.
 

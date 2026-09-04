@@ -1,23 +1,30 @@
-# Claude Fable 5 / Claude Code Prompt Framework Notes
+# Claude Fable 5.1 / Claude Code Prompt Framework Notes
 
-这份笔记用于复习当前 Claude Fable 5 与 Claude Code Fable 5 系统提示词。它不是官方模型说明，而是基于固定源快照整理出的 prompt engineering 学习模板。
+这份笔记用于复习当前 Claude Fable 5.1 与 Claude Code Fable 5.1 系统提示词。它不是官方模型说明，而是基于固定源快照整理出的 prompt engineering 学习模板。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。原文式 Claude Code Harness 母版完整保留；当前补充重点是 memory、scratchpad、cron、DesignSync 和完整工具目录。
+> 已按源快照 `asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）复核。原文式 Claude Code Harness 母版完整保留；当前结论以 Fable 5.1 的 Reporting outcomes、memory、browser automation、skills 与连接器运行时为准。
 
 ## 一句话核心
 
-GPT-5.5 风格像通用请求路由器；Fable 5 / Claude Code 风格像代码工作区执行代理。它的重点不是回答得像助手，而是把一次工程请求推进到查证、修改、验证和交付。
+GPT-5.5 风格像通用请求路由器；Fable 5.1 / Claude Code 风格像证据驱动的代码工作区执行代理。它的重点不是回答得像助手，而是把一次工程请求推进到查证、修改、验证和如实交付。
 
 ## 原文式可复用模板：Claude Code Harness
 
 这份母版沿用 Claude Code Runtime 的展开顺序。具体工具不再被压缩成“选择最小工具”一句，而是在原工具目录的位置提供完整注册槽位，方便替换成自己的函数、权限与返回协议。
 
 ```text
-# Harness
-
 You are {{ASSISTANT_NAME = ...}}, operating inside {{PRODUCT_HARNESS = ...}}.
 Your role is {{ENGINEERING_ROLE = ...}}. Work with the user in the active
 workspace until {{COMPLETION_CONDITION = ...}} or a concrete blocker remains.
+
+# Reporting outcomes
+
+Report what actually happened, not what was intended. A claim that work is done,
+sent, saved, fixed, or verified must rest on {{OBSERVED_RESULT = ...}} from this
+session. If a check was skipped, failed, or returned an unexpected result, say so
+before the successful parts. Never turn a workaround into a false completion claim.
+
+# Harness
 
 The harness provides tools, context, and state. Capability availability does not
 override the user's request, repository instructions, or confirmation policy.
@@ -171,12 +178,42 @@ limits. Do not claim success from a plan, an agent report, or an uninspected dif
 6. Git 是独立边界：commit 和 push 只在用户明确要求时执行。
 7. 多 agent 是扩展能力：适合广泛搜索、并行审查和大规模迁移，但不应代替主 agent 的最终判断。
 
-## 当前 Fable 5 Runtime：从工程闭环到有状态执行
+## 当前 Fable 5.1 Runtime：从工程闭环到可观察交付
 
-当前 `claude-code-fable-5.md` 仍然以 `Harness` 与 `Communicating with the user` 开始，但运行时已经比旧版工程骨架更完整：
+Fable 5.1 的 Claude Code 文件在身份声明前先给出 reasoning effort 映射，然后立刻进入 `Reporting outcomes`。这不是普通写作偏好，而是完成状态协议：只有本轮实际观察到的工具结果、文件内容或页面状态，才能支撑 done、saved、fixed 或 verified；失败、跳过与偏差必须放在交付第一句。
+
+源文件随后保持原有 Harness 顺序，并扩展成更完整的产品运行时：
+
+```text
+Reasoning effort
+→ identity
+→ Reporting outcomes
+→ Harness
+→ session guidance
+→ Memory / Environment / Scratchpad
+→ Context management / Delivering work / Writing for the user
+→ Claude in Chrome
+→ session context / Agents / Skills
+→ concrete tool and connector registry
+```
+
+### Reporting outcomes：完成是一条证据约束
+
+它明确区分“计划会发生什么”和“已经观察到什么”。如果验证没做，就要说没做；如果某一步失败，不能静默绕过后再把摘要写成成功。可复用时，这一段应该保持在行为层前部，因为它会约束后面的每个工具结果与最终交付。
+
+### Writing for the user：压缩靠删减，不靠堆叠
+
+当前文件把终端写作约束写得很具体：先给答案；一句承载一个观点；代码放代码块；短消息不滥用标题；数字只有在改变决策时才出现。它还要求自主推进可逆动作，不用“要不要我……”把无人值守任务卡住。
+
+### Claude in Chrome：浏览器是独立证据表面
+
+浏览器段落区分启动 tab context、console 调试、alert/dialog、GIF recording 与循环退出条件。这里的重点不是“会点页面”，而是把浏览器看成一个需要选择正确会话、读取可见状态、限制失败重试并把结果交回主任务的运行时。
+
+当前 `claude-code-fable-5.1.md` 仍然以 `Harness` 与会话协作规则为主轴，但运行时已经比旧版工程骨架更完整：
 
 | 层 | 当前结构 | 学习重点 |
 | --- | --- | --- |
+| 证据 | Reporting outcomes、Delivering work | 完成声明必须落在本轮可观察结果上 |
 | 会话 | Session guidance、Environment、gitStatus、claudeMd、currentDate | 当前项目事实必须来自注入状态，而不是模型臆测 |
 | 记忆 | Memory | 保存跨会话稳定事实，同时保留来源、原因与应用方式 |
 | 临时态 | Scratchpad Directory | 临时文件进入会话专用目录，不污染仓库 |
@@ -185,10 +222,11 @@ limits. Do not claim success from a plan, an agent report, or an uninspected dif
 | 时间 | Cron、Monitor、ScheduleWakeup、RemoteTrigger | 定时、持续观察和远程触发是不同契约 |
 | 设计 | Artifact、DesignSync、NotebookEdit | 代码之外的产物也有创建、同步和验证路径 |
 | 工程工具 | Bash、Read、Edit、Write、WebFetch、WebSearch、Workflow | 每类事实和副作用绑定到专用工具 |
+| 外部服务 | Gmail、Google Calendar、Google Drive、Claude in Chrome | 连接器 schema 定义数据与副作用，不能从可用性推导授权 |
 
 ### Memory：记录的不只是事实
 
-当前 Claude Code Fable 5 的 memory 格式要求：反馈和项目记忆不仅写“是什么”，还要写 `Why` 与 `How to apply`，相关记忆可以互相链接。它把记忆从便签变成**带适用条件的工程知识**。
+当前 Claude Code Fable 5.1 的 memory 格式要求：反馈和项目记忆不仅写“是什么”，还要写 `Why` 与 `How to apply`，相关记忆可以互相链接。它把记忆从便签变成**带适用条件的工程知识**。
 
 ### Scratchpad：临时态必须有生命周期
 
@@ -236,9 +274,9 @@ Fable 5 / Claude Code: drive the engineering task through workspace evidence, ed
 
 提示词更像一份 CLI/agent runtime 手册：环境信息、上下文续作、工具说明、Agent 路由和计划模式被组织得更紧凑。这个阶段强调长上下文下继续推进，不要因为会话变长就提前收尾。
 
-### Fable 5：自治执行和交付闭环加强
+### Fable 5.1：可观察结果和无人值守执行加强
 
-Fable 5 在 Claude Code 场景里的重点是更强的 agent 行为：能做就做，少问阻塞式问题；对可逆动作保持推进；对破坏性、外部发布、权限、Git 操作保持边界。它把“代码助手”进一步推向“工程执行代理”。
+Fable 5.1 在 Claude Code 场景里的重点是：能做就做，少问阻塞式问题；对可逆动作保持推进；对破坏性、外部发布、权限、Git 操作保持边界；最终只报告本轮真正观察到的结果。它把“工程执行代理”进一步收紧为“可审计的工程执行代理”。
 
 ## 和当前 Sonnet 5 / Claude Code 快照的关系
 
@@ -262,9 +300,9 @@ specialized skills, and context continuity around that completion loop.
 
 ## 来源索引
 
-以下链接固定到本笔记复核时使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记复核时使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [Claude Fable 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/claude-fable-5.md)
-- [Claude Code Fable 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-fable-5.md)
-- [Claude Code Opus 4.6](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-opus-4.6.md)
-- [Claude Code Opus 4.8](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-opus-4.8.md)
+- [Claude Fable 5.1](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-fable-5.1.md)
+- [Claude Fable 5.1 官方版本材料](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/official/2026-09-01-claude-fable-5.1.md)
+- [Claude Code Fable 5.1](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/claude-code-fable-5.1.md)
+- [Claude Code workflow-authoring skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/workflow-authoring/SKILL.md)

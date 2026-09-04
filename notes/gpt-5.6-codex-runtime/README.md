@@ -2,7 +2,7 @@
 
 这份笔记把 GPT-5.6 的 Codex 行为提示词、独立的 Sol 变体、Codex 完整运行时和桌面实时语音协作层放在一起学习。它不是官方模型说明，也不是源提示词的逐字复刻，而是面向复习与复用的 prompt engineering 快照。
 
-> 源快照：`asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）。本文关注当前结构，不记录分支或提交演进过程。
+> 源快照：`asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）。本文关注当前结构，不记录分支或提交演进过程；Sol 结论以当前 `gpt-5.6-sol.md` 为准。
 
 ## 一句话核心
 
@@ -132,7 +132,9 @@ GPT-5.6 的工程规则可以压缩成四组约束。
 
 这里最值得复用的设计是**把危险动作从一般自治规则中抽出来**。自治规则回答“要不要继续”，destructive-actions 层回答“即使允许继续，怎样把目标和影响范围收紧”。
 
-Sol 与 Terra/Luna 的主要差异不在章节数量，而在授权语气：Sol 更直接强调权限、受保护流程和外部协调是停止条件；Terra/Luna 则更细分回答、诊断、修改和监控四类请求。两者都保持“工具存在不等于有权使用”的共同边界。
+当前 Sol 文件把四类用户意图直接写进自治规则：回答/评审、诊断、修改/构建、监控/等待。它还把 destructive actions 单列，并在普通 shell 规则和危险动作规则中两次强调不要把 `$HOME`、`$home` 或 `$CODEX_HOME` 复用成任务变量。两处共同说明：**方便的环境变量不应成为宽泛目标的隐式别名。**
+
+Sol 的停止条件不是“任务变难”，而是需要新的权限、外部协调或会实质改变结果的用户选择。相反，安全、可逆、任务范围内的检查与实现应继续推进。工具存在仍然不等于有权使用。
 
 ## Skills：把复杂工作流从主提示词里拆出来
 
@@ -407,13 +409,12 @@ GPT-5.5 仍然是很好的通用骨架；GPT-5.6/Codex 更像把这个骨架放�
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [GPT-5.6 Codex 行为层](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/gpt-5.6.md)
-- [GPT-5.6 Sol 行为层](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/gpt-5.6-sol.md)
-- [Codex full runtime](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/codex-full.md)
-- [GPT-5.6 SOL extra-high runtime](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/gpt-5.6-sol-extra-high.md)
-- [Codex Desktop Realtime Voice Agent](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/codex-desktop-realtime-voice-agent.md)
-- [Computer Use 层](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/computer-use.md)
-- [Chrome 控制层](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/control-chrome.md)
-- [In-app Browser 控制层](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/OpenAI/Codex/control-in-app-browser.md)
+- [GPT-5.6 Codex 行为层](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/gpt-5.6.md)
+- [GPT-5.6 Sol 行为层](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/gpt-5.6-sol.md)
+- [Codex full runtime](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/codex-full.md)
+- [Codex Desktop Realtime Voice Agent](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/codex-desktop-realtime-voice-agent.md)
+- [Computer Use 层](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/computer-use.md)
+- [Chrome 控制层](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/control-chrome.md)
+- [In-app Browser 控制层](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/OpenAI/Codex/control-in-app-browser.md)

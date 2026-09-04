@@ -14,8 +14,8 @@
       </style>
       <rect width="1600" height="900" fill="rgba(255,255,255,0.40)"/>
       <rect x="46" y="38" width="1508" height="128" rx="28" fill="rgba(255,255,255,0.88)" stroke="#d8d5cc"/>
-      <text x="80" y="95" class="title" text-anchor="start">Claude Fable 5 / Claude Code 学习图谱</text>
-      <text x="82" y="134" class="subtitle" text-anchor="start">用 Harness 把工程请求推进到工作区证据、修改、验证和交付</text>
+      <text x="80" y="95" class="title" text-anchor="start">Claude Fable 5.1 / Claude Code 学习图谱</text>
+      <text x="82" y="134" class="subtitle" text-anchor="start">Reporting outcomes 把工程闭环收紧为可观察、可审计的交付</text>
       <line x1="70" y1="374" x2="1490" y2="374" stroke="#c7d0da" stroke-width="2"/>
       <path d="M 290 374 L 310 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 530 374 L 550 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 770 374 L 790 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 1010 374 L 1030 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 1250 374 L 1270 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/>
       
@@ -24,17 +24,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#7399d1" stroke-width="2"/>
         <circle cx="102" cy="264" r="18" fill="#eaf2ff" stroke="#7399d1" stroke-width="2"/>
         <text x="102" y="271" class="index" text-anchor="middle">1</text>
-        <text x="132" y="273" class="node-title" text-anchor="start">Harness</text>
+        <text x="132" y="273" class="node-title" text-anchor="start">结果证据</text>
         <line x1="92" y1="306" x2="268" y2="306" stroke="#7399d1" opacity="0.38"/>
         
         <circle cx="97" cy="347" r="4" fill="#7399d1"/>
-        <text x="112" y="353" class="bullet" text-anchor="start">工程代理身份</text>
+        <text x="112" y="353" class="bullet" text-anchor="start">只报实际发生</text>
       
         <circle cx="97" cy="395" r="4" fill="#7399d1"/>
-        <text x="112" y="401" class="bullet" text-anchor="start">持续到完成或阻塞</text>
+        <text x="112" y="401" class="bullet" text-anchor="start">失败放在首句</text>
       
         <circle cx="97" cy="443" r="4" fill="#7399d1"/>
-        <text x="112" y="449" class="bullet" text-anchor="start">短进度与终态交付</text>
+        <text x="112" y="449" class="bullet" text-anchor="start">未检查就明说</text>
       
       </g>
     
@@ -43,17 +43,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#6fa991" stroke-width="2"/>
         <circle cx="342" cy="264" r="18" fill="#e9f6f1" stroke="#6fa991" stroke-width="2"/>
         <text x="342" y="271" class="index" text-anchor="middle">2</text>
-        <text x="372" y="273" class="node-title" text-anchor="start">Memory</text>
+        <text x="372" y="273" class="node-title" text-anchor="start">Harness</text>
         <line x1="332" y1="306" x2="508" y2="306" stroke="#6fa991" opacity="0.38"/>
         
         <circle cx="337" cy="347" r="4" fill="#6fa991"/>
-        <text x="352" y="353" class="bullet" text-anchor="start">项目与反馈事实</text>
+        <text x="352" y="353" class="bullet" text-anchor="start">权限模式</text>
       
         <circle cx="337" cy="395" r="4" fill="#6fa991"/>
-        <text x="352" y="401" class="bullet" text-anchor="start">Why / How to apply</text>
+        <text x="352" y="401" class="bullet" text-anchor="start">system updates</text>
       
         <circle cx="337" cy="443" r="4" fill="#6fa991"/>
-        <text x="352" y="449" class="bullet" text-anchor="start">保留来源与链接</text>
+        <text x="352" y="449" class="bullet" text-anchor="start">并行专用工具</text>
       
       </g>
     
@@ -62,17 +62,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#d7a557" stroke-width="2"/>
         <circle cx="582" cy="264" r="18" fill="#fff3df" stroke="#d7a557" stroke-width="2"/>
         <text x="582" y="271" class="index" text-anchor="middle">3</text>
-        <text x="612" y="273" class="node-title" text-anchor="start">Environment</text>
+        <text x="612" y="273" class="node-title" text-anchor="start">状态</text>
         <line x1="572" y1="306" x2="748" y2="306" stroke="#d7a557" opacity="0.38"/>
         
         <circle cx="577" cy="347" r="4" fill="#d7a557"/>
-        <text x="592" y="353" class="bullet" text-anchor="start">gitStatus / claudeMd</text>
+        <text x="592" y="353" class="bullet" text-anchor="start">memory 文件</text>
       
         <circle cx="577" cy="395" r="4" fill="#d7a557"/>
-        <text x="592" y="401" class="bullet" text-anchor="start">专用 scratchpad</text>
+        <text x="592" y="401" class="bullet" text-anchor="start">session scratchpad</text>
       
         <circle cx="577" cy="443" r="4" fill="#d7a557"/>
-        <text x="592" y="449" class="bullet" text-anchor="start">上下文续作</text>
+        <text x="592" y="449" class="bullet" text-anchor="start">context continuation</text>
       
       </g>
     
@@ -81,17 +81,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#9b84cf" stroke-width="2"/>
         <circle cx="822" cy="264" r="18" fill="#f1edff" stroke="#9b84cf" stroke-width="2"/>
         <text x="822" y="271" class="index" text-anchor="middle">4</text>
-        <text x="852" y="273" class="node-title" text-anchor="start">Tool Registry</text>
+        <text x="852" y="273" class="node-title" text-anchor="start">Browser</text>
         <line x1="812" y1="306" x2="988" y2="306" stroke="#9b84cf" opacity="0.38"/>
         
         <circle cx="817" cy="347" r="4" fill="#9b84cf"/>
-        <text x="832" y="353" class="bullet" text-anchor="start">Read / Edit / Bash</text>
+        <text x="832" y="353" class="bullet" text-anchor="start">tab context</text>
       
         <circle cx="817" cy="395" r="4" fill="#9b84cf"/>
-        <text x="832" y="401" class="bullet" text-anchor="start">Agent / Task</text>
+        <text x="832" y="401" class="bullet" text-anchor="start">console / dialogs</text>
       
         <circle cx="817" cy="443" r="4" fill="#9b84cf"/>
-        <text x="832" y="449" class="bullet" text-anchor="start">每个工具有边界</text>
+        <text x="832" y="449" class="bullet" text-anchor="start">失败循环止损</text>
       
       </g>
     
@@ -100,17 +100,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#d98772" stroke-width="2"/>
         <circle cx="1062" cy="264" r="18" fill="#fff0ec" stroke="#d98772" stroke-width="2"/>
         <text x="1062" y="271" class="index" text-anchor="middle">5</text>
-        <text x="1092" y="273" class="node-title" text-anchor="start">时间与设计</text>
+        <text x="1092" y="273" class="node-title" text-anchor="start">Agents / Skills</text>
         <line x1="1052" y1="306" x2="1228" y2="306" stroke="#d98772" opacity="0.38"/>
         
         <circle cx="1057" cy="347" r="4" fill="#d98772"/>
-        <text x="1072" y="353" class="bullet" text-anchor="start">Cron / Monitor</text>
+        <text x="1072" y="353" class="bullet" text-anchor="start">边界清楚才委派</text>
       
         <circle cx="1057" cy="395" r="4" fill="#d98772"/>
-        <text x="1072" y="401" class="bullet" text-anchor="start">ScheduleWakeup</text>
+        <text x="1072" y="401" class="bullet" text-anchor="start">先加载说明</text>
       
         <circle cx="1057" cy="443" r="4" fill="#d98772"/>
-        <text x="1072" y="449" class="bullet" text-anchor="start">Artifact / DesignSync</text>
+        <text x="1072" y="449" class="bullet" text-anchor="start">主代理整合</text>
       
       </g>
     
@@ -119,27 +119,27 @@
           fill="rgba(255,255,255,0.94)" stroke="#65a7b2" stroke-width="2"/>
         <circle cx="1302" cy="264" r="18" fill="#eaf6f8" stroke="#65a7b2" stroke-width="2"/>
         <text x="1302" y="271" class="index" text-anchor="middle">6</text>
-        <text x="1332" y="273" class="node-title" text-anchor="start">工程闭环</text>
+        <text x="1332" y="273" class="node-title" text-anchor="start">Delivery</text>
         <line x1="1292" y1="306" x2="1468" y2="306" stroke="#65a7b2" opacity="0.38"/>
         
         <circle cx="1297" cy="347" r="4" fill="#65a7b2"/>
-        <text x="1312" y="353" class="bullet" text-anchor="start">查证再编辑</text>
+        <text x="1312" y="353" class="bullet" text-anchor="start">自主推进可逆项</text>
       
         <circle cx="1297" cy="395" r="4" fill="#65a7b2"/>
-        <text x="1312" y="401" class="bullet" text-anchor="start">保护 Git 现场</text>
+        <text x="1312" y="401" class="bullet" text-anchor="start">外部动作确认</text>
       
         <circle cx="1297" cy="443" r="4" fill="#65a7b2"/>
-        <text x="1312" y="449" class="bullet" text-anchor="start">验证真实行为</text>
+        <text x="1312" y="449" class="bullet" text-anchor="start">证据化收口</text>
       
       </g>
     
       <rect x="70" y="566" width="1420" height="112" rx="22" fill="rgba(239,246,255,0.94)" stroke="#b7cbe3" stroke-width="2"/>
       <text x="100" y="603" class="band-label" text-anchor="start">REUSABLE SOURCE SHAPE</text>
-      <text x="100" y="644" class="band-copy" text-anchor="start">原结构复用：Harness → Communication → Session → Memory → Environment → Context → Tools → Git → Delivery</text>
+      <text x="100" y="644" class="band-copy" text-anchor="start">原结构复用：Identity → Reporting outcomes → Harness → State → Browser / Agents / Skills → Tools → Delivery</text>
       <rect x="70" y="710" width="1420" height="104" rx="22" fill="rgba(255,248,230,0.95)" stroke="#dfbf73" stroke-width="2"/>
       <circle cx="108" cy="762" r="22" fill="#fff3c9" stroke="#d7a542" stroke-width="2"/>
       <text x="108" y="771" class="hook" text-anchor="middle">!</text>
-      <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：Claude Code 的完成不是给建议，而是让工程状态真的发生并被验证。</text>
-      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@1e82828 · 2026-07-30</text>
+      <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：“做过”不等于“完成”；只有本轮观察到的结果才能支撑完成声明。</text>
+      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@171d1db · 2026-09-03</text>
     </svg>
   

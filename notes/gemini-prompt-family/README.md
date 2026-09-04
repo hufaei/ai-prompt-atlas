@@ -1,8 +1,8 @@
 # Gemini Prompt Family Notes
 
-这份笔记用于复习本地仓库里的 Gemini 3 系列与 Nano Banana 2 API。它不是官方模型说明，而是基于 `gemini-3.1-pro`、`gemini-3.5-flash`、`nano-banana-2-api` 的 prompt engineering 学习整理。
+这份笔记用于复习固定源快照里的 Gemini 3 系列与 Nano Banana 2 API。它不是官方模型说明，而是基于 `gemini-3.1-pro`、`gemini-3.5-flash`、`gemini-3.7-flash` 与 `nano-banana-2-api` 的 prompt engineering 学习整理。
 
-> 已按源快照 `asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）复核。正文的三层分工、可复用模板和复习问题完整保留；当前 Flash 的 Python、Web、Workspace 与 YouTube 工具契约已纳入。
+> 已按源快照 `asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）复核。正文的分层框架完整保留；当前新增重点是 Gemini 3.7 Flash 的 visual decision tree、Basekit 响应组件与 GenerateWidget 协议。
 
 ## 一句话核心
 
@@ -262,6 +262,46 @@ Video/channel/playlist discovery -> YouTube Search
 
 也就是说，`<Image>`、`<Timeline>`、`<Sequence>` 和 `<GenerateWidget>` 是展示层，不是事实来源。先选组件再反推内容，会把 UI 语法误当成 reasoning。
 
+## Gemini 3.7 Flash：先判断信息形状，再选择视觉表面
+
+3.7 Flash 的源文件与 3.5 Flash 不只是版本号差异。它把“是否需要视觉”提升为回答前的强制决策树，并把响应输出组织成 Markdown、图片、可浏览图片组、顺序步骤、时间线、交互 widget 与 follow-up 等不同表面。
+
+### Saved Information 与 system instructions 分层
+
+文件开头先注入 Saved Information，再进入 `system_instructions`。其中明确要求：如果保存信息与本轮请求冲突，优先服从当前用户请求；保存信息只在相关时应用，不能把持久上下文当成每次回答都必须展示的内容。
+
+### Visual decision tree
+
+3.7 Flash 要先问“视觉是否真正提高理解速度或准确性”，再决定图片、图集或交互组件：
+
+```text
+不需要视觉 → Markdown
+一个具体可视对象 → Image
+4–10 个独立图像 → Carousel
+顺序不可打乱的操作 → Sequence
+日期本身有信息价值 → Timeline
+参数变化会改变结果 → GenerateWidget
+一个明确下一步 → FollowUp
+多个同样有价值的方向 → ElicitationsGroup
+```
+
+这不是“多用组件”。源文件反复强调 complementary、not redundant：高注意力视觉之间要留出文字呼吸，不把两个同等显眼但信息重复的组件堆在一起。
+
+### Basekit 组件是输出协议
+
+每个组件都有 trigger、do-not-use、props 和 fallback。例如：
+
+- `Image` 必须先从图像工具获得真实 `image_tag`，不能伪造 placeholder。
+- `Carousel` 只容纳 4–10 张各自通过相关性检查的图片。
+- `Sequence` 只用于乱序会导致失败的操作，不替代普通建议列表。
+- `Timeline` 只有在拿掉日期会损失信息时使用。
+- `GenerateWidget` 需要真实初始数据，并用 Objective、Data State、Inputs、Behavior 描述语义，不在 prompt 中硬写 CSS 和绘图坐标。
+- `FollowUp` 与 `ElicitationsGroup` 都会把 query 原样提交为下一条用户请求，因此 query 必须自足。
+
+### 三秒布局检查
+
+文件给出的完成标准很具体：用户应在三秒内认出答案、主视觉和深入路径。组件不是装饰；如果多个视觉争夺注意力，就删掉较弱的那个。
+
 ## Nano Banana 2 API：图像执行契约
 
 `nano-banana-2-api` 不应该当成完整助手 prompt 学。它更像一个工具声明文件，告诉上层模型有哪些图像相关工具、每个工具需要什么参数。
@@ -438,6 +478,31 @@ inputs, derived state, reset behavior, accessibility, and the noninteractive fal
 
 # Flash web UI layer
 
+## Visual decision tree
+
+Before composing, decide whether a visual materially improves understanding.
+
+- No visual gain: {{MARKDOWN_RESPONSE = ...}}
+- One concrete subject: {{SINGLE_IMAGE_COMPONENT = ...}}
+- Four to ten independently useful images: {{CAROUSEL_COMPONENT = ...}}
+- Order-critical procedure: {{SEQUENCE_COMPONENT = ...}}
+- Date-weighted chronology: {{TIMELINE_COMPONENT = ...}}
+- Parameter-driven interactive model: {{WIDGET_COMPONENT = ...}}
+
+Do not place two high-attention visuals back-to-back. Each visual must contribute
+different information and must use data returned by its authoritative tool.
+
+## Response component contract
+
+For each component, preserve the source-shaped block:
+
+- When to use: {{COMPONENT_TRIGGER = ...}}
+- When not to use: {{COMPONENT_EXCLUSIONS = ...}}
+- Required props: {{COMPONENT_REQUIRED_PROPS = ...}}
+- Source of dynamic values: {{COMPONENT_DATA_AUTHORITY = ...}}
+- Layout and ordering rules: {{COMPONENT_LAYOUT_RULES = ...}}
+- Markdown fallback: {{COMPONENT_FALLBACK = ...}}
+
 Saved information source: {{SAVED_INFORMATION = ...}}
 Flash personalization rules: {{FLASH_PERSONALIZATION = ...}}
 Elicitation mechanism: {{ELICITATION_COMPONENT = ...}}
@@ -519,8 +584,9 @@ Gemini is not only answering; it is deciding the presentation surface.
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [Gemini 3.1 Pro](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Google/gemini-3.1-pro.md)
-- [Gemini 3.5 Flash](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Google/gemini-3.5-flash.md)
-- [Nano Banana 2 API](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Google/nano-banana-2-api.md)
+- [Gemini 3.1 Pro](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Google/gemini-3.1-pro.md)
+- [Gemini 3.5 Flash](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Google/gemini-3.5-flash.md)
+- [Gemini 3.7 Flash](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Google/gemini-3.7-flash.md)
+- [Nano Banana 2 API](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Google/nano-banana-2-api.md)

@@ -2,7 +2,7 @@
 
 这份笔记把 Claude Sonnet 5 的通用助手提示词，与当前 Claude Code Sonnet 5 的系统、auto memory、agents、skills、工具注册表和上下文协议组合起来学习。它不是官方模型说明，也不是完整产品文档，而是可复习、可迁移的 prompt engineering 快照。
 
-> 源快照：`asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）。本页按稳定主题维护，不再把路由绑定到某个 Claude Code 小版本；旧的 `2.1.207` 页面地址只作为兼容入口。
+> 源快照：`asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）。本页按稳定主题维护；Claude Code 内容已按当前小写目录、commands、output-styles 与 skills 结构复核。
 
 ## 一句话核心
 
@@ -95,6 +95,17 @@ High-priority safety and source rules
 ```
 
 ## Claude Code：skills 让工程能力模块化
+
+当前目录不再使用旧的 `bundled-skills` 平铺方式，而是把每个能力整理为独立 `skills/<name>/SKILL.md`，并允许 skill 携带 references、脚本、模板和语言专用材料。除原有配置诊断、review 和 dataviz 外，当前固定树还明确出现：
+
+- `workflow-authoring`：只在用户已经选择 workflow 后提供编排脚本契约，本身不授予运行权限。
+- `claude-api`：把语言 SDK、tool use、streaming、files、batches、managed agents、evals 与 migration 分开装载。
+- `design` 与 `design-sync`：分别处理设计产物创建和代码/设计状态同步。
+- `verify`：把验证定义为驱动真实用户表面并捕获证据，而不是只重跑测试。
+- `security-review`、`debug`、`simplify`：把不同工程判断拆为独立触发与完成标准。
+- `output-styles`：concise、explanatory、learning、proactive 作为表达层注入，不改变基础工具权限。
+
+这次重组最值得学习的是：**skill 是带资源与 gate 的运行模块，output style 只是表达策略；两者不能互相冒充。**
 
 这批 Claude Code 材料的明显变化，是越来越多复杂工作流不再只靠主提示词描述，而是被拆成 bundled skills。每个 skill 既是说明书，也是执行 gate 和交付标准。
 
@@ -384,15 +395,15 @@ the unfinished task is complete.
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [Claude Sonnet 5 通用助手提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/claude-sonnet-5.md)
-- [Claude Code Sonnet 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-sonnet-5.md)
-- [Compact slash command](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/slash-commands/compact.md)
-- [Compact rewind summarization](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/slash-commands/compact-rewind-summarization.md)
-- [Compact continuation message](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/slash-commands/compact-continuation-message.md)
-- [`update-config` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/update-config.md)
-- [`doctor` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/doctor.md)
-- [`code-review` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/code-review/SKILL.md)
-- [`dataviz` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/dataviz/SKILL.md)
-- [`artifact-design` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/bundled-skills/artifacts/artifact-design.md)
+- [Claude Sonnet 5 通用助手提示词](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-sonnet-5.md)
+- [Claude Code Sonnet 5](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/claude-code-sonnet-5.md)
+- [Compact command](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/commands/compact.md)
+- [`update-config` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/update-config/SKILL.md)
+- [`doctor` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/doctor/SKILL.md)
+- [`code-review` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/code-review/SKILL.md)
+- [`workflow-authoring` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/workflow-authoring/SKILL.md)
+- [`claude-api` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/claude-api/SKILL.md)
+- [`dataviz` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/dataviz/SKILL.md)
+- [`artifact-design` skill](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/skills/artifact-design/SKILL.md)

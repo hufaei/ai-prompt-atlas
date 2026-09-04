@@ -1907,7 +1907,7 @@
         family: "OpenAI · Codex",
         badge: "Agent Runtime",
         latest: true,
-        snapshot: "源快照 · 2026-07-30",
+        snapshot: "源快照 · 2026-09-03",
         meta: "从模型行为、破坏性动作到 Skills、工具与实时语音协作",
         learningPath: "先看行为与授权边界，再沿工具路由走到验证交付。",
         file: "content/gpt-5.6-codex-runtime.md",
@@ -1921,7 +1921,7 @@
         family: "OpenAI",
         badge: "Source Routing",
         latest: false,
-        snapshot: "源快照 · 2026-07-30",
+        snapshot: "源快照 · 2026-09-03",
         meta: "source of truth、个人上下文、富响应与工具契约",
         learningPath: "先掌握事实来源的路由，再看产品层怎样接入上下文与富响应。",
         file: "content/gpt-5.5-prompt-framework.md",
@@ -1935,7 +1935,7 @@
         family: "Anthropic · Claude",
         badge: "Auto Memory",
         latest: true,
-        snapshot: "源快照 · 2026-07-30",
+        snapshot: "源快照 · 2026-09-03",
         meta: "助手底座、auto memory、scratchpad、agents、skills 与 tools",
         learningPath: "区分 Assistant Base 与 Coding Runtime，再理解状态如何跨会话延续。",
         file: "content/claude-sonnet-5-claude-code.md",
@@ -1943,15 +1943,15 @@
       },
       {
         slug: "claude-fable-5-claude-code-prompt-framework",
-        title: "Claude Fable 5 / Claude Code",
-        heading: "Claude Fable 5 / Claude Code",
+        title: "Claude Fable 5.1 / Claude Code",
+        heading: "Claude Fable 5.1 / Claude Code",
         group: "Anthropic systems",
         family: "Anthropic · Claude",
         badge: "Engineering Loop",
-        latest: false,
-        snapshot: "源快照 · 2026-07-30",
-        meta: "Harness、memory、scratchpad、工程闭环与时间型工具",
-        learningPath: "沿 Harness 走完工作区取证、执行、验证和交付闭环。",
+        latest: true,
+        snapshot: "源快照 · 2026-09-03",
+        meta: "Reporting outcomes、Harness、memory、browser、工程闭环与连接器",
+        learningPath: "先读可观察的完成证据，再沿 Harness 走完取证、执行、验证和交付。",
         file: "content/claude-fable-5-claude-code-prompt-framework.md",
         image: "assets/mindmaps/claude-fable-5-claude-code-prompt-framework.png"
       },
@@ -1963,7 +1963,7 @@
         family: "Anthropic · Claude",
         badge: "Two Surfaces",
         latest: true,
-        snapshot: "源快照 · 2026-07-30",
+        snapshot: "源快照 · 2026-09-03",
         meta: "Claude.ai 行为与记忆，加上 Claude Code 交付、纠错和工具层",
         learningPath: "先分清 Claude.ai 与 Claude Code，再比较两种 memory 和 source authority。",
         file: "content/claude-opus-5-claude-code.md",
@@ -1977,8 +1977,8 @@
         family: "Anthropic · Design",
         badge: "Design Runtime",
         latest: true,
-        snapshot: "源快照 · 2026-07-30",
-        meta: "Design Components、22 个 Skills、starter components 与工程 handoff",
+        snapshot: "源快照 · 2026-09-03",
+        meta: "Design Components、19 个用户 Skills、2 个内部 Skills、10 个 starters 与工程 handoff",
         learningPath: "从交付物路由到组件、skill、预览验证，再走向工程交接。",
         file: "content/claude-design-skills.md",
         image: "assets/mindmaps/claude-design-skills.png"
@@ -1989,11 +1989,11 @@
         heading: "Grok 提示词演进",
         group: "Other model families",
         family: "xAI",
-        badge: "Grok 4.5",
+        badge: "Grok 4.6",
         latest: true,
-        snapshot: "源快照 · 2026-07-30",
-        meta: "X/web、连接器发现、memory、sandbox、image 与 render 路由",
-        learningPath: "顺着版本演进看工具注册怎样变成完整产品运行时。",
+        snapshot: "源快照 · 2026-09-03",
+        meta: "Grok 4.6 的浏览器与连接器，加上 Build 和 Bot 两种 agent runtime",
+        learningPath: "从对话产品、应用生成到有状态桌面代理，比较三种运行时形状。",
         file: "content/grok-prompt-evolution.md",
         image: "assets/mindmaps/grok-prompt-evolution.png"
       },
@@ -2004,12 +2004,40 @@
         group: "Other model families",
         family: "Google",
         badge: "Web UI Family",
-        latest: false,
-        snapshot: "源快照 · 2026-07-30",
-        meta: "Pro gate、Flash 事实工具与 Web UI、Nano Banana 图像契约",
-        learningPath: "先看总控 gate，再把事实工具、Web 组件和图像执行连成一条链。",
+        latest: true,
+        snapshot: "源快照 · 2026-09-03",
+        meta: "Pro gate、3.7 Flash 视觉路由、Basekit 组件与 Nano Banana 图像契约",
+        learningPath: "先看总控 gate，再把视觉判断、响应组件和图像执行连成一条链。",
         file: "content/gemini-prompt-family.md",
         image: "assets/mindmaps/gemini-prompt-family.png"
+      },
+      {
+        slug: "qwen-prompt-family",
+        title: "Qwen 3.8 Max",
+        heading: "Qwen 3.8 Max Prompt Runtime",
+        group: "Other model families",
+        family: "Alibaba · Qwen",
+        badge: "Tool Protocol",
+        latest: true,
+        snapshot: "源快照 · 2026-09-03",
+        meta: "极简身份层、XML 函数调用、代码沙箱、搜索与网页抽取",
+        learningPath: "从工具 schema 开始，识别一个极简 prompt 如何把可靠性压力交给 runtime。",
+        file: "content/qwen-prompt-family.md",
+        image: "assets/mindmaps/qwen-prompt-family.png"
+      },
+      {
+        slug: "meta-muse-code",
+        title: "Meta Muse Code",
+        heading: "Meta Muse Code Runtime",
+        group: "Other model families",
+        family: "Meta · Muse Spark",
+        badge: "Coding CLI",
+        latest: true,
+        snapshot: "源快照 · 2026-09-03",
+        meta: "证据优先、仓库契约、视觉验收边界、Git 安全与简洁交付",
+        learningPath: "先看 truthfulness 与 verification，再进入 repository work 和工具边界。",
+        file: "content/meta-muse-code.md",
+        image: "assets/mindmaps/meta-muse-code.png"
       }
     ];
 
@@ -2027,7 +2055,7 @@
       {
         name: "Other model families",
         title: "Other Model Families",
-        description: "观察 X/web 产品工具和 Gemini Web UI 编排的不同路线。"
+        description: "比较产品助手、Web UI、工具协议与 coding CLI 的不同运行时路线。"
       }
     ];
 
@@ -2156,7 +2184,7 @@
       app.innerHTML = `
         <section class="home-hero reveal">
           <div class="hero-copy">
-            <div class="home-kicker">Learning Snapshot · 2026-07-30</div>
+            <div class="home-kicker">Learning Snapshot · 2026-09-03</div>
             <h1>AI Prompt Atlas</h1>
             <p>把模型提示词、Agent Runtime 与 Skills，整理成可快速进入的学习图谱。</p>
           </div>
@@ -2176,8 +2204,8 @@
           </div>
         </section>
         <div class="snapshot-band reveal" aria-label="快照信息">
-          <span><strong>2026-07-30</strong>当前学习快照</span>
-          <span><strong>8 份学习图谱</strong>图片 + 原文式笔记</span>
+          <span><strong>2026-09-03</strong>当前学习快照</span>
+          <span><strong>10 份学习图谱</strong>图片 + 原文式笔记</span>
           <span><strong>Source-pinned</strong>固定来源快照</span>
         </div>
         <div class="note-groups">

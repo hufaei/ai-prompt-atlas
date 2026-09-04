@@ -15,7 +15,7 @@
       <rect width="1600" height="900" fill="rgba(255,255,255,0.40)"/>
       <rect x="46" y="38" width="1508" height="128" rx="28" fill="rgba(255,255,255,0.88)" stroke="#d8d5cc"/>
       <text x="80" y="95" class="title" text-anchor="start">Claude Design Skills 学习图谱</text>
-      <text x="82" y="134" class="subtitle" text-anchor="start">结构化产物 + 可复用组件 + 专用 Skill + 可见验证 + 清楚交接</text>
+      <text x="82" y="134" class="subtitle" text-anchor="start">19 个用户 Skills + 2 个内部 Skills + 10 个 starters 组成设计运行时</text>
       <line x1="70" y1="374" x2="1490" y2="374" stroke="#c7d0da" stroke-width="2"/>
       <path d="M 290 374 L 310 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 530 374 L 550 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 770 374 L 790 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 1010 374 L 1030 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/><path d="M 1250 374 L 1270 374" stroke="#8da0b5" stroke-width="2" stroke-dasharray="5 6"/>
       
@@ -66,7 +66,7 @@
         <line x1="572" y1="306" x2="748" y2="306" stroke="#d7a557" opacity="0.38"/>
         
         <circle cx="577" cy="347" r="4" fill="#d7a557"/>
-        <text x="592" y="353" class="bullet" text-anchor="start">22 个专用 Skills</text>
+        <text x="592" y="353" class="bullet" text-anchor="start">按交付物选择</text>
       
         <circle cx="577" cy="395" r="4" fill="#d7a557"/>
         <text x="592" y="401" class="bullet" text-anchor="start">完整读取说明</text>
@@ -91,7 +91,7 @@
         <text x="832" y="401" class="bullet" text-anchor="start">Doc / Deck 舞台</text>
       
         <circle cx="817" cy="443" r="4" fill="#9b84cf"/>
-        <text x="832" y="449" class="bullet" text-anchor="start">动画 / 3D / 调参</text>
+        <text x="832" y="449" class="bullet" text-anchor="start">动画 v3 / 3D / 调参</text>
       
       </g>
     
@@ -140,6 +140,6 @@
       <circle cx="108" cy="762" r="22" fill="#fff3c9" stroke="#d7a542" stroke-width="2"/>
       <text x="108" y="771" class="hook" text-anchor="middle">!</text>
       <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：设计代理的关键不是灵感，而是让产物可预览、可评论、可调整、可移交。</text>
-      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@1e82828 · 2026-07-30</text>
+      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@171d1db · 2026-09-03</text>
     </svg>
   

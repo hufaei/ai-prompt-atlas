@@ -140,6 +140,6 @@
       <circle cx="108" cy="762" r="22" fill="#fff3c9" stroke="#d7a542" stroke-width="2"/>
       <text x="108" y="771" class="hook" text-anchor="middle">!</text>
       <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：记忆只帮助路由；文件、邮箱和第三方应用仍由各自专用来源负责。</text>
-      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@1e82828 · 2026-07-30</text>
+      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@171d1db · 2026-09-03</text>
     </svg>
   

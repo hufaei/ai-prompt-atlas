@@ -24,17 +24,17 @@
           fill="rgba(255,255,255,0.94)" stroke="#7399d1" stroke-width="2"/>
         <circle cx="102" cy="264" r="18" fill="#eaf2ff" stroke="#7399d1" stroke-width="2"/>
         <text x="102" y="271" class="index" text-anchor="middle">1</text>
-        <text x="132" y="273" class="node-title" text-anchor="start">Assistant</text>
+        <text x="132" y="273" class="node-title" text-anchor="start">产品事实</text>
         <line x1="92" y1="306" x2="268" y2="306" stroke="#7399d1" opacity="0.38"/>
         
         <circle cx="97" cy="347" r="4" fill="#7399d1"/>
-        <text x="112" y="353" class="bullet" text-anchor="start">默认立场</text>
+        <text x="112" y="353" class="bullet" text-anchor="start">只答已列入口</text>
       
         <circle cx="97" cy="395" r="4" fill="#7399d1"/>
-        <text x="112" y="401" class="bullet" text-anchor="start">语气与纠错</text>
+        <text x="112" y="401" class="bullet" text-anchor="start">support / docs 路由</text>
       
         <circle cx="97" cy="443" r="4" fill="#7399d1"/>
-        <text x="112" y="449" class="bullet" text-anchor="start">安全分支路由</text>
+        <text x="112" y="449" class="bullet" text-anchor="start">截止后事实搜索</text>
       
       </g>
     
@@ -140,6 +140,6 @@
       <circle cx="108" cy="762" r="22" fill="#fff3c9" stroke="#d7a542" stroke-width="2"/>
       <text x="108" y="771" class="hook" text-anchor="middle">!</text>
       <text x="148" y="770" class="hook" text-anchor="start">记忆钩子：Claude.ai 的记忆服务长期关系；Claude Code 的状态服务可继续执行。</text>
-      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@1e82828 · 2026-07-30</text>
+      <text x="1490" y="864" class="source" text-anchor="end">Source snapshot · asgeirtj/system_prompts_leaks@171d1db · 2026-09-03</text>
     </svg>
   

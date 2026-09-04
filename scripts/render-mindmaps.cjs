@@ -1,6 +1,12 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const sharp = require("sharp");
+let sharp = null;
+try {
+  sharp = require("sharp");
+} catch {
+  // SVG sources remain reproducible on a dependency-free checkout. The PNG
+  // export is skipped until sharp is available.
+}
 
 const root = path.resolve(__dirname, "..");
 const outputDir = path.join(root, "docs/assets/mindmaps");
@@ -64,25 +70,25 @@ const maps = [
   },
   {
     slug: "claude-fable-5-claude-code-prompt-framework",
-    title: "Claude Fable 5 / Claude Code 学习图谱",
-    subtitle: "用 Harness 把工程请求推进到工作区证据、修改、验证和交付",
+    title: "Claude Fable 5.1 / Claude Code 学习图谱",
+    subtitle: "Reporting outcomes 把工程闭环收紧为可观察、可审计的交付",
     nodes: [
-      ["Harness", "工程代理身份", "持续到完成或阻塞", "短进度与终态交付"],
-      ["Memory", "项目与反馈事实", "Why / How to apply", "保留来源与链接"],
-      ["Environment", "gitStatus / claudeMd", "专用 scratchpad", "上下文续作"],
-      ["Tool Registry", "Read / Edit / Bash", "Agent / Task", "每个工具有边界"],
-      ["时间与设计", "Cron / Monitor", "ScheduleWakeup", "Artifact / DesignSync"],
-      ["工程闭环", "查证再编辑", "保护 Git 现场", "验证真实行为"],
+      ["结果证据", "只报实际发生", "失败放在首句", "未检查就明说"],
+      ["Harness", "权限模式", "system updates", "并行专用工具"],
+      ["状态", "memory 文件", "session scratchpad", "context continuation"],
+      ["Browser", "tab context", "console / dialogs", "失败循环止损"],
+      ["Agents / Skills", "边界清楚才委派", "先加载说明", "主代理整合"],
+      ["Delivery", "自主推进可逆项", "外部动作确认", "证据化收口"],
     ],
-    reuse: "原结构复用：Harness → Communication → Session → Memory → Environment → Context → Tools → Git → Delivery",
-    hook: "记忆钩子：Claude Code 的完成不是给建议，而是让工程状态真的发生并被验证。",
+    reuse: "原结构复用：Identity → Reporting outcomes → Harness → State → Browser / Agents / Skills → Tools → Delivery",
+    hook: "记忆钩子：“做过”不等于“完成”；只有本轮观察到的结果才能支撑完成声明。",
   },
   {
     slug: "claude-opus-5-claude-code",
     title: "Claude Opus 5 / Claude Code 学习图谱",
     subtitle: "同一模型的两个产品表面：长期助手关系与工程执行 Runtime",
     nodes: [
-      ["Assistant", "默认立场", "语气与纠错", "安全分支路由"],
+      ["产品事实", "只答已列入口", "support / docs 路由", "截止后事实搜索"],
       ["Memory FS", "耐久性与价值 gate", "隐私与作用域", "读后再合并"],
       ["Code Harness", "工程角色", "Session guidance", "工作区事实"],
       ["状态管理", "Runtime memory", "Scratchpad", "Context"],
@@ -95,12 +101,12 @@ const maps = [
   {
     slug: "claude-design-skills",
     title: "Claude Design Skills 学习图谱",
-    subtitle: "结构化产物 + 可复用组件 + 专用 Skill + 可见验证 + 清楚交接",
+    subtitle: "19 个用户 Skills + 2 个内部 Skills + 10 个 starters 组成设计运行时",
     nodes: [
       ["交付物路由", "页面 / 原型", "文档 / Deck", "真实内容来源"],
       ["Design 组件", "一个主组件优先", "内容与逻辑分层", "画布与模板契约"],
-      ["Skill Routing", "22 个专用 Skills", "完整读取说明", "各自完成标准"],
-      ["Starter 组件", "设备与浏览器框", "Doc / Deck 舞台", "动画 / 3D / 调参"],
+      ["Skill Routing", "按交付物选择", "完整读取说明", "各自完成标准"],
+      ["Starter 组件", "设备与浏览器框", "Doc / Deck 舞台", "动画 v3 / 3D / 调参"],
       ["预览与反馈", "真实渲染", "屏幕与 Slide 标签", "保留评论锚点"],
       ["导出与 Handoff", "可编辑或像素保真", "PDF / HTML / PPTX", "交给 Claude Code"],
     ],
@@ -109,33 +115,63 @@ const maps = [
   },
   {
     slug: "grok-prompt-evolution",
-    title: "Grok Prompt Evolution 学习图谱",
-    subtitle: "从产品能力清单演进为 X / Web / 连接器 / Memory / Sandbox Runtime",
+    title: "Grok 4.6 / Build / Bot 学习图谱",
+    subtitle: "同一产品族分别面向对话工具、应用生成与有状态桌面代理",
     nodes: [
-      ["基础与安全", "同语言回应", "能力与不确定性", "高优先级安全壳"],
-      ["环境与上下文", "远程 sandbox", "静态目录快照", "不是用户本机"],
-      ["X / Web", "keyword / semantic", "user / thread / video", "网页与图片搜索"],
-      ["连接器与记忆", "先发现工具 schema", "再执行连接器", "User Info / Memories"],
-      ["Image / Render", "一次预览走 render", "项目资产走 tool", "Citation / File"],
-      ["Files / Skills", "read / edit / write", "bash 执行", "Skills 管工作流"],
+      ["Grok 4.6", "X / Web / Image", "browser tabs", "network details"],
+      ["Connectors", "先发现 schema", "缺授权先认证", "调用后再渲染"],
+      ["Build Triage", "先判断是否构建", "读取 project rules", "选择 skills"],
+      ["App Loop", "startup.sh", "scaffold / run", "浏览器 QA"],
+      ["Grok Bot", "SendMessage 发声", "box / computer", "routine / memory"],
+      ["Agent Ctrl", "subagent 生命周期", "插件 / MCP", "approval / untrusted"],
     ],
-    reuse: "原结构复用：Base behavior → Environment → Context → Tools → Render components → Skills → User info → Memories",
-    hook: "记忆钩子：Grok 最值得学的是产品能力注册；最需要补的是统一的完成与验证骨架。",
+    reuse: "原结构复用：Conversation runtime ｜ App-builder loop ｜ Stateful desktop agent",
+    hook: "记忆钩子：能力注册只是起点；真正的差异在工作区、消息通道、授权和完成标准。",
   },
   {
     slug: "gemini-prompt-family",
-    title: "Gemini Prompt Family 学习图谱",
-    subtitle: "Pro 决定是否视觉化，Flash 取得证据并渲染，Nano Banana 执行图像",
+    title: "Gemini 3.7 Flash Prompt Family 学习图谱",
+    subtitle: "先判断信息形状，再把答案路由到 Markdown、图片、组件或交互 Widget",
     nodes: [
-      ["Pro 总控", "身份与能力隔离", "Strict / Expert", "视觉与 Widget gate"],
-      ["用户数据", "必要性测试", "敏感数据限制", "纠正优先"],
-      ["Flash 工具", "Python 计算", "Google Search", "Workspace / YouTube"],
-      ["Web UI", "Image / Carousel", "Sequence / Timeline", "GenerateWidget"],
-      ["Nano Banana", "image_gen", "display", "search / image_search"],
-      ["最终路由", "先取事实证据", "再选展示表面", "版权与来源检查"],
+      ["Assistant Gate", "身份与语气", "Saved Info 相关性", "当前请求优先"],
+      ["Visual Test", "必须提高理解", "具体可视对象", "拒绝装饰图"],
+      ["Basekit", "Image / Carousel", "Sequence / Timeline", "Follow-up paths"],
+      ["Widget", "真实 initialValues", "语义行为描述", "不硬写 CSS 坐标"],
+      ["Layout", "flat siblings", "视觉之间留白", "三秒识别重点"],
+      ["Image Contract", "真实 image_tag", "生成与展示分离", "失败回退文本"],
     ],
-    reuse: "原结构复用：Assistant identity → Capability gate → Follow-up → Personalization → Visual / Widget → Flash tools → Image API",
-    hook: "记忆钩子：工具负责取得事实，组件负责展示事实；不要先选组件再反推内容。",
+    reuse: "原结构复用：Saved context → Direct answer → Visual relevance → Component contract → Layout check",
+    hook: "记忆钩子：组件是信息表面，不是内容来源；先获得证据，再选择呈现形状。",
+  },
+  {
+    slug: "qwen-prompt-family",
+    title: "Qwen 3.8 Max Prompt Runtime 学习图谱",
+    subtitle: "极简身份层把主要控制交给函数 schema、调用序列化与 runtime 校验",
+    nodes: [
+      ["Tools First", "工具目录置顶", "JSON schema", "必填字段清楚"],
+      ["Code", "Python sandbox", "计算与解析", "边界未展开"],
+      ["Search", "queries 数组", "发现候选来源", "不等于答案"],
+      ["Extractor", "urls 至少一个", "goal 必填", "空 goal 返回原文"],
+      ["Call Format", "XML envelope", "调用后无 suffix", "交给 harness 解析"],
+      ["Runtime", "actual time", "knowledge cutoff", "Qwen3.8 identity"],
+    ],
+    reuse: "原结构复用：Tool schemas → Function-call envelope → Current time / cutoff → Model identity",
+    hook: "记忆钩子：薄 prompt 不是少契约；缺少的路由、权限和恢复行为必须由 runtime 补齐。",
+  },
+  {
+    slug: "meta-muse-code",
+    title: "Meta Muse Code Runtime 学习图谱",
+    subtitle: "代码事实、公共表面验证、仓库保护和简洁交付组成 coding behavior 层",
+    nodes: [
+      ["Comms", "CLI / Markdown", "短而直接", "工具不是消息通道"],
+      ["Truth", "代码是事实源", "不猜 URL / 结果", "私有 grader 越界"],
+      ["Verify", "驱动公共表面", "因果证据", "外部动作需安全目标"],
+      ["Scope", "请求是完整契约", "错误与边界同权", "覆盖 wrappers"],
+      ["Repo", "先读调用链", "最小完整修复", "保护未跟踪文件"],
+      ["Delivery", "检查 collateral diff", "Git 不改历史", "结果 / 风险分离"],
+    ],
+    reuse: "原结构复用：Identity → Communication → Truthfulness → Verification → Repository work → Final answer",
+    hook: "记忆钩子：自信不是证据；测试通过也不是全部，最终要观察用户真正触达的表面。",
   },
 ];
 
@@ -208,7 +244,7 @@ function renderSvg(map) {
       <circle cx="108" cy="762" r="22" fill="#fff3c9" stroke="#d7a542" stroke-width="2"/>
       ${textLine("!", 108, 771, "hook", "middle")}
       ${textLine(map.hook, 148, 770, "hook")}
-      ${textLine("Source snapshot · asgeirtj/system_prompts_leaks@1e82828 · 2026-07-30", 1490, 864, "source", "end")}
+      ${textLine("Source snapshot · asgeirtj/system_prompts_leaks@171d1db · 2026-09-03", 1490, 864, "source", "end")}
     </svg>
   `;
 }
@@ -220,12 +256,16 @@ async function main() {
     const svgPath = path.join(sourceDir, `${map.slug}.svg`);
     const pngPath = path.join(outputDir, `${map.slug}.png`);
     fs.writeFileSync(svgPath, svg);
-    await sharp(background)
-      .resize(1600, 900, { fit: "cover" })
-      .composite([{ input: Buffer.from(svg) }])
-      .png({ compressionLevel: 9 })
-      .toFile(pngPath);
-    console.log(`${map.slug}: ${pngPath}`);
+    if (sharp) {
+      await sharp(background)
+        .resize(1600, 900, { fit: "cover" })
+        .composite([{ input: Buffer.from(svg) }])
+        .png({ compressionLevel: 9 })
+        .toFile(pngPath);
+      console.log(`${map.slug}: ${pngPath}`);
+    } else {
+      console.log(`${map.slug}: ${svgPath} (PNG export skipped: install sharp)`);
+    }
   }
 }
 

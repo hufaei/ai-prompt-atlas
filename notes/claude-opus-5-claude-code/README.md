@@ -2,7 +2,7 @@
 
 这份笔记把 Claude Opus 5 的 Claude.ai 行为提示词与 Claude Code Opus 5 的工程运行时放在一起学习。它不是官方模型说明，也不评价模型强弱；重点是从固定源快照中提炼可迁移的 prompt/runtime 结构。
 
-> 源快照：`asgeirtj/system_prompts_leaks@1e828287e8290a9ba175349689dc4d5aaa4bbc94`（2026-07-30）。Claude.ai 与 Claude Code 是两个不同表面，本页不把它们误写成一份单体 prompt。
+> 源快照：`asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）。Claude.ai、官方版本材料与 Claude Code 是不同表面，本页不把它们误写成一份单体 prompt。
 
 ## 一句话核心
 
@@ -220,10 +220,22 @@ Tool availability never grants broader authority than the user's request.
 7. Agents、Skills 与 Tools 是否各自承担正确职责？
 8. 工具存在是否被误解成了授权？
 
+## 新增官方版本材料：产品事实也有边界
+
+固定树新增的 `official/2026-07-24-claude-opus-5.md` 是一份较短的官方版本行为材料。它不等于完整 Claude.ai prompt，但能校准几个当前产品事实：
+
+- 当前身份是 Claude Opus 5，定位为处理复杂挑战的模型。
+- 产品信息只覆盖文件列出的 Claude chat、API/Platform、Claude Code、Cowork、Chrome、Excel、PowerPoint、Tag 与 Design 等入口。
+- 文件明确说产品知识到此为止；未列出的账户、价格、使用方式不能凭印象补齐，应分别指向 support 或 docs。
+- 知识截止与当前时间分开。对截止之后的事件，有搜索时核验，没有搜索时说明限制。
+- Fable safeguards routing 是独立的产品路由说明，不能把“用户选择的模型”和“实际响应模型”永远假设为同一个。
+
+这说明 product information 不是广告段落，而是一张受限事实表：**列出的可以答，未列出的要路由到当前文档或搜索。**
+
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `1e828287e8290a9ba175349689dc4d5aaa4bbc94`：
+以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
 
-- [Claude Opus 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/claude-opus-5.md)
-- [Claude Code Opus 5](https://github.com/asgeirtj/system_prompts_leaks/blob/1e828287e8290a9ba175349689dc4d5aaa4bbc94/Anthropic/Claude%20Code/claude-code-opus-5.md)
-
+- [Claude Opus 5](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-opus-5.md)
+- [Claude Opus 5 官方版本材料](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/official/2026-07-24-claude-opus-5.md)
+- [Claude Code Opus 5](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/claude-code-opus-5.md)
