@@ -1,253 +1,233 @@
+"""Content, navigation, graph data, and the actual Pages build contract."""
+
+import json
 import re
 import shutil
-import struct
+import subprocess
 import tempfile
+import textwrap
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "docs" / "index.html"
-SNAPSHOT = "5c86715f453f0eca188451a48bf5b165831d8b29"
+SNAPSHOT = "87bdae7886aca455ad38eb60dfdedf093ef01e2a"
+SITE_URL = "https://hufaei.github.io/ai-prompt-atlas/"
+REPO_URL = "https://github.com/hufaei/ai-prompt-atlas/"
 EXPECTED_SLUGS = {
     "gpt-5.6-codex-runtime",
-    "claude-sonnet-5-claude-code-2.1.207",
     "gpt-5.5-prompt-framework",
+    "claude-opus-5-claude-code",
     "claude-fable-5-claude-code-prompt-framework",
+    "claude-design-skills",
     "grok-prompt-evolution",
     "gemini-prompt-family",
 }
-NEW_SLUGS = {
-    "gpt-5.6-codex-runtime",
-    "claude-sonnet-5-claude-code-2.1.207",
+EXPECTED_ALIASES = {
+    "claude-sonnet-5-claude-code-2.1.207": "claude-opus-5-claude-code",
+    "claude-sonnet-5-claude-code": "claude-opus-5-claude-code",
+    "qwen-prompt-family": "gpt-5.5-prompt-framework",
+    "meta-muse-code": "gpt-5.6-codex-runtime",
 }
+FLOW_ASSETS = ("flow-atlas.js", "flow-atlas.css", "flows.json")
 
 
-def catalog_slugs() -> set[str]:
+def reader_data(name: str):
+    """Read the JSON catalog/alias data shipped in the reader, not a test copy."""
     html = INDEX.read_text(encoding="utf-8")
-    return set(re.findall(r'\bslug:\s*"([^"]+)"', html))
+    declaration = re.search(rf"\bconst\s+{re.escape(name)}\s*=\s*", html)
+    if declaration is None:
+        raise AssertionError(f"Reader has no {name} data")
+    return json.JSONDecoder().raw_decode(html[declaration.end() :])[0]
 
 
-def png_dimensions(path: Path) -> tuple[int, int]:
-    with path.open("rb") as image:
-        header = image.read(24)
-    if len(header) != 24 or header[:8] != b"\x89PNG\r\n\x1a\n":
-        raise AssertionError(f"Not a valid PNG: {path}")
-    return struct.unpack(">II", header[16:24])
+def markdown_structure(text: str):
+    """Keep headings outside fences and complete blocks, including nested fences."""
+    headings, blocks = [], []
+    fence = None
+    language = ""
+    body = []
+    for line in text.splitlines():
+        marker = re.match(r"^(`{3,}|~{3,})(\w*)\s*$", line)
+        if fence is None:
+            if marker:
+                fence, language = marker.groups()
+                body = []
+            elif re.match(r"^#{1,6}\s", line):
+                headings.append(line)
+        elif marker and marker.group(1)[0] == fence[0] and len(marker.group(1)) >= len(fence):
+            blocks.append((language, "\n".join(body)))
+            fence = None
+        else:
+            body.append(line)
+    if fence is not None:
+        raise AssertionError("Unclosed Markdown fence")
+    return headings, blocks
 
 
-def reusable_prompt(slug: str) -> str:
-    text = (ROOT / "notes" / slug / "README.md").read_text(encoding="utf-8")
-    heading = re.search(
-        r"^## .*?(?:FrameworkNote|精华版|可复用模板).*?$", text, re.MULTILINE
-    )
-    if heading is None:
-        raise AssertionError(f"missing reusable prompt heading for {slug}")
-    block = re.search(r"```text\n(.*?)\n```", text[heading.end() :], re.DOTALL)
-    if block is None:
-        raise AssertionError(f"missing reusable prompt block for {slug}")
-    return block.group(1)
+class ReaderHead(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.language = None
+        self.meta = {}
+        self.title = ""
+        self.in_title = False
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "html":
+            self.language = attrs.get("lang")
+        elif tag == "meta" and "name" in attrs:
+            self.meta[attrs["name"]] = attrs.get("content", "")
+        elif tag == "title":
+            self.in_title = True
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.in_title = False
+
+    def handle_data(self, data):
+        if self.in_title:
+            self.title += data
+
+
+def pages_build_script() -> str:
+    """Extract the workflow's literal build script so this test runs production wiring."""
+    workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+    scripts = []
+    lines = workflow.splitlines()
+    for index, line in enumerate(lines):
+        if re.match(r"\s+run:\s*\|\s*$", line):
+            indent = len(line) - len(line.lstrip())
+            body = []
+            for following in lines[index + 1 :]:
+                if following.strip() and len(following) - len(following.lstrip()) <= indent:
+                    break
+                body.append(following)
+            script = textwrap.dedent("\n".join(body))
+            if "docs/index.html" in script and "_site" in script:
+                scripts.append(script)
+    if len(scripts) != 1:
+        raise AssertionError("Expected one Pages static-site build script")
+    return scripts[0]
 
 
 class SiteContractTests(unittest.TestCase):
-    def assert_source_shaped_template(
-        self, slug: str, markers: tuple[str, ...], minimum_slots: int = 8
-    ):
-        note = (ROOT / "notes" / slug / "README.md").read_text(encoding="utf-8")
-        prompt = reusable_prompt(slug)
-        slots = re.findall(r"\{\{[A-Z0-9_]+\s*=\s*\.\.\.\}\}", prompt)
-        self.assertGreaterEqual(len(prompt), 2200, slug)
-        self.assertGreaterEqual(len(slots), minimum_slots, slug)
-        for marker in markers:
-            self.assertIn(marker, prompt, f"{slug}: missing {marker}")
-        for disclaimer in (
-            "不是源提示词的逐字内容",
-            "不是源提示词逐字内容",
-            "不是原 prompt 的逐字结构",
-            "不是 Grok 原提示词的逐字模板",
-        ):
-            self.assertNotIn(disclaimer, note, f"{slug}: stale disclaimer")
+    def test_catalog_and_legacy_routes_match_the_seven_topics(self):
+        notes = reader_data("notes")
+        slugs = [note["slug"] for note in notes]
+        self.assertEqual(set(slugs), EXPECTED_SLUGS)
+        self.assertEqual(len(slugs), len(set(slugs)), "Duplicate catalog topic")
+        self.assertEqual(reader_data("legacyRoutes"), EXPECTED_ALIASES)
+        for note in notes:
+            with self.subTest(slug=note["slug"]):
+                for field in ("title", "heading", "family", "badge", "meta", "learningPath", "snapshot"):
+                    self.assertIsInstance(note.get(field), str, field)
+                    self.assertTrue(note[field].strip(), field)
+                self.assertEqual(note["file"], f'content/{note["slug"]}.md')
 
-    def test_openai_notes_use_source_shaped_parameterized_prompts(self):
-        self.assert_source_shaped_template(
-            "gpt-5.5-prompt-framework",
-            (
-                "# General",
-                "## Engineering judgment",
-                "## Frontend guidance",
-                "## Editing constraints",
-                "# Working with the user",
-                "## Intermediate updates",
-                "# Runtime extension slots",
-            ),
-            minimum_slots=10,
-        )
-        self.assert_source_shaped_template(
-            "gpt-5.6-codex-runtime",
-            (
-                "# Personality",
-                "# Working with the user",
-                "## Intermediate commentary",
-                "## Final answer",
-                "# Rules for getting work done",
-                "# Using skills",
-                "# Runtime extension slots",
-            ),
-            minimum_slots=10,
-        )
-
-    def test_anthropic_notes_use_source_shaped_parameterized_prompts(self):
-        self.assert_source_shaped_template(
-            "claude-fable-5-claude-code-prompt-framework",
-            (
-                "# Harness",
-                "# Communicating with the user",
-                "# Context management",
-                "# Tools",
-                "## {{TOOL_NAME = ...}}",
-                "## Git",
-                "# Task tracking",
-                "# Resume and delivery",
-            ),
-            minimum_slots=12,
-        )
-        self.assert_source_shaped_template(
-            "claude-sonnet-5-claude-code-2.1.207",
-            (
-                "# Assistant base layer",
-                "<tone_and_formatting>",
-                "<proactivity>",
-                "## Artifact routing",
-                "## Connector and tool discovery",
-                "# Coding runtime layer",
-                "## Context management and compaction",
-                "## Bundled skill template",
-                "# Delivery",
-            ),
-            minimum_slots=14,
-        )
-
-    def test_grok_and_gemini_notes_use_source_shaped_parameterized_prompts(self):
-        self.assert_source_shaped_template(
-            "grok-prompt-evolution",
-            (
-                "## Environment Info",
-                "## Context Info",
-                "## Available Tools",
-                "## {{TOOL_NAME = ...}}",
-                "## Available Render Components",
-                "## {{RENDER_COMPONENT = ...}}",
-                "## Skills",
-            ),
-            minimum_slots=12,
-        )
-        self.assert_source_shaped_template(
-            "gemini-prompt-family",
-            (
-                "# Assistant identity",
-                "# Capability-only information",
-                "# Response guiding principles",
-                "# Follow-up rules",
-                "# Personalization gate",
-                "# Visual support gate",
-                "# Interactive output gate",
-                "# Image execution contract",
-                "# Output component contracts",
-            ),
-            minimum_slots=14,
-        )
-
-    def test_readme_uses_the_canonical_repository_and_pages_route(self):
+    def test_canonical_links_and_reader_metadata(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("https://hufaei.github.io/ai-prompt-atlas/", readme)
-        self.assertIn("https://github.com/hufaei/ai-prompt-atlas/", readme)
-        self.assertNotIn("https://hufaei.github.io/my-skills/", readme)
-        self.assertNotIn("https://github.com/hufaei/my-skills/", readme)
+        self.assertIn(SITE_URL, readme)
+        self.assertIn(REPO_URL, readme)
+        head = ReaderHead()
+        head.feed(INDEX.read_text(encoding="utf-8").split("</head>", 1)[0])
+        self.assertEqual(head.title.strip(), "AI Prompt Atlas")
+        self.assertEqual(head.language, "zh-CN")
+        self.assertIn("width=device-width", head.meta.get("viewport", ""))
 
-    def test_site_brand_is_consistent_across_reader_surfaces(self):
-        html = INDEX.read_text(encoding="utf-8")
-        self.assertEqual(html.count("AI Prompt Atlas"), 6)
-        self.assertIn("模型提示词、Agent Runtime 与 Skills 学习图谱", html)
-        self.assertNotIn("Prompt Engineering Notes", html)
-
-    def test_catalog_contains_exactly_the_six_learning_notes(self):
-        self.assertEqual(catalog_slugs(), EXPECTED_SLUGS)
-
-    def test_catalog_has_scanability_metadata_for_every_note(self):
-        html = INDEX.read_text(encoding="utf-8")
-        self.assertEqual(html.count("family:"), len(EXPECTED_SLUGS))
-        self.assertEqual(html.count("badge:"), len(EXPECTED_SLUGS))
-        self.assertEqual(html.count("snapshot:"), len(EXPECTED_SLUGS))
-
-    def test_detail_grid_children_can_shrink_to_a_mobile_viewport(self):
-        html = INDEX.read_text(encoding="utf-8")
-        self.assertRegex(
-            html,
-            re.compile(r"\.note-page\s*>\s*\*\s*\{[^}]*min-width:\s*0", re.DOTALL),
-        )
-
-    def test_every_note_has_a_markdown_payload_and_mindmap(self):
+    def test_notes_have_learning_sections_and_parameterized_source_excerpts(self):
         for slug in EXPECTED_SLUGS:
             with self.subTest(slug=slug):
+                text = (ROOT / "notes" / slug / "README.md").read_text(encoding="utf-8")
+                headings, blocks = markdown_structure(text)
+                self.assertEqual(sum(h.startswith("# ") for h in headings), 1)
+                sections = [h for h in headings if h.startswith("## ")]
+                self.assertTrue(any("复习" in h for h in sections), "Missing review section")
+                self.assertTrue(any("来源" in h for h in sections), "Missing source section")
+                self.assertTrue(any("复习" not in h and "来源" not in h for h in sections), "Missing learning section")
                 self.assertTrue(
-                    (ROOT / "notes" / slug / "README.md").is_file(),
-                    f"missing Markdown note for {slug}",
+                    any(language in ("text", "markdown") and re.search(r"\{\{[A-Z][A-Z0-9_]*\s*=", body)
+                        for language, body in blocks),
+                    "Missing copyable, parameterized source excerpt",
                 )
-                self.assertTrue(
-                    (ROOT / "docs" / "assets" / "mindmaps" / f"{slug}.png").is_file(),
-                    f"missing mind map for {slug}",
-                )
-
-    def test_every_note_preserves_the_learning_contract(self):
-        reusable_heading = re.compile(
-            r"^## .*?(?:FrameworkNote|精华版|可复用模板)", re.MULTILINE
-        )
-        for slug in EXPECTED_SLUGS:
-            path = ROOT / "notes" / slug / "README.md"
-            if not path.is_file():
-                continue
-            text = path.read_text(encoding="utf-8")
-            with self.subTest(slug=slug):
-                self.assertIn("## 一句话核心", text)
-                self.assertRegex(text, reusable_heading)
-                self.assertIn("## 复习问题", text)
-                self.assertIn("## 来源索引", text)
                 self.assertIn(SNAPSHOT, text)
-                self.assertNotIn("C:\\Users\\", text)
 
-    def test_new_mindmaps_are_exactly_1600_by_900(self):
-        for slug in NEW_SLUGS:
-            path = ROOT / "docs" / "assets" / "mindmaps" / f"{slug}.png"
-            if not path.is_file():
-                self.fail(f"missing mind map for {slug}")
+    def test_note_source_and_navigation_links_are_usable(self):
+        source_link = re.compile(
+            r"https://github\.com/asgeirtj/system_prompts_leaks/(?:blob|tree)/([a-f0-9]{40})/"
+        )
+        for slug in EXPECTED_SLUGS:
             with self.subTest(slug=slug):
-                self.assertEqual(png_dimensions(path), (1600, 900))
+                note = ROOT / "notes" / slug / "README.md"
+                text = note.read_text(encoding="utf-8")
+                pins = source_link.findall(text)
+                self.assertTrue(pins, "Missing immutable source links")
+                self.assertEqual(set(pins), {SNAPSHOT})
+                for target in re.findall(r"\]\((\.\./[^)]+)\)", text):
+                    path = target.split("#", 1)[0]
+                    self.assertTrue(path.endswith("/"), f"Pages note link must use a route: {target}")
+                    self.assertIn(path.removeprefix("../").rstrip("/"), EXPECTED_SLUGS)
+                    self.assertTrue((note.parent / path / "README.md").is_file(), target)
 
-    def test_pages_build_contains_every_route_and_payload(self):
+    def test_flow_assets_and_routes_are_complete(self):
+        html = INDEX.read_text(encoding="utf-8")
+        for filename in FLOW_ASSETS:
+            self.assertIn(f"assets/{filename}", html)
+            self.assertTrue((ROOT / "docs" / "assets" / filename).is_file(), filename)
+        graphs = json.loads((ROOT / "docs" / "assets" / "flows.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(graphs), EXPECTED_SLUGS)
+        for slug, graph in graphs.items():
+            with self.subTest(slug=slug):
+                node_ids = [node["id"] for node in graph["nodes"]]
+                self.assertTrue(node_ids, "Empty graph")
+                self.assertEqual(len(node_ids), len(set(node_ids)), "Duplicate node id")
+                nodes = set(node_ids)
+                edges = {(edge["from"], edge["to"]) for edge in graph["edges"]}
+                for start, end in edges:
+                    self.assertIn(start, nodes)
+                    self.assertIn(end, nodes)
+                self.assertTrue(graph["routes"], "No playable route")
+                for route in graph["routes"]:
+                    with self.subTest(route=route["name"]):
+                        self.assertTrue(route["nodes"], "Empty playable route")
+                        for node in route["nodes"]:
+                            self.assertIn(node, nodes, "Route references a missing node")
+                        for pair in zip(route["nodes"], route["nodes"][1:]):
+                            self.assertIn(pair, edges, "Adjacent route nodes have no directed edge")
+
+    def test_actual_pages_build_publishes_payloads_routes_and_flow_assets(self):
         with tempfile.TemporaryDirectory() as directory:
-            site = Path(directory)
-            (site / "content").mkdir()
-            (site / "assets").mkdir()
-            shutil.copy2(INDEX, site / "index.html")
-            shutil.copytree(
-                ROOT / "docs" / "assets",
-                site / "assets",
-                dirs_exist_ok=True,
+            workspace = Path(directory)
+            shutil.copytree(ROOT / "docs", workspace / "docs")
+            shutil.copytree(ROOT / "notes", workspace / "notes")
+            result = subprocess.run(
+                ["bash", "-c", pages_build_script()], cwd=workspace,
+                capture_output=True, text=True, timeout=30,
             )
-            for note in (ROOT / "notes").glob("*/README.md"):
-                slug = note.parent.name
-                shutil.copy2(note, site / "content" / f"{slug}.md")
-                route = site / "notes" / slug
-                route.mkdir(parents=True)
-                shutil.copy2(INDEX, route / "index.html")
-
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            site = workspace / "_site"
+            self.assertTrue((site / ".nojekyll").is_file())
+            self.assertEqual((site / "index.html").read_bytes(), INDEX.read_bytes())
+            self.assertEqual({path.stem for path in (site / "content").glob("*.md")}, EXPECTED_SLUGS)
+            self.assertEqual(
+                {path.parent.name for path in (site / "notes").glob("*/index.html")},
+                EXPECTED_SLUGS | set(EXPECTED_ALIASES),
+            )
             for slug in EXPECTED_SLUGS:
-                with self.subTest(slug=slug):
-                    self.assertTrue((site / "content" / f"{slug}.md").is_file())
-                    self.assertTrue((site / "notes" / slug / "index.html").is_file())
-                    self.assertTrue(
-                        (site / "assets" / "mindmaps" / f"{slug}.png").is_file()
-                    )
+                self.assertEqual(
+                    (site / "content" / f"{slug}.md").read_bytes(),
+                    (ROOT / "notes" / slug / "README.md").read_bytes(),
+                )
+            for slug in EXPECTED_SLUGS | set(EXPECTED_ALIASES):
+                self.assertEqual((site / "notes" / slug / "index.html").read_bytes(), INDEX.read_bytes())
+            for filename in FLOW_ASSETS:
+                self.assertEqual(
+                    (site / "assets" / filename).read_bytes(),
+                    (ROOT / "docs" / "assets" / filename).read_bytes(),
+                )
 
 
 if __name__ == "__main__":

@@ -417,6 +417,10 @@
       font: 0.92em/1.5 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
     }
 
+    .article :not(pre) > code {
+      overflow-wrap: anywhere;
+    }
+
     .article pre {
       overflow: auto;
       border: 1px solid var(--line);
@@ -431,6 +435,11 @@
       color: inherit;
       padding: 0;
       font-size: 13px;
+    }
+
+    .article pre code.language-text {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
     .article table {
@@ -1871,6 +1880,13 @@
         border-width: 2px;
       }
     }
+    .note-hero { padding: 28px 36px; gap: 14px; }
+    .note-title h1 { max-width: none; font-size: clamp(28px, 3.2vw, 44px); line-height: 1.2; letter-spacing: -.035em; }
+    .note-title p { max-width: none; font-size: 16px; }
+    .flow-map { margin: 0 0 24px; }
+    .card-preview { background: #1c1f21; }
+    .card-preview .atlas-flow-thumb { height: 100%; border-radius: 0; }
+    .card-preview .atlas-flow-thumb svg { height: 100%; padding: 8px; }
   </style>
 </head>
 <body>
@@ -1907,169 +1923,125 @@
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!reducedMotion.matches) document.documentElement.classList.add("motion-ready");
 
+    const snapshotDate = "2026-09-30";
+
     const notes = [
       {
-        slug: "gpt-5.6-codex-runtime",
-        title: "GPT-5.6 / Codex Runtime",
-        heading: "GPT-5.6 / Codex Runtime",
-        group: "OpenAI runtimes",
-        family: "OpenAI · Codex",
-        badge: "Agent Runtime",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "从模型行为、破坏性动作到 Skills、工具与实时语音协作",
-        learningPath: "先看行为与授权边界，再沿工具路由走到验证交付。",
-        file: "content/gpt-5.6-codex-runtime.md",
-        image: "assets/mindmaps/gpt-5.6-codex-runtime.png"
+        "slug": "gpt-5.6-codex-runtime",
+        "title": "GPT-6 / Codex Runtime",
+        "heading": "GPT-6 / Codex：授权、执行与验证",
+        "group": "OpenAI runtimes",
+        "family": "OpenAI · Codex",
+        "badge": "Agent Runtime",
+        "latest": true,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "学会分清行为与完整运行时，按授权推进任务，用公共入口的证据判断完成。",
+        "learningPath": "先比较 Astra / Sol / Luna，再理解工具、状态与验证怎样装配。",
+        "file": "content/gpt-5.6-codex-runtime.md"
       },
       {
-        slug: "gpt-5.5-prompt-framework",
-        title: "GPT-5.5 Prompt Framework",
-        heading: "GPT-5.5 提示词框架",
-        group: "OpenAI runtimes",
-        family: "OpenAI",
-        badge: "Source Routing",
-        latest: false,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "source of truth、个人上下文、富响应与工具契约",
-        learningPath: "先掌握事实来源的路由，再看产品层怎样接入上下文与富响应。",
-        file: "content/gpt-5.5-prompt-framework.md",
-        image: "assets/mindmaps/gpt-5.5-prompt-framework.png"
+        "slug": "gpt-5.5-prompt-framework",
+        "title": "GPT-5.5 Source Routing",
+        "heading": "GPT-5.5：来源路由与工具契约",
+        "group": "OpenAI runtimes",
+        "family": "OpenAI · Source Routing",
+        "badge": "Source Routing",
+        "latest": false,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "学会让记忆帮助定位、让专用来源证明事实，并分清 schema 与调用格式的边界。",
+        "learningPath": "从 Instant 的来源规则开始，再用 Qwen 的薄运行时对照工具协议。",
+        "file": "content/gpt-5.5-prompt-framework.md"
       },
       {
-        slug: "claude-sonnet-5-claude-code",
-        title: "Claude Sonnet 5 / Claude Code",
-        heading: "Claude Sonnet 5 / Claude Code",
-        group: "Anthropic systems",
-        family: "Anthropic · Claude",
-        badge: "Auto Memory",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "助手底座、auto memory、scratchpad、agents、skills 与 tools",
-        learningPath: "区分 Assistant Base 与 Coding Runtime，再理解状态如何跨会话延续。",
-        file: "content/claude-sonnet-5-claude-code.md",
-        image: "assets/mindmaps/claude-sonnet-5-claude-code.png"
+        "slug": "claude-opus-5-claude-code",
+        "title": "Claude.ai / Opus & Sonnet 5.5",
+        "heading": "Claude.ai / Opus & Sonnet 5.5",
+        "group": "Anthropic systems",
+        "family": "Anthropic · Claude",
+        "badge": "Assistant Memory",
+        "latest": true,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "让助手记住有用事实，同时把检索、隐私和交付目的地分清。",
+        "learningPath": "先理解助手行为，再学习文件记忆的读写与应用，最后选择真实交付表面。",
+        "file": "content/claude-opus-5-claude-code.md"
       },
       {
-        slug: "claude-fable-5-claude-code-prompt-framework",
-        title: "Claude Fable 5.1 / Claude Code",
-        heading: "Claude Fable 5.1 / Claude Code",
-        group: "Anthropic systems",
-        family: "Anthropic · Claude",
-        badge: "Engineering Loop",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "Reporting outcomes、Harness、memory、browser、工程闭环与连接器",
-        learningPath: "先读可观察的完成证据，再沿 Harness 走完取证、执行、验证和交付。",
-        file: "content/claude-fable-5-claude-code-prompt-framework.md",
-        image: "assets/mindmaps/claude-fable-5-claude-code-prompt-framework.png"
+        "slug": "claude-fable-5-claude-code-prompt-framework",
+        "title": "Claude Code · 执行与评审",
+        "heading": "Claude Code：执行、评审与状态续作",
+        "group": "Anthropic systems",
+        "family": "Anthropic · Claude Code",
+        "badge": "Execution & Review",
+        "latest": true,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "让长任务持续推进，让评审补上自测盲点，并保留可继续执行的状态。",
+        "learningPath": "先读 Harness 与表面差异，再看 advisor 两侧，最后接入记忆、配置和状态续作。",
+        "file": "content/claude-fable-5-claude-code-prompt-framework.md"
       },
       {
-        slug: "claude-opus-5-claude-code",
-        title: "Claude Opus 5 / Claude Code",
-        heading: "Claude Opus 5 / Claude Code",
-        group: "Anthropic systems",
-        family: "Anthropic · Claude",
-        badge: "Two Surfaces",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "Claude.ai 行为与记忆，加上 Claude Code 交付、纠错和工具层",
-        learningPath: "先分清 Claude.ai 与 Claude Code，再比较两种 memory 和 source authority。",
-        file: "content/claude-opus-5-claude-code.md",
-        image: "assets/mindmaps/claude-opus-5-claude-code.png"
+        "slug": "claude-design-skills",
+        "title": "Claude Design · 组件与交接",
+        "heading": "Claude Design：组件、验证与工程交接",
+        "group": "Anthropic systems",
+        "family": "Anthropic · Design",
+        "badge": "Design Handoff",
+        "latest": true,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "让设计保持可编辑、可定位反馈，并交给工程团队足够实现的参考。",
+        "learningPath": "从产物和组件入手，理解专用 skill、真实验证，再选择导出和工程交接。",
+        "file": "content/claude-design-skills.md"
       },
       {
-        slug: "claude-design-skills",
-        title: "Claude Design Skills",
-        heading: "Claude Design Skills",
-        group: "Anthropic systems",
-        family: "Anthropic · Design",
-        badge: "Design Runtime",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "Design Components、19 个用户 Skills、2 个内部 Skills、10 个 starters 与工程 handoff",
-        learningPath: "从交付物路由到组件、skill、预览验证，再走向工程交接。",
-        file: "content/claude-design-skills.md",
-        image: "assets/mindmaps/claude-design-skills.png"
+        "slug": "grok-prompt-evolution",
+        "title": "Grok / CLI、Build 与 Bot",
+        "heading": "让不同工作表面完成任务",
+        "group": "Other model families",
+        "family": "xAI",
+        "badge": "Grok 4.7 CLI",
+        "latest": true,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "学会区分工程命令、应用预览与桌面代理，为记忆、后台任务和交付写清完成条件。",
+        "learningPath": "先选工作表面，再比较记忆范围、后台通知、应用验证与持续任务的停止条件。",
+        "file": "content/grok-prompt-evolution.md"
       },
       {
-        slug: "grok-prompt-evolution",
-        title: "Grok Prompt Evolution",
-        heading: "Grok 提示词演进",
-        group: "Other model families",
-        family: "xAI",
-        badge: "Grok 4.6",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "Grok 4.6 的浏览器与连接器，加上 Build 和 Bot 两种 agent runtime",
-        learningPath: "从对话产品、应用生成到有状态桌面代理，比较三种运行时形状。",
-        file: "content/grok-prompt-evolution.md",
-        image: "assets/mindmaps/grok-prompt-evolution.png"
-      },
-      {
-        slug: "gemini-prompt-family",
-        title: "Gemini Prompt Family",
-        heading: "Gemini 提示词家族",
-        group: "Other model families",
-        family: "Google",
-        badge: "Web UI Family",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "Pro gate、3.7 Flash 视觉路由、Basekit 组件与 Nano Banana 图像契约",
-        learningPath: "先看总控 gate，再把视觉判断、响应组件和图像执行连成一条链。",
-        file: "content/gemini-prompt-family.md",
-        image: "assets/mindmaps/gemini-prompt-family.png"
-      },
-      {
-        slug: "qwen-prompt-family",
-        title: "Qwen 3.8 Max",
-        heading: "Qwen 3.8 Max Prompt Runtime",
-        group: "Other model families",
-        family: "Alibaba · Qwen",
-        badge: "Tool Protocol",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "极简身份层、XML 函数调用、代码沙箱、搜索与网页抽取",
-        learningPath: "从工具 schema 开始，识别一个极简 prompt 如何把可靠性压力交给 runtime。",
-        file: "content/qwen-prompt-family.md",
-        image: "assets/mindmaps/qwen-prompt-family.png"
-      },
-      {
-        slug: "meta-muse-code",
-        title: "Meta Muse Code",
-        heading: "Meta Muse Code Runtime",
-        group: "Other model families",
-        family: "Meta · Muse Spark",
-        badge: "Coding CLI",
-        latest: true,
-        snapshot: "源快照 · 2026-09-03",
-        meta: "证据优先、仓库契约、视觉验收边界、Git 安全与简洁交付",
-        learningPath: "先看 truthfulness 与 verification，再进入 repository work 和工具边界。",
-        file: "content/meta-muse-code.md",
-        image: "assets/mindmaps/meta-muse-code.png"
+        "slug": "gemini-prompt-family",
+        "title": "Gemini / 澄清与视觉输出",
+        "heading": "让上下文和呈现各自有用",
+        "group": "Other model families",
+        "family": "Google",
+        "badge": "Gemini 3.8 Flash",
+        "latest": true,
+        "snapshot": "源快照 · 2026-09-30",
+        "meta": "学会判断何时澄清、哪些个人信息有用，以及图片、组件和多图生成怎样接收真实数据。",
+        "learningPath": "先比较 Pro 与 Flash 的提问规则，再筛选上下文，沿事实检索、组件输出走到图像引用。",
+        "file": "content/gemini-prompt-family.md"
       }
     ];
 
     const groupDefinitions = [
       {
         name: "OpenAI runtimes",
-        title: "OpenAI Runtimes",
-        description: "先学 source routing，再看完整工作区 agent 如何持续执行。"
+        title: "OpenAI · 事实与执行",
+        description: "先判断事实该从哪里获取，再看助手如何把任务执行到底。"
       },
       {
         name: "Anthropic systems",
-        title: "Anthropic Systems",
-        description: "比较助手行为、Claude Code runtime 与可执行设计 skills。"
+        title: "Anthropic · 助手、工程与设计",
+        description: "从长期记忆到工程审阅，再到可预览、可移交的设计产物。"
       },
       {
         name: "Other model families",
-        title: "Other Model Families",
-        description: "比较产品助手、Web UI、工具协议与 coding CLI 的不同运行时路线。"
+        title: "其他模型 · 工具与呈现",
+        description: "比较工程、应用生成与桌面工作流，学习怎样选择答案的呈现形式。"
       }
     ];
 
     const legacyRoutes = {
-      "claude-sonnet-5-claude-code-2.1.207": "claude-sonnet-5-claude-code"
+      "claude-sonnet-5-claude-code-2.1.207": "claude-opus-5-claude-code",
+      "claude-sonnet-5-claude-code": "claude-opus-5-claude-code",
+      "qwen-prompt-family": "gpt-5.5-prompt-framework",
+      "meta-muse-code": "gpt-5.6-codex-runtime"
     };
 
     const app = document.getElementById("app");
@@ -2115,10 +2087,47 @@
       return routeBase() + path;
     }
 
-    function mindmapVariant(path, folder) {
-      return path
-        .replace("assets/mindmaps/", `assets/mindmaps/${folder}/`)
-        .replace(/\.png$/i, ".webp");
+    let flowResources;
+    const flowHandles = [];
+    function disposeFlows() {
+      flowHandles.splice(0).forEach(handle => handle.destroy());
+    }
+    function loadFlows() {
+      if (flowResources) return flowResources;
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = asset("assets/flow-atlas.css");
+      document.head.append(css);
+      const runtime = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = asset("assets/flow-atlas.js");
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("流程组件加载失败"));
+        document.head.append(script);
+      });
+      flowResources = Promise.all([runtime, fetch(asset("assets/flows.json")).then(response => {
+        if (!response.ok) throw new Error("流程数据加载失败");
+        return response.json();
+      })]).then(([, graphs]) => graphs);
+      return flowResources;
+    }
+    async function hydrateFlows(root) {
+      const containers = [...root.querySelectorAll("[data-flow]")];
+      try {
+        const graphs = await loadFlows();
+        for (const container of containers) {
+          if (!container.isConnected) continue;
+          const graph = graphs[container.dataset.flow];
+          if (!graph) throw new Error("缺少流程数据");
+          container.replaceChildren();
+          flowHandles.push(container.hasAttribute("data-flow-thumbnail")
+            ? AtlasFlow.thumbnail(container, graph) : AtlasFlow.mount(container, graph));
+        }
+      } catch (error) {
+        containers.filter(el => el.isConnected).forEach(el => {
+          el.textContent = "流程暂时无法加载，下方笔记仍可阅读。";
+        });
+      }
     }
 
     let markdownParserPromise;
@@ -2169,10 +2178,7 @@
       return `
         <a class="note-card spring-surface reveal" data-latest="${note.latest}" href="${noteHref(note)}">
           <div class="card-visual">
-            <picture>
-              <source srcset="${asset(mindmapVariant(note.image, "thumbs"))}" type="image/webp">
-              <img class="card-preview" src="${asset(note.image)}" alt="" loading="lazy" decoding="async" fetchpriority="low" width="960" height="540">
-            </picture>
+            <div class="card-preview" data-flow="${note.slug}" data-flow-thumbnail aria-hidden="true"></div>
             <span class="card-index">${index}</span>
             <span class="card-family-overlay">${escapeHtml(note.family)}</span>
           </div>
@@ -2204,6 +2210,7 @@
     function redirectLegacyHash() {
       if (onNotesPath() || !location.hash) return false;
       const legacySlug = location.hash.replace(/^#/, "");
+      if (redirectLegacyRoute(legacySlug)) return true;
       const legacyNote = notes.find(item => item.slug === legacySlug);
       if (!legacyNote) return false;
       location.replace(noteHref(legacyNote));
@@ -2211,15 +2218,16 @@
     }
 
     function renderHome() {
+      disposeFlows();
       document.title = "AI Prompt Atlas";
       currentLabel.textContent = `${notes.length} 份学习图谱`;
       homeLink.href = "./";
       app.innerHTML = `
         <section class="home-hero reveal">
           <div class="hero-copy">
-            <div class="home-kicker">Learning Snapshot · 2026-09-03</div>
+            <div class="home-kicker">Learning Snapshot · ${snapshotDate}</div>
             <h1>AI Prompt Atlas</h1>
-            <p>把模型提示词、Agent Runtime 与 Skills，整理成可快速进入的学习图谱。</p>
+            <p>从真实提示词中，学习事实核查、授权执行、记忆维护与可复用框架。</p>
           </div>
           <div class="hero-stage" aria-hidden="true">
             <div class="atlas-panel">
@@ -2237,8 +2245,8 @@
           </div>
         </section>
         <div class="snapshot-band reveal" aria-label="快照信息">
-          <span><strong>2026-09-03</strong>当前学习快照</span>
-          <span><strong>10 份学习图谱</strong>图片 + 原文式笔记</span>
+          <span><strong>${snapshotDate}</strong>当前学习快照</span>
+          <span><strong>${notes.length} 份学习图谱</strong>动态流程 + 原文式笔记</span>
           <span><strong>Source-pinned</strong>固定来源快照</span>
         </div>
         <div class="note-groups">
@@ -2256,9 +2264,11 @@
         </div>
       `;
       initializeDynamicUI(app);
+      hydrateFlows(app);
     }
 
     async function renderNote(note) {
+      disposeFlows();
       document.title = `${note.title} | AI Prompt Atlas`;
       currentLabel.textContent = note.title;
       homeLink.href = routeBase();
@@ -2277,22 +2287,9 @@
               </div>
             </div>
           </header>
-          <figure class="mindmap reveal">
-            <button
-              class="mindmap-button"
-              type="button"
-              data-viewer-src="${asset(note.image)}"
-              data-viewer-title="${escapeHtml(note.heading)} 学习图谱"
-              aria-label="放大预览 ${escapeHtml(note.heading)} 学习图谱"
-            >
-              <picture>
-                <source srcset="${asset(mindmapVariant(note.image, "webp"))}" type="image/webp">
-                <img src="${asset(note.image)}" alt="${escapeHtml(note.heading)} 学习图谱" decoding="async" width="1600" height="900">
-              </picture>
-              <span class="zoom-hint"><span aria-hidden="true">⌕</span> 点击放大</span>
-            </button>
-            <figcaption>学习图谱用于先建立整体结构，下面的 Markdown 负责展开细节。</figcaption>
-          </figure>
+          <div class="flow-map reveal" data-flow="${note.slug}">
+            <div class="empty">正在加载动态流程。</div>
+          </div>
           <div class="learning-path reveal">
             <strong>阅读路径</strong>
             <span>${escapeHtml(note.learningPath)}</span>
@@ -2311,22 +2308,26 @@
 
       const article = app.querySelector(".article");
       initializeDynamicUI(app);
+      hydrateFlows(app);
       const markdownParser = loadMarkdownParser();
       try {
         const response = await fetch(asset(note.file), { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const markdown = await response.text();
         await markdownParser;
+        if (!article.isConnected) return;
         article.innerHTML = renderMarkdown(markdown);
         enhanceArticleLinks();
         buildTableOfContents();
         updatePageChrome();
       } catch (error) {
+        if (!article.isConnected) return;
         article.innerHTML = `<div class="empty">无法加载 ${escapeHtml(note.file)}。</div>`;
       }
     }
 
     function renderNotFound(slug) {
+      disposeFlows();
       document.title = "未找到笔记 | AI Prompt Atlas";
       currentLabel.textContent = "未找到笔记";
       homeLink.href = routeBase();
@@ -2343,6 +2344,7 @@
         </section>
       `;
       initializeDynamicUI(app);
+      hydrateFlows(app);
     }
 
     function initReveal(root) {

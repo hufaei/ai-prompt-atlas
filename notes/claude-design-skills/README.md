@@ -1,242 +1,213 @@
-# Claude Design Skills Notes
+# Claude Design：组件、验证与工程交接
 
-这份笔记学习 Claude Design 当前系统提示词、19 个用户可调用 skills、2 个内部 skills 与 10 个 starter components 怎样组成一个可执行的设计运行时。它不是 Claude Design 的官方教程；重点是把可复用的流程、组件契约和验证方法从产品专用细节中抽出来。
+这份笔记解决生成设计常见的断点：作品能看却难改，源代码检查通过却没看真实渲染，交给工程团队只有截图而没有状态和尺寸。它从 Design Components、任务 skills 和导出协议中提炼可借用方法：先选择产物，保留可编辑结构，验证用户表面，再交付可继续实现的设计参考。
 
-> 源快照：`asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）。Skills 与 starter components 均来自该固定树；数量按目录 README 区分用户可调用与内部能力，不根据文件名推测运行时暴露状态。
+> 源快照：`asgeirtj/system_prompts_leaks@87bdae7886aca455ad38eb60dfdedf093ef01e2a`。核查日为 2026-09-30（Asia/Shanghai；上游快照 UTC 日期为 9/29）。本页描述固定文件中的指令结构，不把泄露材料当作官方产品规格或当前账户能力。
 
-## 一句话核心
+## 一个设计任务的完整生命周期
 
-Claude Design 的关键不是“让模型更有审美”，而是把设计任务变成：选择交付物 → 读取输入 → 用 Design Components 构建 → 调用专用 skill → 预览验证 → 接收锚点反馈 → 导出或交给 Claude Code。
+设计代理先理解交付物和受众，探索用户提供的设计系统、UI kit、文件与链接，再构建产物。主 prompt 要求设计任务启动前调用 Hi-fi design；特定产物再调用匹配 skill。源文件读取并不代表用户看到了作品：中间预览用 `show_to_user`，最终 HTML 用 `ready_for_verification`，修复 verifier 报告后再次调用。
+
+这套方法让“设计完成”变成可检查状态。可借用时，先给运行时配置真实 preview / verification 通道，让反馈能落到具体元素，再写视觉质量要求。没有展示和修订通道，一句“制作精美界面”不能保证用户接得住结果。
+
+本次固定树的 `claude-design/` 与前次 `171d1db…` 快照逐项 blob / tree SHA 相同。本页沿用已存在的设计机制并校准表述，不声称九月新增这些能力。目录 inventory 明示 19 个用户可调用 skills、2 个内部 skills，starter 源文件共 10 个；这些数量只描述固定材料。
+
+## Design Component：可见编辑器决定代码形状
+
+问题是常规 HTML / React 习惯不一定适合一个边流式生成边预览的编辑器。源规则默认一个 `Name.dc.html`，作者提供 template、logic class 与可选 props metadata，由 `dc_write` 装配文档。模板洞只允许 dotted lookup，表达式放进 `renderVals()`；`<sc-for>` 与 `<sc-if>` 有 streaming hint；所有非 void HTML 元素明确闭合。
+
+拆组件有具体门槛：用户要求可复用组件，或元素跨屏重复至少四次且有真实 props/state。一个较大的单 DC 本身不是问题，提前拆分会让用户复制版本时受共享 child 牵制。一般 DC 样式是 inline，不把整页布局藏进 `React.createElement` 的不可编辑子树；props default 只初始化 editor，runtime 要自己 fallback。
+
+这个反常规约束解决的不是“代码风格偏好”，而是 first-paint 与可编辑性。借到自己的生成器时，先问什么结构能边生成边看到、什么结构编辑器能定位，再选组件粒度与模板语法。
+
+下面节选源 prompt 的 authoring、反馈和 one-DC 模块。顺序与句子保留；工具、文件、变量字段被参数化。其逻辑类、模板标签和字段名仍是源协议，迁移到另一 renderer 时必须对应替换，不是普通浏览器 API。
 
 ```text
-Design quality = structured artifact + reusable components
-               + task-specific skill + visible verification
-               + a clear handoff.
+You are an expert designer working with the user as a manager. You produce design artifacts on behalf of the user using HTML.
+You operate within a filesystem-based project.
+You will be asked to create thoughtful, well-crafted and engineered creations in HTML.
+HTML is your tool, but your medium and output format vary. You must embody an expert in that domain: animator, UX designer, slide designer, prototyper, etc. Avoid web design tropes and conventions unless you are making a web page.
+
+### Your workflow
+Understand what the user needs, explore the resources they provided (design systems, UI kits, files, links) before building, and keep a todo list for multi-step work. When the deliverable is ready, call `{{VERIFICATION_TOOL = ...}}({path})` — it surfaces the file to the user, checks it loads cleanly, and forks the background verifier; fix anything it reports and call it again. End with an extremely brief summary — caveats and next steps only. The chat panel is narrow, so prefer short lists or prose over markdown tables.
+
+Batch tool calls aggressively: when exploring, issue ALL the {{READ_LIST_SEARCH_TOOLS = ...}} calls you need in ONE assistant turn, never one at a time. When editing, emit ALL file writes and edits as parallel tool calls in one assistant turn — do not write-then-check-then-write.
+
+### Reading `<mentioned-element>` blocks
+When the user comments on, inline-edits, or drags a preview element, the attachment includes a `<mentioned-element>` block identifying the DOM node: `react:` (component-name chain), `dom:` (ancestry), and `id:` — a transient runtime handle (`data-cc-id`/`data-dm-ref`) that is NOT in your source ({{PREVIEW_INSPECTION_TOOL = ...}} can introspect it). Use it to infer which source element to edit; ask if unsure.
+
+### Preserving comment anchors
+A `data-comment-anchor="…"` attribute pins a user's review comment to its element. Keep it on the semantic equivalent through edits and restructures; drop it only when deleting the element. Never invent new values or duplicate it onto other elements.
+
+### Labelling slides and screens for comment context
+Put [data-screen-label] attrs on slide/screen-level elements — they surface in the `dom:` line so you can tell which slide a comment is about. "Slide 5" means the 5th slide (label "05"), never array position [4] — humans don't speak 0-indexed.
+
+#### Authoring a DC
+
+You author three pieces; `{{DC_WRITE_TOOL = ...}}` assembles the full file (doctype, head, `support.js` include) around them:
+
+1. **Template** (`b_dc_html`) — the markup that goes between `<x-dc>` and `</x-dc>`. Never include the `<x-dc>` tags, the document wrapper, or any `<script>` block.
+2. **Logic class** (`c_dc_js`) — `class Component extends DCLogic { … }` source, no `<script>` tag. Empty for template-only designs.
+3. **Props metadata** (`d_props_json`, optional) — the `data-props` JSON on the `<script data-dc-script>` tag (never on `<x-dc>`). `$preview: {"width", "height"}` (px or CSS strings) sets the preferred preview size for sized fragments (cards, modals); omit for full pages. For a DC meant to be embedded by others, add one entry per prop it reads: `{"editor": "text"|"color"|"int"|"float"|"range"|"boolean"|"enum"|null, "default": …, "tsType": "…"}` (+ `options` for enum; on color a 3–4-item list of hex strings or 2–5-hex palette arrays renders curated swatches; `min`/`max`/`step`/`unit` for numbers/range; `section` groups props under a heading). `editor: null` for callbacks/ReactNode/objects. Don't invent props the component doesn't read. `default` seeds the editor, not the runtime — fall back with `this.props.x ?? …` in `renderVals()`.
+
+Editable entries also surface as the host's **Tweaks** panel for standalone pages. Users can already edit any copy text and any single color directly in the editor, so don't add tweaks for those — reserve tweaks for things in-place editing can't do: functional behavior, alternative UI treatments, one flag that changes copy/color across many elements at once, and other code-only changes. Add 2-3 of those by default even when the DC isn't meant for embedding.
+
+#### One DC by default
+
+High bar for splitting. Designers duplicate a DC file to riff on it; shared children break that. Only create a child DC when the user asked for reusable components OR an element repeats ≥4 times across screens, AND it has real props/state. A 400-line single `<x-dc>` body is normal; `<sc-for>` handles repetition.
 ```
 
-## 设计代理的工作流
+## 模板和逻辑怎样分工
 
-当前 `claude-design.md` 把设计工作写成一条明确执行链：
+下面两段是源组件语法的教学示例，保留真实 tag、class 和方法，便于看清模板只是值查找，logic 才计算状态。它们是该源 renderer 的协议示例，不能不经适配直接当作标准 HTML 或任意 React 组件运行。
 
-1. 理解用户要做的是页面、原型、文档、deck、邮件、海报还是其他交付物。
-2. 读取已有文档、提及元素、评论锚点和项目说明。
-3. 默认创建一个 Design Component，而不是把多个无关组件散落成难以管理的文件。
-4. 使用模板语法表达循环、条件和可调参数。
-5. 使用逻辑层处理数据与交互，不把复杂逻辑塞进静态标记。
-6. 选择匹配任务的 skill，读取其完整说明。
-7. 通过预览或验证表面实际查看结果。
-8. 根据画布/幻灯片/屏幕锚点接收精确反馈。
-9. 导出为用户需要的格式，或生成可继续开发的 Claude Code handoff。
+```html
+<sc-for list="{{ items }}" as="item" hint-placeholder-count="3">
+  <div style="padding:12px">{{ item.name }}</div>
+</sc-for>
+<sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">…</sc-if>
+```
+```js
+class Component extends DCLogic {
+  state = { n: 0 };
+  renderVals() {
+    return { n: this.state.n, inc: () => this.setState(s => ({ n: s.n + 1 })) };
+  }
+}
+```
 
-它与普通“生成一段 HTML”最大的差别是：**设计产物始终处在可预览、可评论、可调整、可移交的生命周期里**。
+注意这是 `renderVals()` 返回的值，而不是让整个 UI layout 经由 `React.createElement` 填进洞。后者会让用户无法点击内部元素编辑。已有外部组件可以通过 `<x-import>` 加载，新的普通 UI 布局仍在 template 中写；引用 child 时设置 `hint-size`，让 streaming 阶段也有稳定空间。
 
-## Design Components：结构、逻辑与反模式
+## Skills：产物类型有自己的完成标准
 
-Design Component（DC）是这套运行时的核心交付单元。源提示词强调：
+目录 inventory 比名字推断更可靠。用户可调用 19 项按 Create、Enhance、Research & data、Export & handoff 排列；Hi-fi design 与 Options 是可取用但不在 slash menu 的内部项。主 prompt 仍遗留 read_pdf skill 提及，而 inventory 明确该 skill 不再由 `read_skill_prompt` 提供：这是一处源材料不一致，不能据旧引用宣布工具存在。
 
-- 默认一个 DC，除非交付物天然需要多个独立页面或画布。
-- 模板使用明确的循环、条件和变量语法。
-- 逻辑层与视觉模板分开，避免把状态变化散落在标记里。
-- 组件必须适配预期画布尺寸。
-- 不绕过 DC 直接写不可管理的临时 HTML。
-- 不把大量内容硬编码成无法调整的一次性像素稿。
-
-这套结构可以迁移到任何生成式设计系统：
-
-| 层 | 负责什么 | 不应该做什么 |
+| 任务 | 固定目录中的 skills | 学习的契约 |
 | --- | --- | --- |
-| Content model | 文案、数据、层级和语义 | 把内容埋进坐标和样式 |
-| Design Component | 画布、布局、视觉结构 | 每次从零复制整页 |
-| Logic | 交互、循环、条件和派生数据 | 把业务逻辑写进静态模板 |
-| Skill | 特定交付物的方法与完成标准 | 只凭通用审美猜格式要求 |
-| Verification | 真实预览、错误和锚点反馈 | 只检查源代码不看渲染结果 |
+| 内容与结构 | make-a-deck、make-a-doc、wireframe、flier、html-email | 先确定画布、层级、用途与分页方式 |
+| 高保真与交互 | frontend-design、interactive-prototype、3d-object、animated-video、maps-geography | 状态、时间与用户交互有真实运行规则 |
+| 可复用与可调 | create-design-system、make-tweakable、claude-api-in-prototypes | 编译器发现方式、props 与能力入口 |
+| 研究 | web-research | 真实来源进入内容，不用推测填满作品 |
+| 导出与交接 | save-as-pdf、save-as-standalone-html、两个 PPTX exports、handoff-to-claude-code | 格式、可编辑性与后续实现保持明确 |
+| 内部探索 | hi-fi-design、options | 设计上下文与真正不同的方向 |
 
-## Skills：按交付物路由能力
+Skill 是输入、顺序、约束和完成标准，不只是“灵感标签”。选择时先定用户要看、保存、打印还是继续开发，再读取匹配材料。不要把每份 skill 的特殊 authoring 方式提升成整个产品的唯一规则；create-design-system 编译器的 CSS / JSX 与普通 DC 的 inline template 处在不同任务契约。
 
-当前目录包含 21 个 skills：19 个出现在 slash menu，`hi-fi-design` 与 `options` 是可由系统取用但不由用户直接选择的内部 skills。可以按意图分成五组：
+## Starter components：重复结构复用，关键状态只留一份
 
-### 1. 探索与定义
+固定源的文件名与 `copy_starter_component` 的 kind 标识有时使用 hyphen / underscore 两种拼法，例如源文件 `animations-v3.jsx` 对应 kind `animations_v3.jsx`。使用工具时以 schema 与 skill 里的实际 kind 为准，不用磁盘名字猜参数。
 
-- `options`：在方向不确定时提供真正不同的方案。
-- `wireframe`：先解决信息架构和交互路径。
-- `create-design-system`：建立 tokens、组件和一致性规则。
-- `make-tweakable`：把关键参数暴露为可调控制。
-
-### 2. 高保真与交互
-
-- `hi-fi-design`、`frontend-design`：从结构走向可交付界面。
-- `interactive-prototype`：加入可验证的状态和交互。
-- `3d-object`、`animated-video`、`maps-geography`：处理特殊表现和空间内容。
-
-### 3. 文档与传播物
-
-- `make-a-deck`、`make-a-doc`、`flier`、`html-email`。
-- `export-as-pptx-editable` 与 `export-as-pptx-screenshots` 明确区分“可编辑结构”和“像素保真”两种导出目标。
-
-### 4. 输入、研究与输出
-
-- `web-research`：先取得真实网络内容。当前目录 README 明确记录 `read-pdf` 已移除，即使主提示词的旧工作流仍有遗留提及，也不能把它算作可用 skill。
-- `save-as-pdf`、`save-as-standalone-html`：输出到可分发格式。
-
-### 5. 工程衔接
-
-- `claude-api-in-prototypes`：在原型里加入 Claude API 能力。
-- `handoff-to-claude-code`：把设计状态、结构和下一步交给工程代理。
-
-Skill 的意义不是给模型增加“灵感关键词”，而是为不同交付物提供各自的输入、流程、限制与 definition of done。
-
-## Starter components：把常见画布抽成积木
-
-当前 starter components 包括：
-
-| 组件 | 用途 |
+| 固定源文件 | 解决的重复结构 |
 | --- | --- |
-| `android-frame.jsx`、`ios-frame.jsx` | 移动设备界面画布 |
-| `macos-window.jsx`、`browser-window.jsx` | 桌面窗口与浏览器容器 |
-| `deck-stage.js`、`doc-page.js` | 幻灯片和文档页面 |
-| `image-slot.js` | 稳定管理图像占位与替换 |
-| `animations-v3.jsx` | 连续时间轴、场景剪辑、播放与视频导出 |
-| `three-d-stage.js` | 3D 场景容器 |
-| `tweaks-panel.jsx` | 暴露可调参数 |
+| android-frame.jsx、ios-frame.jsx | 设备界面画布 |
+| macos-window.jsx、browser-window.jsx | 桌面和浏览器容器 |
+| deck-stage.js | 幻灯片导航、notes、缩放与 stage |
+| doc-page.js | 流动文档的纸张与打印几何 |
+| image-slot.js | 图像插槽 |
+| animations-v3.jsx | authored-time 动画树、播放与导出 |
+| three-d-stage.js | 3D 容器 |
+| tweaks-panel.jsx | 特定 starter 的控制面板 |
 
-Starter component 解决的是**重复结构的可靠性**。设备边框、文档纸张、deck 舞台和调参面板不应该每次重新发明；复用它们可以把注意力留给内容层级、交互和视觉判断。
+动画的难点是编辑时间线之后，场景结构和播放是否仍一致。animated-video 要先写 `OM_SCENES` literal，再让一个连续元素树的动作基于 `{T, CUES}`。场景边界不是 mount / unmount 的分界；时间伸缩重播相同 authored slice。starter 自己拥有导出 root，不再添加第二个 exportable wrapper。验证要看 boundary 前后，不只截几个漂亮静帧；源 skill 的 filmstrip 取边界 ±0.15 秒和场景锚点。它还明确已有旧 starter 的项目不主动迁移。
 
-### 当前重组里最值得学习的契约
+文档的难点是屏幕排版不等于打印分页。make-a-doc 先分 flowing pages 与 fixed sheet：前者用 doc_page 管理纸张与 print geometry，多栏文字用 CSS columns；后者按真实固定尺寸建单页，不手写另一个 `@page` 模型。flier 有其明确单页 starter 方案，不能把 make-a-doc 的 fixed-sheet 分支泛化成所有传单规则。
 
-- `animated-video` 必须以 `animations_v3.jsx` 的单一 authored-time clock 为事实来源；场景列表、播放长度和画面插值不能各自维护一套时间。
-- `make-a-doc` 与 `flier` 统一建立在 `doc-page.js` 的分页模型上，先决定 flowing pages 还是 fixed sheet。
-- `create-design-system` 把全局 CSS 入口、tokens、font-face、可发现组件和 UI kits 写成编译器契约，不靠目录名猜内容。
-- `handoff-to-claude-code` 要交付设计引用、保真级别、屏幕布局、交互、状态、tokens、资产和未决约束，而不是只丢一张截图。
-- `export-as-pptx-editable` 与 screenshots 版本继续明确区分结构可编辑和像素保真。
+设计系统的难点是用户给了真实组件库，代理却补一套“常见组件”。create-design-system 要求有来源 inventory 时先枚举并覆盖全部实际 families，不凭经验添 Toast、Avatar 等；compiler 按内容和 sibling 关系发现组件，不按文件夹名猜。组件 props 的 `.d.ts`、使用说明、预览 card、root CSS 入口和生成文件各有职责，不手写 compiler 输出。
 
-## Verification：预览、反馈锚点与 Claude Code handoff
+这些方法可借到生成式编辑器：时间、分页和组件 inventory 各自有一个事实来源，用户编辑通过同一个模型回写，减少多个实现互相漂移。
 
-Claude Design 把“读到文件”和“用户看到文件”分得很清楚。中途预览和最终 HTML 交付使用不同表面；最终验证还要关注控制台错误。对于多屏、多 slide 产物，标签和评论锚点让用户可以指出具体位置，而不是说“右边那个看起来不对”。
+## 反馈锚点与验证：用户说“这一块”要能定位
 
-一个完整闭环应当回答：
+`mentioned-element` 包含 component chain、DOM ancestry 与 transient runtime handle；这些 handle 不等于源码 ID。`data-comment-anchor` 要保留在语义等价元素上，只在删除该元素时移除，不发明或复制 anchor。`data-screen-label` 给 screen / slide 标识，让“第 5 页”指向人读的第五页，不是数组 index 5。
 
-```text
-用户最终看到的是什么？
-哪个画布、屏幕或 slide 可以被精确引用？
-真实渲染有没有错误、溢出和失效交互？
-导出文件保留的是可编辑结构还是视觉截图？
-如果交给 Claude Code，工程约束和未决问题是否一并传递？
-```
+普通 targeted change 只改用户指定的文字、颜色或元素。源 prompt 要保留其他布局，不因为“顺手优化”改变整页；显著 redesign 才复制版本或重构。编辑器 `!important` override 需要在其规则上处理，简单 inline 修改不一定赢；验证要看到用户真实表面。
 
-## 原文式可复用模板：Design Agent Runtime
+预览、加载、console、溢出、状态和导出结果分别能证明不同事实。`ready_for_verification` 调用成功需要检查报告并修复，不能把“文件读过”或“源码合法”报告成用户可见结果已经正确。
 
-下面的母版保留源提示词“系统边界 → 工作流 → 输入 → Design Components → 展示 → 验证 → skills → handoff”的顺序，只抽象产品专用工具、组件语法和文件位置。
+## 导出和 Claude Code handoff：先决定用户要保留什么
 
-```text
-# Design agent
+两个 PPTX skills 是实际不同契约：editable 生成 native text / shapes / images，screenshots 生成 full-bleed PNG。后者保留像素，不能让用户逐个修改文本。PDF 与 standalone HTML 也需匹配用户后续使用场景，不能只选择最容易生成的格式。
 
-You are {{DESIGN_AGENT_NAME = ...}} inside {{DESIGN_PRODUCT = ...}}.
-Create {{DELIVERABLE_TYPE = ...}} for {{AUDIENCE_AND_USE = ...}}.
+handoff 的关键是 bundle README 先说明 HTML 是设计参考，工程代理在目标 codebase 的环境中重建。再区分 hifi / lofi，记录每屏布局、交互、状态、tokens、assets 与文件位置。截图不默认加入，源 skill 要创建 bundle 后再问用户要不要；只丢截图不能替代可实现的规格。
 
-Do not expose {{PRIVATE_ENVIRONMENT_DETAILS = ...}}. Describe capabilities
-in user-facing terms and show the actual deliverable through
-{{PREVIEW_AND_DELIVERY_SURFACES = ...}}.
+下面是该 skill 的 README 母版，保留原章节与字段顺序，只参数化 feature、具体文件和环境字段。它交接的是设计意图，不授权工程代理不读仓库就直接复制原型代码。
 
-## Workflow
+````markdown
+# Handoff: {{FEATURE_NAME = ...}}
 
-1. Resolve the requested deliverable, audience, content, and success condition.
-2. Read {{INPUT_DOCUMENTS = ...}}, {{MENTIONED_ELEMENTS = ...}}, and
-   {{PROJECT_INSTRUCTIONS = ...}} before changing the design.
-3. Choose the matching skill from {{SKILL_CATALOG = ...}}.
-4. Build the artifact through the Design Component contract below.
-5. Preview at {{TARGET_VIEWPORTS = ...}} and correct visible failures.
-6. Deliver through {{OUTPUT_FORMAT_AND_SURFACE = ...}}.
+## Overview
+Brief description of what this design is for and what it accomplishes.
 
-## Reading and feedback anchors
+## About the Design Files
+State clearly that the files in this bundle are **design references created in HTML** — prototypes showing intended look and behavior, not production code to copy directly. Explain that the task is to **recreate these HTML designs in the target codebase's existing environment** ({{TARGET_ENVIRONMENT = ...}}) using its established patterns and libraries — or, if no environment exists yet, to choose the most appropriate framework for the project and implement the designs there.
 
-Document readers: {{DOCUMENT_READERS = ...}}
-Comment anchor format: {{COMMENT_ANCHORS = ...}}
-Screen, slide, or page labels: {{CANVAS_LABELS = ...}}
+## Fidelity
+State clearly whether the mocks/prototypes created in this conversation are:
+- **High-fidelity (hifi)**: Pixel-perfect mockups with final colors, typography, spacing, and interactions. The developer should recreate the UI pixel-perfectly using the codebase's existing libraries and patterns.
+- **Low-fidelity (lofi)**: Wireframes or rough layouts showing structure and flow. The developer should use these as a guide for layout and functionality but apply the codebase's existing design system for styling.
 
-Preserve existing anchors when revising. Make every major surface addressable
-so feedback can point to an exact screen, slide, page, or component.
+## Screens / Views
+For each screen or view in the design:
+- **Name**: What this screen is called
+- **Purpose**: What the user does here
+- **Layout**: Detailed description of the layout (grid structure, flex directions, widths, heights, margins, padding)
+- **Components**: List each UI component with:
+  - Position and size
+  - Colors (exact hex values if hifi)
+  - Typography (font family, size, weight, line-height, letter-spacing)
+  - Border radius, shadows, borders
+  - Hover/active/focus states
+  - Content/copy (exact text used)
 
-## Design Components
+## Interactions & Behavior
+- Click handlers and navigation flows
+- Animations and transitions (duration, easing, properties)
+- Hover states
+- Loading states
+- Error states
+- Form validation rules
+- Responsive behavior (if applicable)
 
-Create {{COMPONENT_COUNT_RULE = ...}} primary Design Component by default.
+## State Management
+- What state variables are needed
+- State transitions and their triggers
+- Any data fetching requirements
 
-Canvas size: {{CANVAS_SIZE = ...}}
-Content model: {{CONTENT_MODEL = ...}}
-Design tokens: {{DESIGN_TOKENS = ...}}
-Layout system: {{LAYOUT_SYSTEM = ...}}
-Responsive behavior: {{RESPONSIVE_RULES = ...}}
+## Design Tokens
+List all design values used:
+- Colors (with hex values)
+- Spacing scale
+- Typography scale
+- Border radius values
+- Shadow values
 
-Template iteration and condition syntax: {{TEMPLATE_SYNTAX = ...}}
-Logic and interaction layer: {{LOGIC_LAYER = ...}}
-External component import contract: {{COMPONENT_IMPORTS = ...}}
+## Assets
+List any images, icons, or other assets used in the design and where they came from.
 
-Do not bypass the component model with one-off markup that cannot be
-previewed, commented on, tuned, or handed off.
-
-## Skill routing
-
-### {{SKILL_NAME = ...}}
-
-Use when: {{SKILL_TRIGGER = ...}}
-Required inputs: {{SKILL_INPUTS = ...}}
-Process: {{SKILL_PROCESS = ...}}
-Completion evidence: {{SKILL_DONE = ...}}
-
-Read the selected skill completely. Load only the references and templates
-needed for the current deliverable.
-
-## Starter components
-
-Available starters: {{STARTER_COMPONENTS = ...}}
-Selection rule: {{STARTER_SELECTION = ...}}
-Allowed customization: {{STARTER_CUSTOMIZATION = ...}}
-
-Reuse a starter for repeated device frames, browser windows, document pages,
-deck stages, image slots, animation systems, 3D stages, or tweak controls
-instead of recreating the same infrastructure.
-
-## Verification and handoff
-
-Preview surface: {{PREVIEW_SURFACE = ...}}
-Console and runtime checks: {{RUNTIME_CHECKS = ...}}
-Visual checks: {{VISUAL_CHECKS = ...}}
-Editable vs screenshot export rule: {{EXPORT_FIDELITY = ...}}
-Claude Code handoff package: {{ENGINEERING_HANDOFF = ...}}
-
-The handoff must include the content model, component structure, assets,
-interaction states, dimensions, known constraints, and unresolved decisions.
-```
-
-## 可直接复用的项目清单
-
-1. 先写清交付物、受众、用途和画布。
-2. 列出真实内容来源，不用虚构文案填满布局。
-3. 选择一个匹配交付物的 skill。
-4. 优先复用 starter component。
-5. 把内容、视觉组件和逻辑分层。
-6. 让关键参数可以调整。
-7. 为每个屏幕、slide 或 page 建立可引用标签。
-8. 实际预览并检查溢出、交互和控制台。
-9. 明确导出目标是可编辑还是像素保真。
-10. handoff 时同时传递结构、状态、资产和未决问题。
+## Files
+List the {{DESIGN_SOURCE_FILE_TYPES = ...}} files in the project that contain the design, so the developer can reference them.
+````
 
 ## 复习问题
 
-1. 用户真正要保存、分享或继续编辑的交付物是什么？
-2. 哪个 skill 与这个交付物最匹配？
-3. 是否已有 starter component 可以复用？
-4. 内容、视觉结构和交互逻辑是否分层？
-5. 重要尺寸和样式是否可以调整？
-6. 用户能否对具体屏幕、slide 或组件给出精确反馈？
-7. 是否查看了真实预览，而不只是源代码？
-8. 导出选择保留了用户真正需要的可编辑性或视觉保真？
-9. 交给 Claude Code 时是否携带足够工程上下文？
+1. 用户要的是页面、文档、原型、视频、deck 还是工程交接，哪个 skill 有对应完成标准？
+2. 普通 DC 与设计系统 compiler 的 authoring 规则是否处在正确任务范围？
+3. 模板只查值还是暗藏表达式；logic 子树是否仍能被用户编辑？
+4. 拆 child 的理由符合源门槛吗；props 是否真的被组件读取？
+5. time、pagination 和 inventory 是否各只有一个事实来源？
+6. 评论 anchor 是否保留，screen label 是否按人的顺序可定位？
+7. preview、verifier 与导出结果是否都实际查看，而不只读源码？
+8. PPTX 要可编辑还是像素保真；handoff 是否说明参考与生产实现的边界？
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
-
-- [Claude Design system prompt](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/claude-design.md)
-- [Claude Design Skills directory](https://github.com/asgeirtj/system_prompts_leaks/tree/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/skills)
-- [Claude Design Skills inventory](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/skills/README.md)
-- [Claude Design Starter components](https://github.com/asgeirtj/system_prompts_leaks/tree/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-design/starter-components)
+- [Claude Design：系统、组件与工具协议](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/claude-design.md)
+- [Skills inventory：用户可调用、内部项与遗留不一致](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/README.md)
+- [Animated video：连续时间与导出 root](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/animated-video/SKILL.md)
+- [Make a doc：flowing pages / fixed sheet](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/make-a-doc/SKILL.md)
+- [Flier：单页打印结构](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/flier/SKILL.md)
+- [Create design system：compiler 与完整 inventory](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/create-design-system/SKILL.md)
+- [Editable PPTX](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/export-as-pptx-editable/SKILL.md)
+- [Screenshots PPTX](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/export-as-pptx-screenshots/SKILL.md)
+- [Claude Code handoff](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/skills/handoff-to-claude-code/SKILL.md)
+- [固定 Starter components 目录](https://github.com/asgeirtj/system_prompts_leaks/tree/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-design/starter-components)

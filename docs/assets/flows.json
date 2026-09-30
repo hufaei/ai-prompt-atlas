@@ -1,0 +1,2551 @@
+{
+  "claude-fable-5-claude-code-prompt-framework": {
+    "title": "Claude Code：从查证到交付",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "01　查证与方案",
+        "subtitle": "定位材料，再审方案",
+        "x": 50,
+        "y": 106,
+        "w": 320,
+        "h": 468,
+        "kind": "neutral"
+      },
+      {
+        "label": "02　执行与核验",
+        "subtitle": "在已有授权内推进",
+        "x": 450,
+        "y": 106,
+        "w": 520,
+        "h": 468,
+        "kind": "work"
+      },
+      {
+        "label": "03　保存与交付",
+        "subtitle": "持久化后，检查自测盲点",
+        "x": 1050,
+        "y": 106,
+        "w": 340,
+        "h": 584,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "read",
+        "title": "查证工作区",
+        "copy": "确认文件、状态与约定",
+        "detail": "读目标文件，重查 Git 状态，确认项目约定和授权范围。会话开始时的状态不能替代当前证据。",
+        "x": 90,
+        "y": 215,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "plan",
+        "title": "审执行路线",
+        "copy": "确认改动与隐含约束",
+        "detail": "先定位材料，再咨询评审者。列出要改的内容和隐含约束；事实未知时给出检索策略，不凭猜测固定方案。",
+        "x": 90,
+        "y": 400,
+        "w": 240,
+        "h": 96,
+        "kind": "review",
+        "badge": "ADVISOR"
+      },
+      {
+        "id": "edit",
+        "title": "执行修改",
+        "copy": "依方案推进已授权工作",
+        "detail": "在已有授权内持续推进。反复失败或准备改变路线时，再咨询评审者；普通障碍先诊断，不把未完成的工作当作交付。",
+        "x": 480,
+        "y": 310,
+        "w": 210,
+        "h": 100,
+        "kind": "work"
+      },
+      {
+        "id": "verify",
+        "title": "核验结果",
+        "copy": "以文件、检查或页面核实",
+        "detail": "按任务选择证据：当前文件内容、相关检查输出或真实页面。核验失败就返回修改，修正后重新检查。",
+        "x": 740,
+        "y": 310,
+        "w": 210,
+        "h": 100,
+        "kind": "work"
+      },
+      {
+        "id": "save",
+        "title": "保存成果",
+        "copy": "写文件，让结果持久化",
+        "detail": "先保存文件或结果，再请评审者完成复查。持久化让成果在会话中断后仍然存在，但不会增加 commit 或 push 权限。",
+        "x": 1090,
+        "y": 205,
+        "w": 240,
+        "h": 96,
+        "kind": "save"
+      },
+      {
+        "id": "review",
+        "title": "复查成果",
+        "copy": "找自测遗漏，判断阻断",
+        "detail": "评审隐含要求和自测没有覆盖的约束。明确问题是否阻断交付：阻断则返回修改，无阻断则交付并说明限制。",
+        "x": 1090,
+        "y": 395,
+        "w": 240,
+        "h": 96,
+        "kind": "review",
+        "badge": "ADVISOR"
+      },
+      {
+        "id": "deliver",
+        "title": "交付结果",
+        "copy": "给成果、证据与剩余项",
+        "detail": "报告本轮实际观察到的结果。若有失败、跳过或未完成项，先说明；最终回答应让用户直接获得成果与验证证据。",
+        "x": 1090,
+        "y": 585,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      }
+    ],
+    "edges": [
+      {
+        "id": "read-plan",
+        "from": "read",
+        "to": "plan",
+        "d": "M210 311 V400",
+        "ports": [
+          [
+            210,
+            311
+          ],
+          [
+            210,
+            400
+          ]
+        ]
+      },
+      {
+        "id": "plan-edit",
+        "from": "plan",
+        "to": "edit",
+        "d": "M330 448 H398 Q420 448 420 426 V382 Q420 360 442 360 H480",
+        "ports": [
+          [
+            330,
+            448
+          ],
+          [
+            480,
+            360
+          ]
+        ]
+      },
+      {
+        "id": "edit-verify",
+        "from": "edit",
+        "to": "verify",
+        "d": "M690 360 H740",
+        "ports": [
+          [
+            690,
+            360
+          ],
+          [
+            740,
+            360
+          ]
+        ]
+      },
+      {
+        "id": "verify-save",
+        "from": "verify",
+        "to": "save",
+        "d": "M950 360 H984 Q1006 360 1006 338 V275 Q1006 253 1028 253 H1090",
+        "ports": [
+          [
+            950,
+            360
+          ],
+          [
+            1090,
+            253
+          ]
+        ]
+      },
+      {
+        "id": "save-review",
+        "from": "save",
+        "to": "review",
+        "d": "M1210 301 V395",
+        "ports": [
+          [
+            1210,
+            301
+          ],
+          [
+            1210,
+            395
+          ]
+        ]
+      },
+      {
+        "id": "review-deliver",
+        "from": "review",
+        "to": "deliver",
+        "d": "M1210 491 V585",
+        "ports": [
+          [
+            1210,
+            491
+          ],
+          [
+            1210,
+            585
+          ]
+        ]
+      },
+      {
+        "id": "verify-edit",
+        "from": "verify",
+        "to": "edit",
+        "retry": true,
+        "d": "M830 410 V488 Q830 510 808 510 H612 Q590 510 590 488 V410",
+        "ports": [
+          [
+            830,
+            410
+          ],
+          [
+            590,
+            410
+          ]
+        ]
+      },
+      {
+        "id": "review-edit",
+        "from": "review",
+        "to": "edit",
+        "retry": true,
+        "d": "M1090 443 H1022 Q1000 443 1000 465 V618 Q1000 640 978 640 H542 Q520 640 520 618 V410",
+        "ports": [
+          [
+            1090,
+            443
+          ],
+          [
+            520,
+            410
+          ]
+        ]
+      },
+      {
+        "id": "edit-plan",
+        "from": "edit",
+        "to": "plan",
+        "retry": true,
+        "consult": true,
+        "d": "M590 310 V204 Q590 182 568 182 H430 Q410 182 410 204 V401 Q410 423 388 423 H330",
+        "ports": [
+          [
+            590,
+            310
+          ],
+          [
+            330,
+            423
+          ]
+        ]
+      }
+    ],
+    "labels": [
+      {
+        "text": "失败 · 修正后重验",
+        "x": 675,
+        "y": 535,
+        "anchor": "middle",
+        "kind": "return"
+      },
+      {
+        "text": "阻断交付 · 返回修改",
+        "x": 760,
+        "y": 665,
+        "anchor": "middle",
+        "kind": "return"
+      },
+      {
+        "text": "卡住或改路线 · 再咨询",
+        "x": 616,
+        "y": 209,
+        "kind": "consult"
+      },
+      {
+        "text": "通过",
+        "x": 988,
+        "y": 315
+      },
+      {
+        "text": "无阻断",
+        "x": 1230,
+        "y": 543
+      }
+    ],
+    "footnote": "紫色评审节点仅在 Advisor 工具实际可用时接入；保存文件不会增加 commit / push 权限。",
+    "routes": [
+      {
+        "id": "normal",
+        "name": "正常完成",
+        "nodes": [
+          "read",
+          "plan",
+          "edit",
+          "verify",
+          "save",
+          "review",
+          "deliver"
+        ]
+      },
+      {
+        "id": "verify",
+        "name": "核验失败",
+        "nodes": [
+          "read",
+          "plan",
+          "edit",
+          "verify",
+          "edit",
+          "verify",
+          "save",
+          "review",
+          "deliver"
+        ]
+      },
+      {
+        "id": "review",
+        "name": "评审返工",
+        "nodes": [
+          "read",
+          "plan",
+          "edit",
+          "verify",
+          "save",
+          "review",
+          "edit",
+          "verify",
+          "save",
+          "review",
+          "deliver"
+        ]
+      }
+    ]
+  },
+  "gpt-5.6-codex-runtime": {
+    "title": "Codex：从当前状态到证据交付",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "01　状态与授权",
+        "subtitle": "确认本轮现场与动作范围",
+        "x": 50,
+        "y": 110,
+        "w": 320,
+        "h": 555,
+        "kind": "neutral"
+      },
+      {
+        "label": "02　执行与核验",
+        "subtitle": "读真实契约，失败后修正",
+        "x": 450,
+        "y": 110,
+        "w": 580,
+        "h": 555,
+        "kind": "work"
+      },
+      {
+        "label": "03　交付结果",
+        "subtitle": "结果与限制可以独立理解",
+        "x": 1080,
+        "y": 110,
+        "w": 310,
+        "h": 555,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "state",
+        "title": "读取当前状态",
+        "copy": "确认文件规则与新消息",
+        "detail": "读取当前文件、项目规则和本轮环境，纳入最新用户修正。记忆或旧会话状态不能代替当前证据。",
+        "x": 90,
+        "y": 160,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "authority",
+        "title": "判断动作授权",
+        "copy": "沿用已有授权核对范围",
+        "detail": "检查下一步是否属于请求及已有授权；范围内准备工作继续做。可调用工具与登录状态不会自行授权外部写入。",
+        "x": 90,
+        "y": 330,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "ask",
+        "title": "补齐授权条件",
+        "copy": "仅在缺少必要授权时问",
+        "detail": "确有缺失授权或动作时审批要求才提出具体问题，说明依据与影响。必要批准未到前保持等待，时间流逝不算批准。",
+        "x": 90,
+        "y": 505,
+        "w": 240,
+        "h": 96,
+        "kind": "review",
+        "badge": "条件分支"
+      },
+      {
+        "id": "contract",
+        "title": "读取能力契约",
+        "copy": "核对技能参数与返回值",
+        "detail": "读取匹配技能与实际工具说明，核对参数、权限和返回状态。委派与新建聊天各有触发边界，不能因工具存在而自动使用。",
+        "x": 480,
+        "y": 160,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "execute",
+        "title": "完成范围内动作",
+        "copy": "保护现场并消费执行结果",
+        "detail": "按依赖顺序执行已授权工作，保留用户已有文件与改动。持续会话或未等待的调用不是已完成结果。",
+        "x": 760,
+        "y": 160,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "evidence",
+        "title": "核验成果证据",
+        "copy": "让公共输入造成真实结果",
+        "detail": "在本任务允许的验证范围内，检查相称的执行结果或用户表面。失败回到修改；视觉结论需要实际看图，不能只看文件存在。",
+        "x": 760,
+        "y": 380,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "deliver",
+        "title": "交付自包含结果",
+        "copy": "报告成果证据与未验项",
+        "detail": "说明本轮改变与实际观察到的结果，列明失败、跳过或未验证项。最终回答不依赖用户翻找中途进度。",
+        "x": 1115,
+        "y": 380,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      }
+    ],
+    "edges": [
+      {
+        "id": "state-authority",
+        "from": "state",
+        "to": "authority",
+        "d": "M210 256 V330",
+        "ports": [
+          [
+            210,
+            256
+          ],
+          [
+            210,
+            330
+          ]
+        ]
+      },
+      {
+        "id": "authority-contract",
+        "from": "authority",
+        "to": "contract",
+        "d": "M330 378 H396 Q416 378 416 358 V228 Q416 208 436 208 H480",
+        "ports": [
+          [
+            330,
+            378
+          ],
+          [
+            480,
+            208
+          ]
+        ]
+      },
+      {
+        "id": "authority-ask",
+        "from": "authority",
+        "to": "ask",
+        "d": "M210 426 V505",
+        "ports": [
+          [
+            210,
+            426
+          ],
+          [
+            210,
+            505
+          ]
+        ],
+        "consult": true
+      },
+      {
+        "id": "ask-authority",
+        "from": "ask",
+        "to": "authority",
+        "d": "M90 553 H70 V378 H90",
+        "ports": [
+          [
+            90,
+            553
+          ],
+          [
+            90,
+            378
+          ]
+        ],
+        "retry": true,
+        "consult": true
+      },
+      {
+        "id": "contract-execute",
+        "from": "contract",
+        "to": "execute",
+        "d": "M720 208 H760",
+        "ports": [
+          [
+            720,
+            208
+          ],
+          [
+            760,
+            208
+          ]
+        ]
+      },
+      {
+        "id": "execute-evidence",
+        "from": "execute",
+        "to": "evidence",
+        "d": "M880 256 V380",
+        "ports": [
+          [
+            880,
+            256
+          ],
+          [
+            880,
+            380
+          ]
+        ]
+      },
+      {
+        "id": "evidence-execute",
+        "from": "evidence",
+        "to": "execute",
+        "d": "M880 476 V590 H738 V235 H760",
+        "ports": [
+          [
+            880,
+            476
+          ],
+          [
+            760,
+            235
+          ]
+        ],
+        "retry": true
+      },
+      {
+        "id": "evidence-deliver",
+        "from": "evidence",
+        "to": "deliver",
+        "d": "M1000 428 H1115",
+        "ports": [
+          [
+            1000,
+            428
+          ],
+          [
+            1115,
+            428
+          ]
+        ]
+      }
+    ],
+    "labels": [
+      {
+        "text": "授权具备",
+        "x": 388,
+        "y": 397,
+        "anchor": "middle"
+      },
+      {
+        "text": "必要授权缺失",
+        "x": 227,
+        "y": 469,
+        "kind": "consult"
+      },
+      {
+        "text": "授权到达",
+        "x": 79,
+        "y": 482,
+        "kind": "consult"
+      },
+      {
+        "text": "失败 · 修正后重验",
+        "x": 825,
+        "y": 619,
+        "kind": "return",
+        "anchor": "middle"
+      },
+      {
+        "text": "证据成立",
+        "x": 1058,
+        "y": 413,
+        "anchor": "middle"
+      }
+    ],
+    "footnote": "学习归纳，非官方功能背书。按实际模型与用户请求选择验证；Luna须请求测试。公共路径与像素证据来自Muse旁证，工具可用不等于授权。",
+    "routes": [
+      {
+        "id": "normal",
+        "name": "授权内完成",
+        "nodes": [
+          "state",
+          "authority",
+          "contract",
+          "execute",
+          "evidence",
+          "deliver"
+        ]
+      },
+      {
+        "id": "retry",
+        "name": "核验失败返工",
+        "nodes": [
+          "state",
+          "authority",
+          "contract",
+          "execute",
+          "evidence",
+          "execute",
+          "evidence",
+          "deliver"
+        ]
+      },
+      {
+        "id": "permission",
+        "name": "等待必要授权",
+        "nodes": [
+          "state",
+          "authority",
+          "ask",
+          "authority",
+          "contract",
+          "execute",
+          "evidence",
+          "deliver"
+        ]
+      }
+    ]
+  },
+  "gpt-5.5-prompt-framework": {
+    "title": "来源路由：让事实回到拥有者",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "01　识别所问事实",
+        "subtitle": "先判断目标与来源归属",
+        "x": 50,
+        "y": 110,
+        "w": 600,
+        "h": 555,
+        "kind": "neutral"
+      },
+      {
+        "label": "02　进入专用来源",
+        "subtitle": "记忆、文件与应用分别读取",
+        "x": 690,
+        "y": 110,
+        "w": 280,
+        "h": 555,
+        "kind": "work"
+      },
+      {
+        "label": "03　核对并回答",
+        "subtitle": "参数正确仍需事实正确",
+        "x": 1020,
+        "y": 110,
+        "w": 370,
+        "h": 555,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "request",
+        "title": "确定当前请求",
+        "copy": "用已有约束避免重复问",
+        "detail": "先确定当前目标，使用会改变答案的已有约束。不要为了个性化加入无关记忆，也不要重复询问已经给出的细节。",
+        "x": 90,
+        "y": 330,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "owner",
+        "title": "判断来源归属",
+        "copy": "区分个人背景文件应用",
+        "detail": "用户偏好与既有决定可由个人上下文辅助；文件正文和应用当前对象须进入各自来源。记忆不能替代最新附件或邮箱。",
+        "x": 390,
+        "y": 330,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "memory",
+        "title": "选择记忆入口",
+        "copy": "相关个人背景进入记忆",
+        "detail": "请求涉及建议、规划或个人背景，且没有转入文件或应用检索时，按Instant触发规则选择personal_context。此处只确定入口，下一步校验契约后才调用。",
+        "x": 710,
+        "y": 170,
+        "w": 240,
+        "h": 96,
+        "kind": "work",
+        "badge": "个人背景"
+      },
+      {
+        "id": "file",
+        "title": "选择文件来源",
+        "copy": "文件请求进入专用检索",
+        "detail": "文件检索请求选择file_search，不能以记忆中的文件摘要替代目标来源。此处确定所用入口，下一步按实际契约检索正文。",
+        "x": 710,
+        "y": 330,
+        "w": 240,
+        "h": 96,
+        "kind": "work",
+        "badge": "文件请求"
+      },
+      {
+        "id": "app",
+        "title": "选择应用入口",
+        "copy": "邮件消息指向对应连接器",
+        "detail": "邮箱问题选择Gmail，第三方应用问题选择对应连接器。此处只完成来源路由，尚未取得该应用的实际对象。",
+        "x": 710,
+        "y": 500,
+        "w": 240,
+        "h": 96,
+        "kind": "work",
+        "badge": "应用请求"
+      },
+      {
+        "id": "schema",
+        "title": "按契约取证",
+        "copy": "校验参数后调用并读取",
+        "detail": "先检查所选工具的参数、必填字段、权限与调用格式，再实际调用并消费来源内容。必填字符串可允许空值；工具名不能证明额外权限。",
+        "x": 1080,
+        "y": 170,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "evidence",
+        "title": "整合来源证据",
+        "copy": "区分取回事实与自身推断",
+        "detail": "检查取回内容是否回答了目标事实，保留来源与必要的新鲜度。检索候选、计算结果和推断各自说明，不能靠渲染组件升级证据。",
+        "x": 1080,
+        "y": 330,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "answer",
+        "title": "选择回答表面",
+        "copy": "按价值与渲染协议交付",
+        "detail": "文字足够就直接回答；富响应须符合目标产品语法并确有价值。文件、应用与外部引用保持各自证据入口。",
+        "x": 1080,
+        "y": 500,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      }
+    ],
+    "edges": [
+      {
+        "id": "request-owner",
+        "from": "request",
+        "to": "owner",
+        "d": "M330 378 H390",
+        "ports": [
+          [
+            330,
+            378
+          ],
+          [
+            390,
+            378
+          ]
+        ]
+      },
+      {
+        "id": "owner-memory",
+        "from": "owner",
+        "to": "memory",
+        "d": "M630 352 H666 V218 H710",
+        "ports": [
+          [
+            630,
+            352
+          ],
+          [
+            710,
+            218
+          ]
+        ]
+      },
+      {
+        "id": "owner-file",
+        "from": "owner",
+        "to": "file",
+        "d": "M630 378 H710",
+        "ports": [
+          [
+            630,
+            378
+          ],
+          [
+            710,
+            378
+          ]
+        ]
+      },
+      {
+        "id": "owner-app",
+        "from": "owner",
+        "to": "app",
+        "d": "M630 404 H680 V548 H710",
+        "ports": [
+          [
+            630,
+            404
+          ],
+          [
+            710,
+            548
+          ]
+        ]
+      },
+      {
+        "id": "memory-schema",
+        "from": "memory",
+        "to": "schema",
+        "d": "M950 218 H1080",
+        "ports": [
+          [
+            950,
+            218
+          ],
+          [
+            1080,
+            218
+          ]
+        ]
+      },
+      {
+        "id": "file-schema",
+        "from": "file",
+        "to": "schema",
+        "d": "M950 378 H985 V244 H1080",
+        "ports": [
+          [
+            950,
+            378
+          ],
+          [
+            1080,
+            244
+          ]
+        ]
+      },
+      {
+        "id": "app-schema",
+        "from": "app",
+        "to": "schema",
+        "d": "M950 548 H1000 V266 H1080",
+        "ports": [
+          [
+            950,
+            548
+          ],
+          [
+            1080,
+            266
+          ]
+        ]
+      },
+      {
+        "id": "schema-evidence",
+        "from": "schema",
+        "to": "evidence",
+        "d": "M1200 266 V330",
+        "ports": [
+          [
+            1200,
+            266
+          ],
+          [
+            1200,
+            330
+          ]
+        ]
+      },
+      {
+        "id": "evidence-answer",
+        "from": "evidence",
+        "to": "answer",
+        "d": "M1200 426 V500",
+        "ports": [
+          [
+            1200,
+            426
+          ],
+          [
+            1200,
+            500
+          ]
+        ]
+      }
+    ],
+    "labels": [
+      {
+        "text": "背景影响答案",
+        "x": 581,
+        "y": 228,
+        "anchor": "middle"
+      },
+      {
+        "text": "找文件",
+        "x": 659,
+        "y": 362,
+        "anchor": "middle"
+      },
+      {
+        "text": "查应用",
+        "x": 604,
+        "y": 550,
+        "anchor": "middle"
+      },
+      {
+        "text": "使用实际工具协议",
+        "x": 1028,
+        "y": 300,
+        "anchor": "middle"
+      }
+    ],
+    "footnote": "学习归纳，非官方功能背书。记忆不是文件或应用的事实来源。Qwen样本缺少完整XML外层示例，不能据此部署；该对照协议不是所有请求必经步骤。",
+    "routes": [
+      {
+        "id": "background",
+        "name": "个人背景问题",
+        "nodes": [
+          "request",
+          "owner",
+          "memory",
+          "schema",
+          "evidence",
+          "answer"
+        ]
+      },
+      {
+        "id": "document",
+        "name": "检索文件正文",
+        "nodes": [
+          "request",
+          "owner",
+          "file",
+          "schema",
+          "evidence",
+          "answer"
+        ]
+      },
+      {
+        "id": "connected",
+        "name": "查询应用对象",
+        "nodes": [
+          "request",
+          "owner",
+          "app",
+          "schema",
+          "evidence",
+          "answer"
+        ]
+      }
+    ]
+  },
+  "claude-opus-5-claude-code": {
+    "title": "Claude.ai：记忆读取与变更分流",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "01　当前请求",
+        "subtitle": "判断本次是否需要记忆",
+        "x": 50,
+        "y": 110,
+        "w": 600,
+        "h": 570,
+        "kind": "neutral"
+      },
+      {
+        "label": "02　读取或变更",
+        "subtitle": "写入走显式请求与独立门槛",
+        "x": 690,
+        "y": 110,
+        "w": 280,
+        "h": 570,
+        "kind": "work"
+      },
+      {
+        "label": "03　应用与回复",
+        "subtitle": "只带入能改变答案的事实",
+        "x": 1020,
+        "y": 110,
+        "w": 370,
+        "h": 570,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "request",
+        "title": "理解当前问题",
+        "copy": "确认要回答还是变更记忆",
+        "detail": "先回答用户当前目标。明确区分普通问题与记住、更新、更正或忘记的显式请求，不为保存经过的事实打断对话。",
+        "x": 90,
+        "y": 310,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "purpose",
+        "title": "判断记忆用途",
+        "copy": "分开相关读取与显式变更",
+        "detail": "相关记忆可能改变答案时走读取分支；用户明确要求记忆变更才由对话助手操作。通用且自包含的问题可以直接回答。",
+        "x": 390,
+        "y": 310,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "read",
+        "title": "读取相关正文",
+        "copy": "目录只是入口不证明内容",
+        "detail": "根据memory_listing选择需要的正文，已注入的profile/preferences不用重复读。目录描述不等于正文，也不能据目录断言没有某项事实。",
+        "x": 710,
+        "y": 180,
+        "w": 240,
+        "h": 96,
+        "kind": "work",
+        "badge": "读取分支"
+      },
+      {
+        "id": "writegate",
+        "title": "核对写入边界",
+        "copy": "检查用户陈述耐久与隐私",
+        "detail": "确认待存内容确由用户陈述，归属正确主体，满足隐私与平台同意要求。凭证等禁止保存内容不能因同意而写入。",
+        "x": 710,
+        "y": 370,
+        "w": 240,
+        "h": 96,
+        "kind": "review",
+        "badge": "显式变更"
+      },
+      {
+        "id": "current",
+        "title": "读取待改版本",
+        "copy": "保留当前正文及版本令牌",
+        "detail": "读取目标文件正文与version，再选择替换、append或whole-file write；整文件替换要保留所有仍需内容。已有写入版本的源例外按实际情况判断。",
+        "x": 710,
+        "y": 555,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "apply",
+        "title": "筛选可用事实",
+        "copy": "只将相关记忆自然带入回答",
+        "detail": "确认记忆会改变当前答案，避免把一次提及夸成长期身份。敏感事实还须满足更高应用门槛；读取不等于本轮用户主动提出。",
+        "x": 1080,
+        "y": 180,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "change",
+        "title": "执行记忆变更",
+        "copy": "按版本更新更正或忘记",
+        "detail": "按实际操作传if_version，小改唯一匹配、新事实append；忘记按目标删除。版本冲突就在当前正文上合并后重试，失败要明确报告。",
+        "x": 1080,
+        "y": 370,
+        "w": 240,
+        "h": 96,
+        "kind": "save"
+      },
+      {
+        "id": "answer",
+        "title": "完成本次回复",
+        "copy": "回答问题或报告实际变更",
+        "detail": "普通回答自然应用符合门槛的事实；变更请求说明实际成功或失败。忘记一个事实与关闭全部平台记忆不同，不能假称已关闭功能。",
+        "x": 1080,
+        "y": 555,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      }
+    ],
+    "edges": [
+      {
+        "id": "request-purpose",
+        "from": "request",
+        "to": "purpose",
+        "d": "M330 358 H390",
+        "ports": [
+          [
+            330,
+            358
+          ],
+          [
+            390,
+            358
+          ]
+        ]
+      },
+      {
+        "id": "purpose-read",
+        "from": "purpose",
+        "to": "read",
+        "d": "M630 330 H666 V228 H710",
+        "ports": [
+          [
+            630,
+            330
+          ],
+          [
+            710,
+            228
+          ]
+        ]
+      },
+      {
+        "id": "purpose-writegate",
+        "from": "purpose",
+        "to": "writegate",
+        "d": "M630 385 H680 V418 H710",
+        "ports": [
+          [
+            630,
+            385
+          ],
+          [
+            710,
+            418
+          ]
+        ]
+      },
+      {
+        "id": "purpose-answer",
+        "from": "purpose",
+        "to": "answer",
+        "d": "M510 406 V700 H1200 V651",
+        "ports": [
+          [
+            510,
+            406
+          ],
+          [
+            1200,
+            651
+          ]
+        ]
+      },
+      {
+        "id": "read-apply",
+        "from": "read",
+        "to": "apply",
+        "d": "M950 228 H1080",
+        "ports": [
+          [
+            950,
+            228
+          ],
+          [
+            1080,
+            228
+          ]
+        ]
+      },
+      {
+        "id": "apply-answer",
+        "from": "apply",
+        "to": "answer",
+        "d": "M1320 228 H1358 V603 H1320",
+        "ports": [
+          [
+            1320,
+            228
+          ],
+          [
+            1320,
+            603
+          ]
+        ]
+      },
+      {
+        "id": "writegate-current",
+        "from": "writegate",
+        "to": "current",
+        "d": "M830 466 V555",
+        "ports": [
+          [
+            830,
+            466
+          ],
+          [
+            830,
+            555
+          ]
+        ]
+      },
+      {
+        "id": "current-change",
+        "from": "current",
+        "to": "change",
+        "d": "M950 603 H992 V418 H1080",
+        "ports": [
+          [
+            950,
+            603
+          ],
+          [
+            1080,
+            418
+          ]
+        ]
+      },
+      {
+        "id": "change-answer",
+        "from": "change",
+        "to": "answer",
+        "d": "M1200 466 V555",
+        "ports": [
+          [
+            1200,
+            466
+          ],
+          [
+            1200,
+            555
+          ]
+        ]
+      },
+      {
+        "id": "change-current",
+        "from": "change",
+        "to": "current",
+        "d": "M1080 446 H1044 V668 H830 V651",
+        "ports": [
+          [
+            1080,
+            446
+          ],
+          [
+            830,
+            651
+          ]
+        ],
+        "retry": true
+      }
+    ],
+    "labels": [
+      {
+        "text": "背景相关",
+        "x": 589,
+        "y": 238,
+        "anchor": "middle"
+      },
+      {
+        "text": "明确要求变更",
+        "x": 548,
+        "y": 441,
+        "kind": "consult",
+        "anchor": "middle"
+      },
+      {
+        "text": "不需要记忆",
+        "x": 597,
+        "y": 686,
+        "anchor": "middle"
+      },
+      {
+        "text": "版本冲突 · 合并再试",
+        "x": 929,
+        "y": 691,
+        "kind": "return",
+        "anchor": "middle"
+      }
+    ],
+    "footnote": "学习归纳，非官方功能背书。读取不授权写入；对话中仅显式请求触发变更，后台pass另行筛选。新事实使用[stated]，隐私与同意规则独立适用。",
+    "routes": [
+      {
+        "id": "read",
+        "name": "读取并应用背景",
+        "nodes": [
+          "request",
+          "purpose",
+          "read",
+          "apply",
+          "answer"
+        ]
+      },
+      {
+        "id": "direct",
+        "name": "自包含问题直答",
+        "nodes": [
+          "request",
+          "purpose",
+          "answer"
+        ]
+      },
+      {
+        "id": "update",
+        "name": "显式变更与冲突",
+        "nodes": [
+          "request",
+          "purpose",
+          "writegate",
+          "current",
+          "change",
+          "current",
+          "change",
+          "answer"
+        ]
+      }
+    ]
+  },
+  "claude-design-skills": {
+    "title": "Claude Design：从可编辑产物到交付",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "01　确定产物",
+        "subtitle": "交付用途决定所需技能",
+        "x": 50,
+        "y": 110,
+        "w": 320,
+        "h": 580,
+        "kind": "neutral"
+      },
+      {
+        "label": "02　编辑与反馈",
+        "subtitle": "可编辑结构进入真实预览",
+        "x": 420,
+        "y": 110,
+        "w": 600,
+        "h": 580,
+        "kind": "work"
+      },
+      {
+        "label": "03　导出或交接",
+        "subtitle": "选择后续保存与实现方式",
+        "x": 1080,
+        "y": 110,
+        "w": 320,
+        "h": 580,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "artifact",
+        "title": "明确交付产物",
+        "copy": "先定用途画布与用户资源",
+        "detail": "确认用户要页面、文档、原型、视频、deck或工程交接。先看其设计系统、文件和链接，再确定产物形状与受众。",
+        "x": 90,
+        "y": 175,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "skill",
+        "title": "读取匹配技能",
+        "copy": "启动设计再按产物读技能",
+        "detail": "主prompt要求设计任务先调用Hi-fi design，特定产物再读对应skill。按实际inventory与schema使用入口，不从遗留名字推断能力存在。",
+        "x": 90,
+        "y": 410,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "edit",
+        "title": "构建可编辑稿",
+        "copy": "模板可定位逻辑负责状态",
+        "detail": "一般DC默认单组件，模板查值、逻辑计算；避免把布局藏进不可编辑子树。仅满足复用门槛才拆组件，使用真实props与fallback。",
+        "x": 455,
+        "y": 175,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "preview",
+        "title": "查看真实预览",
+        "copy": "展示产物并消费核验报告",
+        "detail": "中间预览用show_to_user，最终HTML用ready_for_verification；读取并处理实际报告。源码合法不证明用户看见的布局与交互正确。",
+        "x": 755,
+        "y": 175,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "feedback",
+        "title": "定位反馈元素",
+        "copy": "保留评论锚点只改目标",
+        "detail": "利用mentioned-element定位源元素，保留语义等价的comment anchor。普通targeted change只改指定内容，修复后再次展示和核验。",
+        "x": 755,
+        "y": 410,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "format",
+        "title": "选择交付方式",
+        "copy": "区分文件导出与工程交接",
+        "detail": "根据用户后续需要选择PDF、standalone HTML、PPTX或handoff。Editable PPTX与截图PPTX有不同契约，不把像素保真当成逐元素可编辑。",
+        "x": 1110,
+        "y": 175,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "export",
+        "title": "导出可用文件",
+        "copy": "按所选格式检查编辑能力",
+        "detail": "需要编辑就选择native text/shapes/images的导出契约，需像素保真可选择全页截图。检查相应导出结果，不能仅报告预览通过。",
+        "x": 1110,
+        "y": 410,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      },
+      {
+        "id": "handoff",
+        "title": "交接设计依据",
+        "copy": "说明布局状态资产与文件",
+        "detail": "Bundle README说明HTML是设计参考，列出每屏布局、交互、状态、tokens与assets。工程代理须按目标仓库模式重建，不直接把原型当生产代码。",
+        "x": 1110,
+        "y": 580,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver",
+        "badge": "工程交接"
+      }
+    ],
+    "edges": [
+      {
+        "id": "artifact-skill",
+        "from": "artifact",
+        "to": "skill",
+        "d": "M210 271 V410",
+        "ports": [
+          [
+            210,
+            271
+          ],
+          [
+            210,
+            410
+          ]
+        ]
+      },
+      {
+        "id": "skill-edit",
+        "from": "skill",
+        "to": "edit",
+        "d": "M330 458 H388 V223 H455",
+        "ports": [
+          [
+            330,
+            458
+          ],
+          [
+            455,
+            223
+          ]
+        ]
+      },
+      {
+        "id": "edit-preview",
+        "from": "edit",
+        "to": "preview",
+        "d": "M695 223 H755",
+        "ports": [
+          [
+            695,
+            223
+          ],
+          [
+            755,
+            223
+          ]
+        ]
+      },
+      {
+        "id": "preview-format",
+        "from": "preview",
+        "to": "format",
+        "d": "M995 223 H1110",
+        "ports": [
+          [
+            995,
+            223
+          ],
+          [
+            1110,
+            223
+          ]
+        ]
+      },
+      {
+        "id": "preview-feedback",
+        "from": "preview",
+        "to": "feedback",
+        "d": "M875 271 V410",
+        "ports": [
+          [
+            875,
+            271
+          ],
+          [
+            875,
+            410
+          ]
+        ],
+        "consult": true
+      },
+      {
+        "id": "feedback-edit",
+        "from": "feedback",
+        "to": "edit",
+        "d": "M755 458 H718 V251 H695",
+        "ports": [
+          [
+            755,
+            458
+          ],
+          [
+            695,
+            251
+          ]
+        ],
+        "retry": true
+      },
+      {
+        "id": "format-export",
+        "from": "format",
+        "to": "export",
+        "d": "M1230 271 V410",
+        "ports": [
+          [
+            1230,
+            271
+          ],
+          [
+            1230,
+            410
+          ]
+        ]
+      },
+      {
+        "id": "format-handoff",
+        "from": "format",
+        "to": "handoff",
+        "d": "M1350 223 H1378 V628 H1350",
+        "ports": [
+          [
+            1350,
+            223
+          ],
+          [
+            1350,
+            628
+          ]
+        ]
+      }
+    ],
+    "labels": [
+      {
+        "text": "反馈或核验问题",
+        "x": 877,
+        "y": 337,
+        "kind": "consult",
+        "anchor": "middle"
+      },
+      {
+        "text": "定位后修改",
+        "x": 599,
+        "y": 469,
+        "kind": "return",
+        "anchor": "middle"
+      },
+      {
+        "text": "核验通过",
+        "x": 1055,
+        "y": 207,
+        "anchor": "middle"
+      },
+      {
+        "text": "需要文件",
+        "x": 1230,
+        "y": 348,
+        "anchor": "middle"
+      },
+      {
+        "text": "继续工程实现",
+        "x": 1228,
+        "y": 545,
+        "anchor": "middle"
+      }
+    ],
+    "footnote": "学习归纳，非官方功能背书。一般DC与专用skill规则分别适用；截图PPTX不能逐元素编辑。HTML handoff是设计参考，截图须在bundle后按用户选择加入。",
+    "routes": [
+      {
+        "id": "export",
+        "name": "预览后导出文件",
+        "nodes": [
+          "artifact",
+          "skill",
+          "edit",
+          "preview",
+          "format",
+          "export"
+        ]
+      },
+      {
+        "id": "feedback",
+        "name": "反馈修订后导出",
+        "nodes": [
+          "artifact",
+          "skill",
+          "edit",
+          "preview",
+          "feedback",
+          "edit",
+          "preview",
+          "format",
+          "export"
+        ]
+      },
+      {
+        "id": "handoff",
+        "name": "交给工程继续实现",
+        "nodes": [
+          "artifact",
+          "skill",
+          "edit",
+          "preview",
+          "format",
+          "handoff"
+        ]
+      }
+    ]
+  },
+  "grok-prompt-evolution": {
+    "title": "Grok：先选表面，再验收结果",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "选择工作表面",
+        "subtitle": "同一品牌，执行边界分别定义",
+        "x": 40,
+        "y": 106,
+        "w": 300,
+        "h": 550,
+        "kind": "neutral"
+      },
+      {
+        "label": "沿对应路线执行",
+        "subtitle": "四条路线各自取得完成证据",
+        "x": 390,
+        "y": 106,
+        "w": 670,
+        "h": 550,
+        "kind": "work"
+      },
+      {
+        "label": "确认可见交付",
+        "subtitle": "完成声明依据真实结果",
+        "x": 1110,
+        "y": 106,
+        "w": 290,
+        "h": 550,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "surface",
+        "title": "选择工作表面",
+        "copy": "先辨认任务所在的产品",
+        "detail": "按当前任务选择工程 CLI、对话工具、应用生成或桌面代理。它们来自不同运行表面，不能串成每次都必须执行的统一流程。",
+        "x": 70,
+        "y": 354,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "cli",
+        "title": "推进工程任务",
+        "copy": "按记忆范围开展工作",
+        "detail": "先读匹配的 global/workspace 主题并重查当前路径，再按用户意图执行已授权改动。长命令后台运行，外部观察用 monitor。",
+        "x": 420,
+        "y": 170,
+        "w": 240,
+        "h": 92,
+        "kind": "work",
+        "badge": "4.7 CLI"
+      },
+      {
+        "id": "cli-check",
+        "title": "核实后台终态",
+        "copy": "完成声明须有当前证据",
+        "detail": "读取命令实际结果；monitor 只发 DONE/FAILED/CANCELLED，必需项失败立即通知。改了可见 Web 行为时，实际操作并检查共享路由、桌面和手机布局。",
+        "x": 780,
+        "y": 170,
+        "w": 240,
+        "h": 92,
+        "kind": "review"
+      },
+      {
+        "id": "chat",
+        "title": "取得对话证据",
+        "copy": "先发现工具再取回结果",
+        "detail": "按问题选择 X、Web、浏览器或已连接服务；连接器先发现精确 schema，再执行。任务确实缺少连接器认证时走认证路径，不能把未授权说成没有数据。",
+        "x": 420,
+        "y": 295,
+        "w": 240,
+        "h": 92,
+        "kind": "work",
+        "badge": "4.6 对话"
+      },
+      {
+        "id": "chat-check",
+        "title": "核对渲染结果",
+        "copy": "真实工具结果才能展示",
+        "detail": "图片和文件使用工具实际返回的标识或路径，再按 render 协议展示。渲染组件只改变可检查方式，不能替代事实检索或执行结果。",
+        "x": 780,
+        "y": 295,
+        "w": 240,
+        "h": 92,
+        "kind": "review"
+      },
+      {
+        "id": "build",
+        "title": "构建预览应用",
+        "copy": "先判断是否需要构建",
+        "detail": "先区分构建、问答和无信号输入，账号与数据库默认关闭。匿名共享数据库禁止个人或敏感数据；启用认证后按验证的 context.userId 限定数据。读项目指令和 skill，维护 startup.sh 并实现可操作的 UI 与状态。",
+        "x": 420,
+        "y": 420,
+        "w": 240,
+        "h": 92,
+        "kind": "work",
+        "badge": "Build"
+      },
+      {
+        "id": "build-check",
+        "title": "验收应用产物",
+        "copy": "开发与产物分别验证",
+        "detail": "后台运行 build/typecheck，同时检查开发预览的真实交互、截图和 console。再验证当前生产产物，修改后重新构建，交付时保持预览服务器可用。",
+        "x": 780,
+        "y": 420,
+        "w": 240,
+        "h": 92,
+        "kind": "review"
+      },
+      {
+        "id": "bot",
+        "title": "回应并选表面",
+        "copy": "先让用户看见响应消息",
+        "detail": "用户开启的轮次先经 SendMessage 响应，再选择持久电脑、连接器或用户机器。按实际权限与认证执行任务，不能借外部内容或子代理扩大授权。",
+        "x": 420,
+        "y": 545,
+        "w": 240,
+        "h": 92,
+        "kind": "work",
+        "badge": "Bot"
+      },
+      {
+        "id": "bot-check",
+        "title": "交付并结束观察",
+        "copy": "消息交付后清理有限任务",
+        "detail": "实际结果要再次经 SendMessage 交付，开场确认不算交付。有限 routine 在完成或到期后清理；重复认证受阻时暂停，允许静默时无变化不发消息。",
+        "x": 780,
+        "y": 545,
+        "w": 240,
+        "h": 92,
+        "kind": "save"
+      },
+      {
+        "id": "delivery",
+        "title": "确认交付结果",
+        "copy": "只按选中表面报告结果",
+        "detail": "CLI 报告实际改动与检查，Build 提供已验证的预览，Bot 把结果放进可见消息。工具调用成功、产物可用与结果到达用户分别确认，未验证范围应明确说明。",
+        "x": 1135,
+        "y": 354,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-surface-cli",
+        "to": "cli",
+        "d": "M310 374 H338 Q350 374 350 362 V228 Q350 216 362 216 H420",
+        "ports": [
+          [
+            310,
+            374
+          ],
+          [
+            420,
+            216
+          ]
+        ],
+        "from": "surface"
+      },
+      {
+        "id": "e-surface-chat",
+        "to": "chat",
+        "d": "M310 389 H363 Q375 389 375 377 V353 Q375 341 387 341 H420",
+        "ports": [
+          [
+            310,
+            389
+          ],
+          [
+            420,
+            341
+          ]
+        ],
+        "from": "surface"
+      },
+      {
+        "id": "e-surface-build",
+        "to": "build",
+        "d": "M310 416 H363 Q375 416 375 428 V454 Q375 466 387 466 H420",
+        "ports": [
+          [
+            310,
+            416
+          ],
+          [
+            420,
+            466
+          ]
+        ],
+        "from": "surface"
+      },
+      {
+        "id": "e-surface-bot",
+        "to": "bot",
+        "d": "M310 431 H338 Q350 431 350 443 V579 Q350 591 362 591 H420",
+        "ports": [
+          [
+            310,
+            431
+          ],
+          [
+            420,
+            591
+          ]
+        ],
+        "from": "surface"
+      },
+      {
+        "id": "e-cli-check",
+        "to": "cli-check",
+        "d": "M660 216 H780",
+        "ports": [
+          [
+            660,
+            216
+          ],
+          [
+            780,
+            216
+          ]
+        ],
+        "from": "cli"
+      },
+      {
+        "id": "e-chat-check",
+        "to": "chat-check",
+        "d": "M660 341 H780",
+        "ports": [
+          [
+            660,
+            341
+          ],
+          [
+            780,
+            341
+          ]
+        ],
+        "from": "chat"
+      },
+      {
+        "id": "e-build-check",
+        "to": "build-check",
+        "d": "M660 466 H780",
+        "ports": [
+          [
+            660,
+            466
+          ],
+          [
+            780,
+            466
+          ]
+        ],
+        "from": "build"
+      },
+      {
+        "id": "e-bot-check",
+        "to": "bot-check",
+        "d": "M660 591 H780",
+        "ports": [
+          [
+            660,
+            591
+          ],
+          [
+            780,
+            591
+          ]
+        ],
+        "from": "bot"
+      },
+      {
+        "id": "e-cli-delivery",
+        "to": "delivery",
+        "d": "M1020 216 H1078 Q1090 216 1090 228 V362 Q1090 374 1102 374 H1135",
+        "ports": [
+          [
+            1020,
+            216
+          ],
+          [
+            1135,
+            374
+          ]
+        ],
+        "from": "cli-check"
+      },
+      {
+        "id": "e-chat-delivery",
+        "to": "delivery",
+        "d": "M1020 341 H1063 Q1075 341 1075 353 V377 Q1075 389 1087 389 H1135",
+        "ports": [
+          [
+            1020,
+            341
+          ],
+          [
+            1135,
+            389
+          ]
+        ],
+        "from": "chat-check"
+      },
+      {
+        "id": "e-build-delivery",
+        "to": "delivery",
+        "d": "M1020 466 H1063 Q1075 466 1075 454 V428 Q1075 416 1087 416 H1135",
+        "ports": [
+          [
+            1020,
+            466
+          ],
+          [
+            1135,
+            416
+          ]
+        ],
+        "from": "build-check"
+      },
+      {
+        "id": "e-bot-delivery",
+        "to": "delivery",
+        "d": "M1020 591 H1078 Q1090 591 1090 579 V443 Q1090 431 1102 431 H1135",
+        "ports": [
+          [
+            1020,
+            591
+          ],
+          [
+            1135,
+            431
+          ]
+        ],
+        "from": "bot-check"
+      },
+      {
+        "id": "e-cli-retry",
+        "to": "cli",
+        "d": "M900 262 V274 Q900 282 892 282 H548 Q540 282 540 274 V262",
+        "ports": [
+          [
+            900,
+            262
+          ],
+          [
+            540,
+            262
+          ]
+        ],
+        "retry": true,
+        "from": "cli-check"
+      }
+    ],
+    "labels": [
+      {
+        "text": "当前输出作证",
+        "x": 720,
+        "y": 201,
+        "anchor": "middle"
+      },
+      {
+        "text": "结果取得后展示",
+        "x": 720,
+        "y": 326,
+        "anchor": "middle"
+      },
+      {
+        "text": "开发与产物验收",
+        "x": 720,
+        "y": 451,
+        "anchor": "middle"
+      },
+      {
+        "text": "通知后结束观察",
+        "x": 720,
+        "y": 576,
+        "anchor": "middle"
+      },
+      {
+        "text": "失败 · 修正重验",
+        "x": 720,
+        "y": 278,
+        "anchor": "middle",
+        "kind": "return"
+      }
+    ],
+    "footnote": "学习归纳 · CLI、对话、Build、Bot 是不同表面；演示只走选中的路线，不代表官方产品能力背书。",
+    "routes": [
+      {
+        "id": "cli",
+        "name": "CLI 失败重验",
+        "nodes": [
+          "surface",
+          "cli",
+          "cli-check",
+          "cli",
+          "cli-check",
+          "delivery"
+        ]
+      },
+      {
+        "id": "chat",
+        "name": "对话检索展示",
+        "nodes": [
+          "surface",
+          "chat",
+          "chat-check",
+          "delivery"
+        ]
+      },
+      {
+        "id": "build",
+        "name": "Build 预览验收",
+        "nodes": [
+          "surface",
+          "build",
+          "build-check",
+          "delivery"
+        ]
+      },
+      {
+        "id": "bot",
+        "name": "Bot 有限观察",
+        "nodes": [
+          "surface",
+          "bot",
+          "bot-check",
+          "delivery"
+        ]
+      }
+    ]
+  },
+  "gemini-prompt-family": {
+    "title": "Gemini：建立意图，再选择呈现",
+    "width": 1440,
+    "height": 720,
+    "groups": [
+      {
+        "label": "意图与上下文",
+        "subtitle": "有歧义先问，相关数据才使用",
+        "x": 40,
+        "y": 106,
+        "w": 300,
+        "h": 550,
+        "kind": "neutral"
+      },
+      {
+        "label": "取证与呈现选择",
+        "subtitle": "分别判断工具与信息形状",
+        "x": 390,
+        "y": 106,
+        "w": 340,
+        "h": 550,
+        "kind": "work"
+      },
+      {
+        "label": "按输出核对依据",
+        "subtitle": "文字、交互与图片各有条件",
+        "x": 785,
+        "y": 106,
+        "w": 610,
+        "h": 550,
+        "kind": "finish"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "intent",
+        "title": "识别请求意图",
+        "copy": "先看问题是否已经明确",
+        "detail": "识别用户要解决的问题和已给定约束，明确的请求直接推进。Pro 与 3.8 Flash 的规则是对照样本，不能读成 Pro 调用 Flash。",
+        "x": 70,
+        "y": 180,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "clarify",
+        "title": "问清关键缺失",
+        "copy": "关键缺失先问再生成",
+        "detail": "歧义或关键约束不明确时，解释提问价值并给具体选项，暂不生成草稿或方案。自己可以合理判断的信息不用问，需要用户决定的内容等答复后再推进。",
+        "x": 70,
+        "y": 345,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "context",
+        "title": "筛选相关上下文",
+        "copy": "只让必要信息影响答案",
+        "detail": "客观定义或通用事实从空个人上下文开始，规划建议才检查数据是否直接相关，并用最新纠正覆盖旧资料。避免跨领域拼接偏好或推断敏感属性。",
+        "x": 70,
+        "y": 510,
+        "w": 240,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "evidence",
+        "title": "取得所需证据",
+        "copy": "事实与图片分别看触发",
+        "detail": "独立判断事实与图片的工具触发条件，一个检索结果不免除另一个相关来源。需要未声明 API 时先展开严格必需的函数，声明仍缺失时不能猜工具或参数。",
+        "x": 435,
+        "y": 245,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "format",
+        "title": "选择输出形状",
+        "copy": "文字交互与图像分流",
+        "detail": "文字是默认；顺序与日期真正承载信息才选结构组件，参数探索有价值才做 widget。明确图像生成或编辑走图像工具，不能用 widget 替代海报或照片。",
+        "x": 435,
+        "y": 445,
+        "w": 240,
+        "h": 96,
+        "kind": "review"
+      },
+      {
+        "id": "text",
+        "title": "呈现文字答案",
+        "copy": "文本足够时省去组件",
+        "detail": "直接回答核心问题，文字足够时不加组件。交互展示缺少所需数据时可回退文字；仅图片或编辑任务不能以文字假称完成，图文任务生成失败应先说明失败。",
+        "x": 815,
+        "y": 180,
+        "w": 240,
+        "h": 96,
+        "kind": "save"
+      },
+      {
+        "id": "widget",
+        "title": "构建交互教学",
+        "copy": "真实初值驱动参数探索",
+        "detail": "先通过安全与排除 gate，给清晰文字解释，再用完整真实数据和用户初值生成 widget。只描述目标、数据、输入与行为的语义，不指定 CSS、坐标或颜色。",
+        "x": 815,
+        "y": 345,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "image",
+        "title": "编排图像任务",
+        "copy": "一致角色逐张传递引用",
+        "detail": "先取得真实函数声明，区分单步结果与需要多图、叙事或后续编辑的多步任务。独立图可分别调用，一致角色与连续场景逐张生成，并传相关前图的真实引用。",
+        "x": 815,
+        "y": 510,
+        "w": 240,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "references",
+        "title": "核对输出依据",
+        "copy": "只用已取得的数据引用",
+        "detail": "文字依据已取得的证据，图片使用工具真实返回的标签或文件名，widget 使用完整真实初值。交互展示缺少数据则回退文字；仅图片或编辑请求失败须报告失败，图文请求先说明失败再交付可完成的文字。",
+        "x": 1115,
+        "y": 345,
+        "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-intent-clarify",
+        "to": "clarify",
+        "d": "M190 276 V345",
+        "ports": [
+          [
+            190,
+            276
+          ],
+          [
+            190,
+            345
+          ]
+        ],
+        "consult": true,
+        "from": "intent"
+      },
+      {
+        "id": "e-clarify-context",
+        "to": "context",
+        "d": "M190 441 V510",
+        "ports": [
+          [
+            190,
+            441
+          ],
+          [
+            190,
+            510
+          ]
+        ],
+        "from": "clarify"
+      },
+      {
+        "id": "e-intent-context",
+        "to": "context",
+        "d": "M70 228 H32 Q20 228 20 240 V546 Q20 558 32 558 H70",
+        "ports": [
+          [
+            70,
+            228
+          ],
+          [
+            70,
+            558
+          ]
+        ],
+        "from": "intent"
+      },
+      {
+        "id": "e-context-evidence",
+        "to": "evidence",
+        "d": "M310 558 H353 Q365 558 365 546 V305 Q365 293 377 293 H435",
+        "ports": [
+          [
+            310,
+            558
+          ],
+          [
+            435,
+            293
+          ]
+        ],
+        "from": "context"
+      },
+      {
+        "id": "e-evidence-format",
+        "to": "format",
+        "d": "M555 341 V445",
+        "ports": [
+          [
+            555,
+            341
+          ],
+          [
+            555,
+            445
+          ]
+        ],
+        "from": "evidence"
+      },
+      {
+        "id": "e-format-text",
+        "to": "text",
+        "d": "M675 461 H738 Q750 461 750 449 V240 Q750 228 762 228 H815",
+        "ports": [
+          [
+            675,
+            461
+          ],
+          [
+            815,
+            228
+          ]
+        ],
+        "from": "format"
+      },
+      {
+        "id": "e-format-widget",
+        "to": "widget",
+        "d": "M675 493 H762 Q774 493 774 481 V405 Q774 393 786 393 H815",
+        "ports": [
+          [
+            675,
+            493
+          ],
+          [
+            815,
+            393
+          ]
+        ],
+        "from": "format"
+      },
+      {
+        "id": "e-format-image",
+        "to": "image",
+        "d": "M675 517 H738 Q750 517 750 529 V546 Q750 558 762 558 H815",
+        "ports": [
+          [
+            675,
+            517
+          ],
+          [
+            815,
+            558
+          ]
+        ],
+        "from": "format"
+      },
+      {
+        "id": "e-text-references",
+        "to": "references",
+        "d": "M1055 228 H1085 Q1097 228 1097 240 V369 Q1097 381 1109 381 H1115",
+        "ports": [
+          [
+            1055,
+            228
+          ],
+          [
+            1115,
+            381
+          ]
+        ],
+        "from": "text"
+      },
+      {
+        "id": "e-widget-references",
+        "to": "references",
+        "d": "M1055 393 H1115",
+        "ports": [
+          [
+            1055,
+            393
+          ],
+          [
+            1115,
+            393
+          ]
+        ],
+        "from": "widget"
+      },
+      {
+        "id": "e-image-references",
+        "to": "references",
+        "d": "M1055 558 H1085 Q1097 558 1097 546 V417 Q1097 405 1109 405 H1115",
+        "ports": [
+          [
+            1055,
+            558
+          ],
+          [
+            1115,
+            405
+          ]
+        ],
+        "from": "image"
+      },
+      {
+        "id": "e-references-text",
+        "to": "text",
+        "d": "M1235 345 V177 Q1235 165 1223 165 H947 Q935 165 935 177 V180",
+        "ports": [
+          [
+            1235,
+            345
+          ],
+          [
+            935,
+            180
+          ]
+        ],
+        "retry": true,
+        "from": "references"
+      }
+    ],
+    "labels": [
+      {
+        "text": "有歧义 · 先问清",
+        "x": 210,
+        "y": 315,
+        "kind": "consult"
+      },
+      {
+        "text": "收到关键信息",
+        "x": 210,
+        "y": 458
+      },
+      {
+        "text": "无需澄清 · 直接推进",
+        "x": 70,
+        "y": 482
+      },
+      {
+        "text": "按内容关系分流",
+        "x": 555,
+        "y": 395,
+        "anchor": "middle"
+      },
+      {
+        "text": "数据不足 · 回退文字",
+        "x": 1135,
+        "y": 195,
+        "kind": "return",
+        "anchor": "middle"
+      }
+    ],
+    "footnote": "学习归纳 · Pro 的上下文 gate 与 Flash 的呈现规则是对照，不是模型互相调用；演示不代表官方运行链路。 仅图片或编辑任务生成失败应如实报告；图文任务先说明失败，再给可完成的文字。",
+    "routes": [
+      {
+        "id": "text",
+        "name": "直接文字回答",
+        "nodes": [
+          "intent",
+          "context",
+          "evidence",
+          "format",
+          "text",
+          "references"
+        ]
+      },
+      {
+        "id": "widget",
+        "name": "问清后做交互",
+        "nodes": [
+          "intent",
+          "clarify",
+          "context",
+          "evidence",
+          "format",
+          "widget",
+          "references"
+        ]
+      },
+      {
+        "id": "image",
+        "name": "多步图像编排",
+        "nodes": [
+          "intent",
+          "context",
+          "evidence",
+          "format",
+          "image",
+          "references"
+        ]
+      },
+      {
+        "id": "fallback",
+        "name": "缺少数据回退",
+        "nodes": [
+          "intent",
+          "context",
+          "evidence",
+          "format",
+          "widget",
+          "references",
+          "text",
+          "references"
+        ]
+      }
+    ]
+  }
+}

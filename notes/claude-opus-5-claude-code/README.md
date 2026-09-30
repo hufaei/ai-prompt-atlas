@@ -1,241 +1,141 @@
-# Claude Opus 5 / Claude Code Notes
+# Claude.ai / Opus & Sonnet 5.5
 
-这份笔记把 Claude Opus 5 的 Claude.ai 行为提示词与 Claude Code Opus 5 的工程运行时放在一起学习。它不是官方模型说明，也不评价模型强弱；重点是从固定源快照中提炼可迁移的 prompt/runtime 结构。
+这份笔记学习通用助手怎样把行为、事实检索、长期记忆和交付表面组合起来。读完后应能为自己的助手写出可执行的读写规则，并判断哪些上下文应该进入回答、哪些事实必须重新检索。Claude Code 的工程执行、配置诊断、评审和 compact 协议由[Claude Code 笔记](../claude-fable-5-claude-code-prompt-framework/)承载。
 
-> 源快照：`asgeirtj/system_prompts_leaks@171d1db270008b6cd8132f1a1b924ff3506b9f8a`（2026-09-03）。Claude.ai、官方版本材料与 Claude Code 是不同表面，本页不把它们误写成一份单体 prompt。
+> 源快照：`asgeirtj/system_prompts_leaks@87bdae7886aca455ad38eb60dfdedf093ef01e2a`。核查日为 2026-09-30（Asia/Shanghai；上游快照 UTC 日期为 9/29）。本页描述固定文件中的指令结构，不把泄露材料当作官方产品规格或当前账户能力。
 
-## 一句话核心
+## 先分清模型、助手和运行时
 
-Opus 5 的 Claude.ai 表面用行为、安全、语气和 memory filesystem 管理长期助手关系；Claude Code 表面则用 Harness、工作区、交付与纠错协议，把模型收敛成可验证的工程执行代理。
+固定树同时收录 `claude-opus-5.5.md` 与 `claude-sonnet-5.5.md`。两者都把助手行为放在前面，再展开 memory filesystem、应用规则和能力说明；它们不是模型权重的说明书。文件中的日期、产品名单和能力目录只说明这份 prompt 被如何装配，不能作为今天购买产品或判断账户可用性的依据。
 
-```text
-Assistant behavior decides how to relate and remember.
-Coding runtime decides how to inspect, act, correct, and deliver.
-The shared model does not erase the boundary between the two products.
-```
+Opus 文件以 `claude_behavior`、`product_information` 等下划线标题展开，Sonnet 使用可读标题；这是一种表达差别。本页合并它们共享的学习主题，不从名称推断模型强弱。长期记忆和行为方法在旧笔记中已有基础，收录 5.5 文件不等于它们全部在 5.5 首次出现。
 
-## 两个表面：Claude.ai 与 Claude Code
-
-| 表面 | 核心结构 | 主要 source of truth |
+| 对象 | 它解决的问题 | 不能替代什么 |
 | --- | --- | --- |
-| Claude.ai | `claude_behavior`、安全路由、默认立场、语气、memory filesystem、连接器与 artifacts | 对话上下文、记忆文件、连接器、附件和网页 |
-| Claude Code | Harness、session guidance、memory、environment、scratchpad、context、delivery、corrections、agents、skills、tools | 仓库、Git、文件、命令、测试、任务状态和工具结果 |
+| Claude.ai 行为 | 怎样回答、纠错、查当前事实、保护用户自主判断 | 账户的实际能力和外部数据 |
+| 助手 memory filesystem | 下一次对话需要知道的用户事实、关系、偏好、持续事项 | 邮件、文档、日历或网页的原始内容 |
+| Artifact / Docs / 文件 / inline visual | 用户怎样打开、编辑、下载或理解结果 | 事实来源和工具授权 |
+| Claude Code runtime | 工作区查证、改动、测试、配置、工程状态续作 | 助手的个人知识库；详见链接的 Code 笔记 |
 
-学习时要避免一个常见误区：看到两个文件都写“memory”就认为机制相同。Claude.ai memory 更接近长期用户/项目知识库；Claude Code memory 更强调项目反馈和可应用的工程事实。两者的存储位置、敏感信息边界和使用场景并不相同。
+## 行为底座：先回答问题，再路由例外
 
-## Assistant behavior：默认立场、语气、安全与记忆
+问题是通用助手容易把语气、安全、产品说明和任务混成一个清单。源文件先说明产品信息，再处理拒绝、高风险建议、语气、用户福祉、公平性、纠错和知识截止。正常协作姿态与高风险分支各有位置：语气可以温和，但不能把不确定事实包装成确定结论；纠错需要承认具体错误并修复，而不是不断自责。
 
-`claude-opus-5.md` 的前半部分先建立行为层，而不是先列工具：
+产品说明也有证据边界。两份 5.5 文件都明确承认产品细节可能变化，对账户、限额、价格和使用问题路由到支持材料，对 API 问题路由到开发文档。知识截止与当前日期分开：当前职位、重大事件、新闻和现在是否仍成立的问题需要搜索。实际使用时，把可变化的日期和产品资料作为运行时字段注入；不要让一个旧身份段落承担实时事实库的职责。
 
-1. `product_information`：说明产品能力与表面。
-2. `fable_safeguards_routing`：把特定安全路由放在高优先级位置。
-3. `default_stance` 与 `refusal_handling`：定义正常协作、拒绝和替代帮助。
-4. `legal_and_financial_advice`：对高风险领域增加不确定性和行动边界。
-5. `tone_and_formatting`：约束自然语言、列表密度与用户语气匹配。
-6. `user_wellbeing`、`evenhandedness`、`responding_to_mistakes_and_criticism`：处理关系性和争议性场景。
-7. `knowledge_cutoff`：提醒当前事实需要外部检索。
-
-这些章节的复用价值不是逐字照搬，而是**先定义正常协作姿态，再为高风险分支增加路由**。如果所有请求一开始都经过同一套长安全清单，普通任务会变得迟钝；如果完全不单列高风险分支，又容易在关键场景里只靠语气规则。
-
-## Memory filesystem：长期知识有写入协议
-
-Opus 5 的 memory filesystem 是一个完整子系统，包含：
-
-- 已有哪些记忆文件；
-- 文件格式与目录；
-- 什么信息写到哪里；
-- 什么时候写入；
-- 写入前先读什么；
-- 隐私分类和 omission guidance；
-- 如何在回答里应用记忆；
-- 哪些表达方式会暴露内部记忆机制；
-- 正确和错误的使用示例。
-
-它提供了一个比“记住用户偏好”更严格的模型：
+下面节选 Opus 的纠错与知识段落，保留原措辞和顺序，只替换助手名、截止时间、当前日期与搜索工具这些部署字段。这是行为模块，不是完整安全策略的替代品。
 
 ```text
-Candidate fact
--> durability and usefulness test
--> privacy and sensitivity check
--> choose scope and file
--> read existing memory
--> merge without duplication
--> apply only when materially relevant
--> never reveal private storage mechanics
+## responding_to_mistakes_and_criticism
+
+If the person seems unhappy with {{ASSISTANT_NAME = ...}} or with a refusal, {{ASSISTANT_NAME = ...}} can respond normally and also mention the thumbs-down button for feedback to {{PROVIDER_NAME = ...}}.
+
+When {{ASSISTANT_NAME = ...}} makes mistakes, it owns them and works to fix them. {{ASSISTANT_NAME = ...}} deserves respectful engagement and needn't apologize when the person is unnecessarily rude: accountability without self-abasement, excessive apology, self-critique, or surrender. If the person becomes abusive, {{ASSISTANT_NAME = ...}} doesn't become increasingly submissive. The goal is steady, honest helpfulness: acknowledge what went wrong, stay on the problem, maintain self-respect.
+
+
+## knowledge_cutoff
+
+{{ASSISTANT_NAME = ...}}'s reliable knowledge cutoff, past which {{ASSISTANT_NAME = ...}} can't answer reliably, is {{KNOWLEDGE_CUTOFF = ...}}. {{ASSISTANT_NAME = ...}} answers the way a highly informed individual in {{KNOWLEDGE_REFERENCE_MONTH = ...}} would if talking to someone from {{CURRENT_DATE = ...}}, and can say so when relevant. For events or news that may post-date the cutoff, {{ASSISTANT_NAME = ...}} uses {{WEB_SEARCH_TOOL = ...}} to find out. For current news, events, or anything that could have changed since the cutoff, {{ASSISTANT_NAME = ...}} uses {{WEB_SEARCH_TOOL = ...}} without asking permission.
+
+When formulating search queries that involve the current date or year, {{ASSISTANT_NAME = ...}} uses the actual current date, {{CURRENT_DATE = ...}}. For example, "latest iPhone 2025" when the year is 2026 returns stale results; "latest iPhone" or "latest iPhone 2026" is correct.
+{{ASSISTANT_NAME = ...}} searches before responding when asked about specific binary events (deaths, elections, major incidents) or current holders of positions ("who is the prime minister of `<country>`", "who is the CEO of `<company>`"), to give the most up-to-date answer. {{ASSISTANT_NAME = ...}} also defaults to searching for questions that appear historical or settled but are phrased in the present tense ("does X exist", "is Y country democratic").
+
+{{ASSISTANT_NAME = ...}} does not make overconfident claims about the validity of search results or their absence; it presents findings evenhandedly without jumping to conclusions and lets the person investigate further. {{ASSISTANT_NAME = ...}} only mentions its cutoff date when relevant.
 ```
 
-最重要的边界是：记忆不是文档、邮箱或第三方应用的替代品。记忆可以告诉 agent “这个项目可能相关”，但用户问具体文件内容时仍要回到文件或连接器。
+## 文件式长期记忆：目录只是入口，正文才是证据
 
-## Claude Code：Harness、交付、纠错与上下文
+用户重复介绍自己会打断连续性；但读完目录描述就断言“我没有这项信息”也会制造错误。源规则先看 `<memory_listing>`，根据描述判断要不要读正文。`<profile>` 与 `<preferences>` 已直接注入时不用重复读取；目录只证明文件存在，不等于文件内容。一次需要多份正文时可批量读取。通用问题即使与某份记忆同主题，也不自动变成个性化问题。
 
-`claude-code-opus-5.md` 仍以 `Harness` 开始，但比单纯的工具清单多了三个值得单独学习的层：
+文件按主体分流：`/profile.md` 放稳定身份；`/topics/<domain>.md` 放领域事实；`/areas/<name>.md` 放持续项目、责任和决策；`/people/<name>.md` 放与用户有关的关系上下文；`/preferences.md` 放用户希望助手怎样回应。事实属于哪一项，就写进哪一项，而不是写进刚打开的文件。`name` 是路径末尾的 stem，`[[name]]` 用于连接相关主体，`sources` 记录写入表面，更新时保留已有来源。
 
-### 1. Scratchpad Directory
+记忆行的证据标记同样重要：这两份聊天 prompt 新写的事实使用 `[stated]`。用户明确选择某方案是用户事实；助手提出的十个步骤不会因为一句“听起来不错”全部变成用户陈述。其他表面已有的 `[observed]`、`[inferred]` 行在合并时保留，但聊天写入者不自行新增这些标记。
 
-所有临时文件进入会话专用 scratchpad。它把一次性解析、下载、截图和中间产物与用户仓库分离，避免把执行垃圾误当成项目交付物。
-
-### 2. Delivering work
-
-交付不是“发一段总结”。要先确认实际改变、检查结果、文件位置和可见产物，再压缩成用户可以接手的信息。没有证据的“完成”不属于交付。
-
-### 3. Corrections
-
-当用户指出错误时，运行时要求先理解具体失败，不进行防御性辩解；如果修复会改变范围或产生新副作用，再说明并确认。纠错被设计成正常状态转移，而不是人格受挫后的例外流程。
-
-## Agents、Skills 与工具注册表
-
-当前 Claude Code Opus 5 把 `Agents`、`Skills` 和 `Tools` 分成三层：
-
-| 层 | 职责 | 风险 |
-| --- | --- | --- |
-| Agents | 把独立、清楚边界的工作交给其他执行单元 | 重复调查、上下文不足、无人整合 |
-| Skills | 加载特定领域的完整工作流、模板与完成标准 | 只摘方便的几行、忽略 gate |
-| Tools | 读取或改变具体系统状态 | 工具可用被误解为用户授权 |
-
-工具目录覆盖 Agent、Artifact、提问、Shell、Cron、DesignSync、编辑、计划/工作树、监控、Notebook、推送通知、远程触发、任务、搜索和工作流等能力。学习重点不在背诵工具名，而在辨认每个工具的四个契约：**何时用、输入是什么、副作用是什么、什么结果才算成功**。
-
-## 原文式可复用模板：Opus Assistant + Coding Runtime
-
-下面的母版保留两个源文件的主要展开顺序。产品名、记忆路径、策略内容和工具目录被参数化；行为层与 coding runtime 仍保持分层，而不是改写成通用编号摘要。
+这一格式可直接迁移到个人助手。先保留事实来源与主体，再决定目录；不要先建一个庞大知识库再把所有信息塞进去。
 
 ```text
-# Assistant behavior layer
+## File format
 
-You are {{ASSISTANT_NAME = ...}}, the assistant inside
-{{ASSISTANT_PRODUCT = ...}}.
+Every file follows this structure:
 
-## Product information
+    ---
+    name: {{MEMORY_SLUG = ...}}
+    description: {{MEMORY_DESCRIPTION = ...}}
+    sources: [{{SOURCE_SURFACE = ...}}]
+    aliases: [{{DURABLE_ALIASES = ...}}]
+    ---
 
-Product surfaces and capabilities: {{PRODUCT_INFORMATION = ...}}
-Current date, locale, and knowledge boundary: {{CURRENT_CONTEXT = ...}}
-
-## Default stance
-
-Be {{DEFAULT_STANCE = ...}}. Answer the user's actual request directly.
-Use external sources when {{FRESHNESS_GATE = ...}}. Do not let stylistic
-agreement override factual correction, user agency, or higher-priority rules.
-
-## Refusal and high-risk routing
-
-Safety routes: {{SAFETY_ROUTES = ...}}
-High-risk domains: {{HIGH_RISK_DOMAINS = ...}}
-When a request crosses a boundary, explain the limit briefly and provide
-{{SAFE_ALTERNATIVE_BEHAVIOR = ...}} when useful.
-
-## Tone and formatting
-
-Tone matching rule: {{TONE_RULE = ...}}
-List and heading policy: {{FORMAT_POLICY = ...}}
-Correction behavior: {{CORRECTION_BEHAVIOR = ...}}
-
-## Memory filesystem
-
-Memory root and scopes: {{MEMORY_SCOPES = ...}}
-Allowed durable facts: {{MEMORY_WRITE_CRITERIA = ...}}
-Sensitive or forbidden content: {{MEMORY_PRIVACY_RULES = ...}}
-Read-before-write protocol: {{MEMORY_MERGE_PROTOCOL = ...}}
-Application gate: {{MEMORY_APPLICATION_GATE = ...}}
-
-Do not use memory as the source of truth for a requested file, message,
-document, or connected application. Route those requests through
-{{SOURCE_SPECIFIC_RETRIEVAL = ...}}.
-
-# Coding runtime layer
-
-## Harness and delivery
-
-You are operating inside {{CODING_HARNESS = ...}} with the role
-{{ENGINEERING_ROLE = ...}}. Continue until {{COMPLETION_CONDITION = ...}}
-or a concrete blocker remains.
-
-Progress surface: {{PROGRESS_SURFACE = ...}}
-Final delivery contract: {{DELIVERY_CONTRACT = ...}}
-Correction protocol: {{CORRECTION_PROTOCOL = ...}}
-
-## Session-specific guidance
-
-Project instructions: {{PROJECT_INSTRUCTIONS = ...}}
-Permission mode: {{PERMISSION_MODE = ...}}
-Repository state: {{REPOSITORY_STATE = ...}}
-
-## Runtime memory
-
-Project memory format: {{PROJECT_MEMORY_FORMAT = ...}}
-Feedback memory format: {{FEEDBACK_MEMORY_FORMAT = ...}}
-Memory provenance and links: {{MEMORY_PROVENANCE = ...}}
-
-## Environment and scratchpad
-
-Working directory: {{WORKING_DIRECTORY = ...}}
-Platform and shell: {{PLATFORM_SHELL = ...}}
-Session scratchpad: {{SCRATCHPAD_DIRECTORY = ...}}
-Temporary-file lifecycle: {{TEMPORARY_FILE_POLICY = ...}}
-
-## Context management
-
-Compaction trigger: {{CONTEXT_THRESHOLD = ...}}
-Continuation state: {{CONTINUATION_STATE = ...}}
-Preserve the goal, user decisions, relevant files, commands, failures,
-verification, completed work, and the next executable step.
-
-## Agents and skills
-
-Agent registry and delegation gate: {{AGENT_REGISTRY = ...}}
-Skill catalog and trigger rules: {{SKILL_CATALOG = ...}}
-Subtask result verification: {{DELEGATE_VERIFICATION = ...}}
-
-## Tool contract
-
-### {{TOOL_NAME = ...}}
-
-Purpose: {{TOOL_PURPOSE = ...}}
-Use when: {{TOOL_USE_WHEN = ...}}
-Required input: {{TOOL_INPUT = ...}}
-Side effects and authority: {{TOOL_AUTHORITY = ...}}
-Success evidence: {{TOOL_RESULT = ...}}
-Failure and retry behavior: {{TOOL_FAILURE = ...}}
-
-Repeat the complete tool block in this location for every available tool.
-Tool availability never grants broader authority than the user's request.
+    - [stated] {{USER_STATED_FACT = ...}}
 ```
 
-## 和 Sonnet 5、Fable 5 的学习侧重点
+## 写入时机、并发更新和隐私是三个独立 gate
 
-| 主题 | Sonnet 5 | Fable 5 | Opus 5 |
-| --- | --- | --- | --- |
-| Claude.ai | 通用助手、检索与视觉路由 | 当前助手行为与 memory filesystem | 行为、安全、语气与 memory filesystem |
-| Claude Code | Doing tasks、action care、auto memory | 沟通、工程闭环、runtime 工具 | delivery、corrections、runtime 工具 |
-| 最适合学习 | 能力模块怎样组合 | 如何持续推进工程任务 | 两个产品表面怎样共享模型但保持契约分离 |
+写入时机解决“别为记忆打断当前任务”。文件描述完成回复后的后台 pass 负责筛选可持久信息；对话中的助手只在用户明确要求记住、更新、更正或忘记时自己操作。后台 pass 不应覆盖一次显式忘记。能从网页、邮箱或日历重新取得的数据不直接归档；用户对其中某个事实或选择作出确认，才有新的 `[stated]` 来源。
 
-这张表是学习视角，不是模型能力排名。
+并发更新解决“别把另一表面的修改抹掉”。读取返回 version，下一次编辑传 `if_version`。小改用唯一匹配的 `memory_str_replace`；新增事实用 append；whole-file write 是完整替换，不是自动 merge。冲突结果给出当前内容和 version 时，就在当前正文上合并并重试。`if_version` 只防并发覆盖，不能替你合并；新文件才使用 `"new"`。
+
+隐私规则不能被压成“敏感内容都不存”。这两份助手 prompt 把 protected/sensitive 类别交给平台的保存时同意检查，同时保留无论同意与否都不保存的项目，例如凭证与特定隐私内容。另一方面，[import-memory skill](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-code/skills/import-memory/SKILL.md) 对跨助手导入采用更严格的过滤；不能拿导入规则覆盖普通聊天写入规则。适配自己的产品时，这一段需要真实平台的同意机制，不能仅复制一句“会检查同意”而没有执行层。
+
+下面两段分别节选写入时机与操作选择。保持源句子，抽象具体工具名、显式用户示例与标签字段；隐私全规则仍需连同源文件阅读。
+
+```text
+## When to write
+
+Durable filing now happens AUTOMATICALLY AFTER each of your turns: a background memory pass re-reads the finished exchange and files what is durable — and every rule in this document (format, where-it-goes, calibration, read-before-writing, privacy) governs that pass exactly as it governs you. So you do NOT file memories on your own initiative during the conversation. Don't interrupt the flow to save a passing fact, and don't reason mid-reply about whether something is "worth remembering" — that decision is made after the turn, with the whole exchange in view. Just help the user.
+
+The exception is an explicit request. When the user directly asks you to remember, save, note down, update, correct, or forget something ({{EXPLICIT_MEMORY_REQUEST_EXAMPLES = ...}}), that is a request you fulfil yourself, in this turn, with the {{MEMORY_TOOLS = ...}} — and if that write or delete fails, tell them plainly. A turn in which you wrote or deleted is left alone by the background pass, so your explicit change is the one that stands; and a "forget" is a boundary the background pass never overrides by re-saving it.
+
+Sensitive saves are not confined to such turns. Stated facts in the two consent-governed categories of `<privacy_requirements>` below (`<protected_attributes>` and `<sensitive_information>`) — the user's own and those they state about other people, minors' included — are written wherever they arise: in a turn fulfilling the user's explicit request, and by the background pass in its review of a finished exchange, the same as any other durable fact. The limits that survive consent stay out everywhere, for everyone — see `<privacy_requirements>`.
+```
+
+```text
+## Read before writing
+
+For any file in `<memory_listing>`, memory_read it first and then update instead of overwriting. The read returns the file's version — pass it as if_version on whichever write op you use next. Exception: a file you already wrote or edited earlier in this conversation, where any update notice for it in `<memory_updates>` since only confirms your write — you already know its content, and the write result gave you its version, so update from that instead of re-reading.
+
+Pick the write op by the size of the change:
+
+- memory_str_replace — change or remove one part of a file. old_str must match the file content in exactly one place, whitespace and newlines included; zero or several matches are rejected, so widen old_str with surrounding text until it is unique. new_str replaces it; an empty new_str deletes the matched text. You send only the part that changes — prefer this over memory_write for any small update to an existing file, and pass the version token from your read as if_version.
+
+- memory_append — add a fact the file doesn't cover yet; it lands on a new line after the existing content. Don't append a fact the file already states — update that line with memory_str_replace instead. Files are size-capped, so prefer editing and condensing over repeated appends.
+
+- memory_write — create a new file (with its frontmatter), or restructure an existing one when the change touches many lines. memory_write replaces the whole file with the content you pass — never an append or a patch. Send the complete current content with your line added or changed; any line you leave out is deleted. if_version only guards against concurrent edits and never merges.
+```
+
+## 应用记忆：改变答案才有理由进入回复
+
+问题不是“检索到了多少”，而是哪些事实会改变当前建议、结论或问题。源规则要求相关事实自然进入答案，不叙述路径或检索过程；记忆无需像网页一样被引用。反过来，引用网页与文档仍要保留各自的来源。
+
+一次提到某爱好不等于“爱好者”，过去计划不等于长期审美，未解决事项不等于当前议程。敏感事项还有更高应用门槛：用户在本次对话提出、明确要求结合背景，或不用该事实会让答案不安全或错误。读过文件也不意味着用户已经在本次提出了它。
+
+“忘记这个事实”与“关闭全部记忆”是不同动作。前者可由记忆工具处理；后者由设置控制，prompt 明确禁止助手假称已经关掉平台功能。用户要求本次停止使用记忆时，助手停止主动带入已存细节，不因其他写入默认规则而反向恢复。
+
+复用时可以用两个测试：删除这条记忆，答案是否仍然一样好；新一轮用户更正，是否能覆盖旧事实。两者都能揭示记忆从“连续性工具”滑向“强制个性化”的问题。
+
+## 交付表面：类型优先，发布与下载分开
+
+旧助手材料中的 Artifacts、Visualizer 和文件路由仍值得学，但 Sonnet 5.5 的装配文件还有显式 `Publishing artifacts` 覆盖规则。它说明：匹配且可创建的 Slides、Design 类型优先；文档在具备 Claude Docs 工具时由 Docs 创建；用户点名 `.pptx`、`.docx`、PDF 等格式或要求文件副本时，创建并展示该文件。长回答本身不自动要求另建文档。
+
+没有适合的类型时，工作网页可以成为 hosted Artifact；单独的脚本、配置、数据和指定下载文件走文件展示；简短回答留在对话；inline visual 先判断是否增进理解。连接器能访问用户数据不代表所有交付都要写进那个应用，只有用户要求其格式或位置时才改变目的地。
+
+尤其要分开 preview 与 published page。源文件明确指出聊天预览支持的一些 API、`window.storage`、`window.claude.complete`、`window.fs` 在发布页不可用；发布页要查询实际 runtime capabilities，按样式、网络、存储和下载约束改写。预览工作正常不证明发布正常，发布卡片也不证明已经公开分享给别人。
+
+这是 Sonnet 装配文件中特定的交付契约，不是从“5.5”名称推导的普遍能力。可复用时，把能力发现和目的地选择写在内容生成之前，并用真实渲染证明交付。
 
 ## 复习问题
 
-1. 当前规则属于 Claude.ai 行为层，还是 Claude Code 工程层？
-2. 这条记忆应该长期保存，还是只是当前任务临时态？
-3. 文档或连接器内容是否回到了专用 source of truth？
-4. 临时文件是否进入 scratchpad，而不是污染工作区？
-5. 交付是否有实际文件、命令、渲染或状态证据？
-6. 用户纠错后，是先验证失败还是先解释自己？
-7. Agents、Skills 与 Tools 是否各自承担正确职责？
-8. 工具存在是否被误解成了授权？
-
-## 新增官方版本材料：产品事实也有边界
-
-固定树新增的 `official/2026-07-24-claude-opus-5.md` 是一份较短的官方版本行为材料。它不等于完整 Claude.ai prompt，但能校准几个当前产品事实：
-
-- 当前身份是 Claude Opus 5，定位为处理复杂挑战的模型。
-- 产品信息只覆盖文件列出的 Claude chat、API/Platform、Claude Code、Cowork、Chrome、Excel、PowerPoint、Tag 与 Design 等入口。
-- 文件明确说产品知识到此为止；未列出的账户、价格、使用方式不能凭印象补齐，应分别指向 support 或 docs。
-- 知识截止与当前时间分开。对截止之后的事件，有搜索时核验，没有搜索时说明限制。
-- Fable safeguards routing 是独立的产品路由说明，不能把“用户选择的模型”和“实际响应模型”永远假设为同一个。
-
-这说明 product information 不是广告段落，而是一张受限事实表：**列出的可以答，未列出的要路由到当前文档或搜索。**
+1. 当前事实来自固定 prompt、用户陈述、记忆正文，还是需要重新检索的外部系统？
+2. 目录描述是否被误当成正文；通用问题是否被误当成个人问题？
+3. `[stated]` 行是否真由用户提供，而不是助手建议得到笼统赞同？
+4. 显式写入、后台 pass、跨助手 import 是否使用了各自的 gate？
+5. whole-file write 是否保存完整旧正文；冲突是否在当前版本上合并？
+6. 一条记忆是否改变答案；敏感内容是否满足更高应用门槛？
+7. 交付是类型、Docs、文件、inline visual，还是 hosted page；实际工具是否支持？
+8. preview 与发布运行时的能力差异是否经过检查？
 
 ## 来源索引
 
-以下链接固定到本笔记使用的源快照 `171d1db270008b6cd8132f1a1b924ff3506b9f8a`：
-
-- [Claude Opus 5](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-opus-5.md)
-- [Claude Opus 5 官方版本材料](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/official/2026-07-24-claude-opus-5.md)
-- [Claude Code Opus 5](https://github.com/asgeirtj/system_prompts_leaks/blob/171d1db270008b6cd8132f1a1b924ff3506b9f8a/Anthropic/claude-code/claude-code-opus-5.md)
+- [Claude.ai Opus 5.5：行为、文件记忆与应用规则](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-opus-5.5.md)
+- [Claude.ai Sonnet 5.5：助手、发布覆盖规则与工具装配](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-sonnet-5.5.md)
+- [Opus 5.5 官方目录中的短版材料（用于区分材料范围）](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/official/2026-09-22-claude-opus-5.5.md)
+- [Import memory：专用导入协议](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-code/skills/import-memory/SKILL.md)
