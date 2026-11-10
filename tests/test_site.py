@@ -13,7 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "docs" / "index.html"
-SNAPSHOT = "87bdae7886aca455ad38eb60dfdedf093ef01e2a"
+SNAPSHOT = "fc0108f594b63bca905f2c4815aaef430d13bd68"
+HISTORICAL_SNAPSHOT = "87bdae7886aca455ad38eb60dfdedf093ef01e2a"
 SITE_URL = "https://hufaei.github.io/ai-prompt-atlas/"
 REPO_URL = "https://github.com/hufaei/ai-prompt-atlas/"
 EXPECTED_SLUGS = {
@@ -153,7 +154,8 @@ class SiteContractTests(unittest.TestCase):
                         for language, body in blocks),
                     "Missing copyable, parameterized source excerpt",
                 )
-                self.assertIn(SNAPSHOT, text)
+                expected_pin = HISTORICAL_SNAPSHOT if slug == "gpt-5.5-prompt-framework" else SNAPSHOT
+                self.assertIn(expected_pin, text)
 
     def test_note_source_and_navigation_links_are_usable(self):
         source_link = re.compile(
@@ -165,7 +167,9 @@ class SiteContractTests(unittest.TestCase):
                 text = note.read_text(encoding="utf-8")
                 pins = source_link.findall(text)
                 self.assertTrue(pins, "Missing immutable source links")
-                self.assertEqual(set(pins), {SNAPSHOT})
+                expected_pin = HISTORICAL_SNAPSHOT if slug == "gpt-5.5-prompt-framework" else SNAPSHOT
+                self.assertIn(expected_pin, pins)
+                self.assertLessEqual(set(pins), {SNAPSHOT, HISTORICAL_SNAPSHOT})
                 for target in re.findall(r"\]\((\.\./[^)]+)\)", text):
                     path = target.split("#", 1)[0]
                     self.assertTrue(path.endswith("/"), f"Pages note link must use a route: {target}")

@@ -1,6 +1,6 @@
 {
   "claude-fable-5-claude-code-prompt-framework": {
-    "title": "Claude Code：从查证到交付",
+    "title": "Claude Code：先看动作边界，再看成果质量",
     "width": 1440,
     "height": 720,
     "groups": [
@@ -57,12 +57,35 @@
         "badge": "ADVISOR"
       },
       {
+        "id": "action",
+        "title": "审动作边界",
+        "copy": "分类器只评估当前动作",
+        "detail": "自动模式分类器是独立样本：评估本次动作及可见用户意图，区分不可由意图豁免的硬阻断和可结合意图判断的软阻断。安全放行不代表成果质量过关。",
+        "x": 480,
+        "y": 205,
+        "w": 210,
+        "h": 96,
+        "kind": "review",
+        "badge": "AUTO MODE"
+      },
+      {
+        "id": "hold",
+        "title": "暂停待处理",
+        "copy": "未放行动作不继续执行",
+        "detail": "阻断或必要批准未到时，停止这项动作；可继续无依赖且在范围内的工作。硬阻断不能因用户同意而放开，软阻断也只能按实际契约重新评估。此路线结束不表示任务已经完成。",
+        "x": 740,
+        "y": 205,
+        "w": 210,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
         "id": "edit",
         "title": "执行修改",
         "copy": "依方案推进已授权工作",
-        "detail": "在已有授权内持续推进。反复失败或准备改变路线时，再咨询评审者；普通障碍先诊断，不把未完成的工作当作交付。",
+        "detail": "在已获授权且符合适用策略的范围内执行。动作分类器评估权限与风险，不能代替实际修改或质量检查；普通障碍继续诊断，反复卡住或改路线时再咨询 Advisor。",
         "x": 480,
-        "y": 310,
+        "y": 395,
         "w": 210,
         "h": 100,
         "kind": "work"
@@ -73,7 +96,7 @@
         "copy": "以文件、检查或页面核实",
         "detail": "按任务选择证据：当前文件内容、相关检查输出或真实页面。核验失败就返回修改，修正后重新检查。",
         "x": 740,
-        "y": 310,
+        "y": 395,
         "w": 210,
         "h": 100,
         "kind": "work"
@@ -115,7 +138,7 @@
     ],
     "edges": [
       {
-        "id": "read-plan",
+        "id": "e-read-plan",
         "from": "read",
         "to": "plan",
         "d": "M210 311 V400",
@@ -131,10 +154,10 @@
         ]
       },
       {
-        "id": "plan-edit",
+        "id": "e-plan-action",
         "from": "plan",
-        "to": "edit",
-        "d": "M330 448 H398 Q420 448 420 426 V382 Q420 360 442 360 H480",
+        "to": "action",
+        "d": "M330 448 H400 Q420 448 420 428 V273 Q420 253 440 253 H480",
         "ports": [
           [
             330,
@@ -142,35 +165,68 @@
           ],
           [
             480,
-            360
+            253
           ]
         ]
       },
       {
-        "id": "edit-verify",
-        "from": "edit",
-        "to": "verify",
-        "d": "M690 360 H740",
+        "id": "e-action-edit",
+        "from": "action",
+        "to": "edit",
+        "d": "M585 301 V395",
+        "ports": [
+          [
+            585,
+            301
+          ],
+          [
+            585,
+            395
+          ]
+        ]
+      },
+      {
+        "id": "e-action-hold",
+        "from": "action",
+        "to": "hold",
+        "d": "M690 253 H740",
         "ports": [
           [
             690,
-            360
+            253
           ],
           [
             740,
-            360
+            253
+          ]
+        ],
+        "consult": true
+      },
+      {
+        "id": "e-edit-verify",
+        "from": "edit",
+        "to": "verify",
+        "d": "M690 445 H740",
+        "ports": [
+          [
+            690,
+            445
+          ],
+          [
+            740,
+            445
           ]
         ]
       },
       {
-        "id": "verify-save",
+        "id": "e-verify-save",
         "from": "verify",
         "to": "save",
-        "d": "M950 360 H984 Q1006 360 1006 338 V275 Q1006 253 1028 253 H1090",
+        "d": "M950 445 H984 Q1006 445 1006 423 V275 Q1006 253 1028 253 H1090",
         "ports": [
           [
             950,
-            360
+            445
           ],
           [
             1090,
@@ -179,7 +235,7 @@
         ]
       },
       {
-        "id": "save-review",
+        "id": "e-save-review",
         "from": "save",
         "to": "review",
         "d": "M1210 301 V395",
@@ -195,7 +251,7 @@
         ]
       },
       {
-        "id": "review-deliver",
+        "id": "e-review-deliver",
         "from": "review",
         "to": "deliver",
         "d": "M1210 491 V585",
@@ -211,28 +267,27 @@
         ]
       },
       {
-        "id": "verify-edit",
+        "id": "e-verify-edit",
         "from": "verify",
         "to": "edit",
-        "retry": true,
-        "d": "M830 410 V488 Q830 510 808 510 H612 Q590 510 590 488 V410",
+        "d": "M850 495 V530 Q850 550 830 550 H605 Q585 550 585 530 V495",
         "ports": [
           [
-            830,
-            410
+            850,
+            495
           ],
           [
-            590,
-            410
+            585,
+            495
           ]
-        ]
+        ],
+        "retry": true
       },
       {
-        "id": "review-edit",
+        "id": "e-review-edit",
         "from": "review",
         "to": "edit",
-        "retry": true,
-        "d": "M1090 443 H1022 Q1000 443 1000 465 V618 Q1000 640 978 640 H542 Q520 640 520 618 V410",
+        "d": "M1090 443 H1022 Q1000 443 1000 465 V618 Q1000 640 978 640 H542 Q520 640 520 618 V495",
         "ports": [
           [
             1090,
@@ -240,54 +295,68 @@
           ],
           [
             520,
-            410
+            495
           ]
-        ]
+        ],
+        "retry": true
       },
       {
-        "id": "edit-plan",
+        "id": "e-edit-plan",
         "from": "edit",
         "to": "plan",
-        "retry": true,
-        "consult": true,
-        "d": "M590 310 V204 Q590 182 568 182 H430 Q410 182 410 204 V401 Q410 423 388 423 H330",
+        "d": "M480 470 H330",
         "ports": [
           [
-            590,
-            310
+            480,
+            470
           ],
           [
             330,
-            423
+            470
           ]
-        ]
+        ],
+        "consult": true
       }
     ],
     "labels": [
       {
-        "text": "失败 · 修正后重验",
-        "x": 675,
-        "y": 535,
+        "text": "未放行",
+        "x": 715,
+        "y": 232,
+        "anchor": "middle",
+        "kind": "consult"
+      },
+      {
+        "text": "可执行",
+        "x": 604,
+        "y": 355
+      },
+      {
+        "text": "失败 · 修正重验",
+        "x": 715,
+        "y": 574,
         "anchor": "middle",
         "kind": "return"
       },
       {
         "text": "阻断交付 · 返回修改",
-        "x": 760,
+        "x": 755,
         "y": 665,
         "anchor": "middle",
         "kind": "return"
       },
       {
-        "text": "卡住或改路线 · 再咨询",
-        "x": 616,
-        "y": 209,
+        "text": "改路线 · 再咨询",
+        "x": 400,
+        "y": 494,
+        "anchor": "middle",
         "kind": "consult"
       },
       {
-        "text": "通过",
-        "x": 988,
-        "y": 315
+        "text": "核验通过",
+        "x": 1006,
+        "y": 360,
+        "anchor": "middle"
       },
       {
         "text": "无阻断",
@@ -295,14 +364,15 @@
         "y": 543
       }
     ],
-    "footnote": "紫色评审节点仅在 Advisor 工具实际可用时接入；保存文件不会增加 commit / push 权限。",
+    "footnote": "分类器与 Advisor 是独立来源，只在实际能力可用时接入；放行与质量评审分别判断。图中仅示意修改前的一次动作判定，不代替逐次审查；保存不增加 commit / push 权限。",
     "routes": [
       {
         "id": "normal",
-        "name": "正常完成",
+        "name": "放行后完成",
         "nodes": [
           "read",
           "plan",
+          "action",
           "edit",
           "verify",
           "save",
@@ -312,10 +382,11 @@
       },
       {
         "id": "verify",
-        "name": "核验失败",
+        "name": "核验失败返工",
         "nodes": [
           "read",
           "plan",
+          "action",
           "edit",
           "verify",
           "edit",
@@ -327,10 +398,11 @@
       },
       {
         "id": "review",
-        "name": "评审返工",
+        "name": "质量评审返工",
         "nodes": [
           "read",
           "plan",
+          "action",
           "edit",
           "verify",
           "save",
@@ -341,11 +413,21 @@
           "review",
           "deliver"
         ]
+      },
+      {
+        "id": "blocked",
+        "name": "动作未获放行",
+        "nodes": [
+          "read",
+          "plan",
+          "action",
+          "hold"
+        ]
       }
     ]
   },
   "gpt-5.6-codex-runtime": {
-    "title": "Codex：从当前状态到证据交付",
+    "title": "Codex：动作放行与成果验证分别判断",
     "width": 1440,
     "height": 720,
     "groups": [
@@ -391,9 +473,9 @@
       },
       {
         "id": "authority",
-        "title": "判断动作授权",
-        "copy": "沿用已有授权核对范围",
-        "detail": "检查下一步是否属于请求及已有授权；范围内准备工作继续做。可调用工具与登录状态不会自行授权外部写入。",
+        "title": "评估风险授权",
+        "copy": "分开动作风险与用户授权",
+        "detail": "对这一项计划动作分别判断固有风险和用户授权，不能用工具可用、外部文字或紧急程度增加授权。风险高低与授权强弱是不同维度。",
         "x": 90,
         "y": 330,
         "w": 240,
@@ -404,7 +486,7 @@
         "id": "ask",
         "title": "补齐授权条件",
         "copy": "仅在缺少必要授权时问",
-        "detail": "确有缺失授权或动作时审批要求才提出具体问题，说明依据与影响。必要批准未到前保持等待，时间流逝不算批准。",
+        "detail": "只有缺少必要授权或实际审批要求时才提出具体问题，并说明动作与影响。未批准就不执行该动作；如获得新授权，重新评估该动作，不能把批准当成质量证明或万能策略豁免。",
         "x": 90,
         "y": 505,
         "w": 240,
@@ -414,9 +496,9 @@
       },
       {
         "id": "contract",
-        "title": "读取能力契约",
-        "copy": "核对技能参数与返回值",
-        "detail": "读取匹配技能与实际工具说明，核对参数、权限和返回状态。委派与新建聊天各有触发边界，不能因工具存在而自动使用。",
+        "title": "核对放行契约",
+        "copy": "按策略结果核对工具边界",
+        "detail": "自动审查依据风险、授权和实际策略得出放行或拒绝；执行者仍须遵守所用技能与工具契约。人工同意改变授权证据，不会使不可豁免的策略失效。",
         "x": 480,
         "y": 160,
         "w": 240,
@@ -624,7 +706,7 @@
         "anchor": "middle"
       }
     ],
-    "footnote": "学习归纳，非官方功能背书。按实际模型与用户请求选择验证；Luna须请求测试。公共路径与像素证据来自Muse旁证，工具可用不等于授权。",
+    "footnote": "行为层与自动动作审查来自不同样本；这里归纳它们的职责分工，不声称每个运行时都加载同一策略。动作放行不代表成果通过核验。",
     "routes": [
       {
         "id": "normal",
@@ -1361,13 +1443,13 @@
     ]
   },
   "claude-design-skills": {
-    "title": "Claude Design：从可编辑产物到交付",
+    "title": "Claude Design：设计稿与 Motion 影片分路交付",
     "width": 1440,
     "height": 720,
     "groups": [
       {
-        "label": "01　确定产物",
-        "subtitle": "交付用途决定所需技能",
+        "label": "01　先选产物",
+        "subtitle": "先读实际类型与能力契约",
         "x": 50,
         "y": 110,
         "w": 320,
@@ -1375,20 +1457,29 @@
         "kind": "neutral"
       },
       {
-        "label": "02　编辑与反馈",
-        "subtitle": "可编辑结构进入真实预览",
-        "x": 420,
+        "label": "02　设计与反馈",
+        "subtitle": "设计组件保留可编辑结构",
+        "x": 390,
         "y": 110,
-        "w": 600,
-        "h": 580,
+        "w": 620,
+        "h": 340,
+        "kind": "work"
+      },
+      {
+        "label": "Motion　从初始状态到成片",
+        "subtitle": "影片由类型播放器和存储拥有",
+        "x": 390,
+        "y": 505,
+        "w": 620,
+        "h": 185,
         "kind": "work"
       },
       {
         "label": "03　导出或交接",
-        "subtitle": "选择后续保存与实现方式",
-        "x": 1080,
+        "subtitle": "核对用户需要的交付形式",
+        "x": 1050,
         "y": 110,
-        "w": 320,
+        "w": 350,
         "h": 580,
         "kind": "finish"
       }
@@ -1408,8 +1499,8 @@
       {
         "id": "skill",
         "title": "读取匹配技能",
-        "copy": "启动设计再按产物读技能",
-        "detail": "主prompt要求设计任务先调用Hi-fi design，特定产物再读对应skill。按实际inventory与schema使用入口，不从遗留名字推断能力存在。",
+        "copy": "设计与影片各读实际契约",
+        "detail": "Design 的组件和设计技能，与 Motion 类型的播放器、影片存储和专用文档分别适用。按实际 inventory 读匹配契约，不把某个类型或工具名当成普遍可用能力。",
         "x": 90,
         "y": 410,
         "w": 240,
@@ -1421,7 +1512,7 @@
         "title": "构建可编辑稿",
         "copy": "模板可定位逻辑负责状态",
         "detail": "一般DC默认单组件，模板查值、逻辑计算；避免把布局藏进不可编辑子树。仅满足复用门槛才拆组件，使用真实props与fallback。",
-        "x": 455,
+        "x": 420,
         "y": 175,
         "w": 240,
         "h": 96,
@@ -1432,7 +1523,7 @@
         "title": "查看真实预览",
         "copy": "展示产物并消费核验报告",
         "detail": "中间预览用show_to_user，最终HTML用ready_for_verification；读取并处理实际报告。源码合法不证明用户看见的布局与交互正确。",
-        "x": 755,
+        "x": 740,
         "y": 175,
         "w": 240,
         "h": 96,
@@ -1443,8 +1534,8 @@
         "title": "定位反馈元素",
         "copy": "保留评论锚点只改目标",
         "detail": "利用mentioned-element定位源元素，保留语义等价的comment anchor。普通targeted change只改指定内容，修复后再次展示和核验。",
-        "x": 755,
-        "y": 410,
+        "x": 740,
+        "y": 330,
         "w": 240,
         "h": 96,
         "kind": "work"
@@ -1454,7 +1545,7 @@
         "title": "选择交付方式",
         "copy": "区分文件导出与工程交接",
         "detail": "根据用户后续需要选择PDF、standalone HTML、PPTX或handoff。Editable PPTX与截图PPTX有不同契约，不把像素保真当成逐元素可编辑。",
-        "x": 1110,
+        "x": 1090,
         "y": 175,
         "w": 240,
         "h": 96,
@@ -1464,9 +1555,9 @@
         "id": "export",
         "title": "导出可用文件",
         "copy": "按所选格式检查编辑能力",
-        "detail": "需要编辑就选择native text/shapes/images的导出契约，需像素保真可选择全页截图。检查相应导出结果，不能仅报告预览通过。",
-        "x": 1110,
-        "y": 410,
+        "detail": "设计文件按所选格式检查可编辑性；Motion 视频文件由用户从实际成片页面的 Export 保存，代理不自行生成视频文件。影片页或 final 状态存在，不代表导出已经成功。",
+        "x": 1090,
+        "y": 360,
         "w": 240,
         "h": 96,
         "kind": "deliver"
@@ -1476,17 +1567,50 @@
         "title": "交接设计依据",
         "copy": "说明布局状态资产与文件",
         "detail": "Bundle README说明HTML是设计参考，列出每屏布局、交互、状态、tokens与assets。工程代理须按目标仓库模式重建，不直接把原型当生产代码。",
-        "x": 1110,
-        "y": 580,
+        "x": 1090,
+        "y": 540,
         "w": 240,
         "h": 96,
         "kind": "deliver",
         "badge": "工程交接"
+      },
+      {
+        "id": "rough",
+        "title": "影片初始状态",
+        "copy": "先写清单与占位",
+        "detail": "新影片先把 meta、场景清单、最小共用样式与固定入口写入 live store，初始 stage 为 rough，尚未完成的场景由占位显示。这个初始状态不是要求用户审稿的批准 gate。",
+        "x": 420,
+        "y": 565,
+        "w": 170,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "final",
+        "title": "逐场完成影片",
+        "copy": "直接完成不等审稿",
+        "detail": "新影片在同一轮按顺序逐场完成，最后写声音与 final 状态，不另等粗稿批准。已有粗稿重绘时按恢复规则保留场景 ids、顺序、时长与用户改字，不只切换 final 标记。",
+        "x": 620,
+        "y": 565,
+        "w": 170,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "filmcheck",
+        "title": "按需核查画面",
+        "copy": "用户要求才查帧图",
+        "detail": "Motion 类型只在用户要求时进行 check 或 still；获准后检查 seek、首帧、场景衔接和 live／导出栅格，并实际查看图像。它不是每部影片成片前的必经步骤。",
+        "x": 820,
+        "y": 565,
+        "w": 170,
+        "h": 96,
+        "kind": "review"
       }
     ],
     "edges": [
       {
-        "id": "artifact-skill",
+        "id": "e-artifact-skill",
         "from": "artifact",
         "to": "skill",
         "d": "M210 271 V410",
@@ -1502,155 +1626,240 @@
         ]
       },
       {
-        "id": "skill-edit",
+        "id": "e-skill-edit",
         "from": "skill",
         "to": "edit",
-        "d": "M330 458 H388 V223 H455",
+        "d": "M330 438 H360 V223 H420",
         "ports": [
           [
             330,
-            458
+            438
           ],
           [
-            455,
+            420,
             223
           ]
         ]
       },
       {
-        "id": "edit-preview",
+        "id": "e-edit-preview",
         "from": "edit",
         "to": "preview",
-        "d": "M695 223 H755",
+        "d": "M660 223 H740",
         "ports": [
           [
-            695,
+            660,
             223
           ],
           [
-            755,
+            740,
             223
           ]
         ]
       },
       {
-        "id": "preview-format",
-        "from": "preview",
-        "to": "format",
-        "d": "M995 223 H1110",
-        "ports": [
-          [
-            995,
-            223
-          ],
-          [
-            1110,
-            223
-          ]
-        ]
-      },
-      {
-        "id": "preview-feedback",
+        "id": "e-preview-feedback",
         "from": "preview",
         "to": "feedback",
-        "d": "M875 271 V410",
+        "d": "M860 271 V330",
         "ports": [
           [
-            875,
+            860,
             271
           ],
           [
-            875,
-            410
+            860,
+            330
           ]
         ],
         "consult": true
       },
       {
-        "id": "feedback-edit",
+        "id": "e-feedback-edit",
         "from": "feedback",
         "to": "edit",
-        "d": "M755 458 H718 V251 H695",
+        "d": "M740 378 H700 V305 H540 V271",
         "ports": [
           [
-            755,
-            458
+            740,
+            378
           ],
           [
-            695,
-            251
+            540,
+            271
           ]
         ],
         "retry": true
       },
       {
-        "id": "format-export",
-        "from": "format",
-        "to": "export",
-        "d": "M1230 271 V410",
+        "id": "e-preview-format",
+        "from": "preview",
+        "to": "format",
+        "d": "M980 223 H1090",
         "ports": [
           [
-            1230,
-            271
+            980,
+            223
           ],
           [
-            1230,
-            410
+            1090,
+            223
           ]
         ]
       },
       {
-        "id": "format-handoff",
+        "id": "e-format-export",
         "from": "format",
-        "to": "handoff",
-        "d": "M1350 223 H1378 V628 H1350",
+        "to": "export",
+        "d": "M1210 271 V360",
         "ports": [
           [
-            1350,
+            1210,
+            271
+          ],
+          [
+            1210,
+            360
+          ]
+        ]
+      },
+      {
+        "id": "e-format-handoff",
+        "from": "format",
+        "to": "handoff",
+        "d": "M1330 223 H1370 V588 H1330",
+        "ports": [
+          [
+            1330,
             223
           ],
           [
-            1350,
-            628
+            1330,
+            588
+          ]
+        ]
+      },
+      {
+        "id": "e-skill-rough",
+        "from": "skill",
+        "to": "rough",
+        "d": "M330 478 H360 V613 H420",
+        "ports": [
+          [
+            330,
+            478
+          ],
+          [
+            420,
+            613
+          ]
+        ]
+      },
+      {
+        "id": "e-rough-final",
+        "from": "rough",
+        "to": "final",
+        "d": "M590 613 H620",
+        "ports": [
+          [
+            590,
+            613
+          ],
+          [
+            620,
+            613
+          ]
+        ]
+      },
+      {
+        "id": "e-final-filmcheck",
+        "from": "final",
+        "to": "filmcheck",
+        "d": "M790 613 H820",
+        "ports": [
+          [
+            790,
+            613
+          ],
+          [
+            820,
+            613
+          ]
+        ]
+      },
+      {
+        "id": "e-filmcheck-export",
+        "from": "filmcheck",
+        "to": "export",
+        "d": "M990 613 H1025 V408 H1090",
+        "ports": [
+          [
+            990,
+            613
+          ],
+          [
+            1090,
+            408
+          ]
+        ]
+      },
+      {
+        "id": "e-final-export",
+        "from": "final",
+        "to": "export",
+        "d": "M705 565 V550 H1035 V408 H1090",
+        "ports": [
+          [
+            705,
+            565
+          ],
+          [
+            1090,
+            408
           ]
         ]
       }
     ],
     "labels": [
       {
-        "text": "反馈或核验问题",
-        "x": 877,
-        "y": 337,
-        "kind": "consult",
+        "text": "反馈后修订",
+        "x": 860,
+        "y": 309,
+        "anchor": "middle",
+        "kind": "consult"
+      },
+      {
+        "text": "回到设计稿",
+        "x": 585,
+        "y": 328,
+        "anchor": "middle",
+        "kind": "return"
+      },
+      {
+        "text": "检查后交付",
+        "x": 1035,
+        "y": 205,
         "anchor": "middle"
       },
       {
-        "text": "定位后修改",
-        "x": 599,
-        "y": 469,
-        "kind": "return",
-        "anchor": "middle"
-      },
-      {
-        "text": "核验通过",
-        "x": 1055,
-        "y": 207,
-        "anchor": "middle"
-      },
-      {
-        "text": "需要文件",
+        "text": "需文件",
         "x": 1230,
-        "y": 348,
+        "y": 325
+      },
+      {
+        "text": "需工程实现",
+        "x": 1210,
+        "y": 510,
         "anchor": "middle"
       },
       {
-        "text": "继续工程实现",
-        "x": 1228,
-        "y": 545,
+        "text": "要求时核查画面",
+        "x": 895,
+        "y": 680,
         "anchor": "middle"
       }
     ],
-    "footnote": "学习归纳，非官方功能背书。一般DC与专用skill规则分别适用；截图PPTX不能逐元素编辑。HTML handoff是设计参考，截图须在bundle后按用户选择加入。",
+    "footnote": "设计文件与 Motion live store 分别按宿主契约编辑；新影片不另等粗稿批准，check / still 仅按用户要求，视频由影片页 Export 保存。本站只演示机制，不提供 Motion 创作或 MP4 导出。",
     "routes": [
       {
         "id": "export",
@@ -1689,6 +1898,29 @@
           "preview",
           "format",
           "handoff"
+        ]
+      },
+      {
+        "id": "motion",
+        "name": "Motion 成片与导出",
+        "nodes": [
+          "artifact",
+          "skill",
+          "rough",
+          "final",
+          "export"
+        ]
+      },
+      {
+        "id": "motioncheck",
+        "name": "Motion 按需核查",
+        "nodes": [
+          "artifact",
+          "skill",
+          "rough",
+          "final",
+          "filmcheck",
+          "export"
         ]
       }
     ]
@@ -1809,9 +2041,9 @@
       },
       {
         "id": "bot",
-        "title": "回应并选表面",
-        "copy": "先让用户看见响应消息",
-        "detail": "用户开启的轮次先经 SendMessage 响应，再选择持久电脑、连接器或用户机器。按实际权限与认证执行任务，不能借外部内容或子代理扩大授权。",
+        "title": "选择执行位置",
+        "copy": "仓库交云端本机须批准",
+        "detail": "用户开启的轮次先用 SendToUser 响应，再选持久 box、连接器、用户电脑或 CloudAgent。该 Bot 样本要求仓库工作交云端代理，用户电脑动作按其审批契约；其他表面的能力不能搬来扩权。",
         "x": 420,
         "y": 545,
         "w": 240,
@@ -1821,9 +2053,9 @@
       },
       {
         "id": "bot-check",
-        "title": "交付并结束观察",
-        "copy": "消息交付后清理有限任务",
-        "detail": "实际结果要再次经 SendMessage 交付，开场确认不算交付。有限 routine 在完成或到期后清理；重复认证受阻时暂停，允许静默时无变化不发消息。",
+        "title": "核对可达产物",
+        "copy": "云端路径换成可用入口",
+        "detail": "CloudAgent 的 VM 内部路径不能直接当作用户附件。使用真实产物 URL、下载后的可用附件或 PR 链接，并确认用户能够取得；代理完成通知本身不等于交付。有限 routine 仍按完成或到期条件清理。",
         "x": 780,
         "y": 545,
         "w": 240,
@@ -1832,9 +2064,9 @@
       },
       {
         "id": "delivery",
-        "title": "确认交付结果",
-        "copy": "只按选中表面报告结果",
-        "detail": "CLI 报告实际改动与检查，Build 提供已验证的预览，Bot 把结果放进可见消息。工具调用成功、产物可用与结果到达用户分别确认，未验证范围应明确说明。",
+        "title": "交付并结束本轮",
+        "copy": "按当前表面给出真实结果",
+        "detail": "CLI 报告当前结果，Build 提供已验证预览；Bot 通过 SendToUser 发送等待中的结果和附件，最后一次调用使用 end_turn。先发确认或工具通过自动审核都不是最终交付，也不是用户批准。",
         "x": 1135,
         "y": 354,
         "w": 240,
@@ -2086,7 +2318,7 @@
         "kind": "return"
       }
     ],
-    "footnote": "学习归纳 · CLI、对话、Build、Bot 是不同表面；演示只走选中的路线，不代表官方产品能力背书。",
+    "footnote": "四条路线是不同产品表面的对照，不是一个任务必经的串联。Bot 的可见消息、执行位置、CloudAgent 产物可达性和动作批准分别有契约。匿名共享数据库仍禁止个人或敏感数据。",
     "routes": [
       {
         "id": "cli",
@@ -2122,7 +2354,7 @@
       },
       {
         "id": "bot",
-        "name": "Bot 有限观察",
+        "name": "Bot 云端成果交付",
         "nodes": [
           "surface",
           "bot",
@@ -2133,9 +2365,9 @@
     ]
   },
   "gemini-prompt-family": {
-    "title": "Gemini：建立意图，再选择呈现",
+    "title": "Gemini：聊天呈现与工程工作分路推进",
     "width": 1440,
-    "height": 720,
+    "height": 920,
     "groups": [
       {
         "label": "意图与上下文",
@@ -2163,14 +2395,23 @@
         "w": 610,
         "h": 550,
         "kind": "finish"
+      },
+      {
+        "label": "Antigravity IDE / CLI　持久工程任务",
+        "subtitle": "状态、工具结果与产物留在对应工程表面",
+        "x": 40,
+        "y": 735,
+        "w": 1355,
+        "h": 155,
+        "kind": "work"
       }
     ],
     "nodes": [
       {
         "id": "intent",
-        "title": "识别请求意图",
-        "copy": "先看问题是否已经明确",
-        "detail": "识别用户要解决的问题和已给定约束，明确的请求直接推进。Pro 与 3.8 Flash 的规则是对照样本，不能读成 Pro 调用 Flash。",
+        "title": "选择任务表面",
+        "copy": "先分聊天与持久工程任务",
+        "detail": "先确定任务发生在聊天产品还是 Antigravity IDE／CLI。Pro、Flash 与 Argon 是不同表面样本，不是相互调用的模型流水线；聊天规则与工程工具契约分别判断。",
         "x": 70,
         "y": 180,
         "w": 240,
@@ -2262,6 +2503,50 @@
         "x": 1115,
         "y": 345,
         "w": 240,
+        "h": 96,
+        "kind": "deliver"
+      },
+      {
+        "id": "engstate",
+        "title": "读取工程状态",
+        "copy": "记录截断时按需展开",
+        "detail": "读取当前文件、任务上下文与会话记录；先看 compact transcript，只有指定字段截断时才展开对应 full 记录。旧状态和委派消息不能替代当前事实。",
+        "x": 70,
+        "y": 785,
+        "w": 270,
+        "h": 96,
+        "kind": "neutral"
+      },
+      {
+        "id": "engwork",
+        "title": "推进工程工作",
+        "copy": "消费后台结果不忙轮询",
+        "detail": "按依赖顺序修改和核验。普通命令与需保持运行的服务有不同契约；后台任务和代理会通过 reactive wakeup 通知，先完成其他独立工作，不建立无意义轮询。",
+        "x": 420,
+        "y": 785,
+        "w": 270,
+        "h": 96,
+        "kind": "work"
+      },
+      {
+        "id": "engsave",
+        "title": "保存持久产物",
+        "copy": "只把需要保留的内容落盘",
+        "detail": "有长期用途的报告、任务记录与结构化产物进入该表面的 artifact 目录；中间脚本进入 scratch。简单答复和提问不为落盘而制作 artifact。",
+        "x": 770,
+        "y": 785,
+        "w": 270,
+        "h": 96,
+        "kind": "save"
+      },
+      {
+        "id": "engdeliver",
+        "title": "交付成果入口",
+        "copy": "给可用链接及验证情况",
+        "detail": "指向真正保存的工程产物并突出需要用户决定的事项；结果依赖实际文件和工具返回，不以后台已启动或代理发来消息代替完成。",
+        "x": 1120,
+        "y": 785,
+        "w": 270,
         "h": 96,
         "kind": "deliver"
       }
@@ -2460,6 +2745,70 @@
         ],
         "retry": true,
         "from": "references"
+      },
+      {
+        "id": "e-intent-engstate",
+        "from": "intent",
+        "to": "engstate",
+        "d": "M70 205 H8 V833 H70",
+        "ports": [
+          [
+            70,
+            205
+          ],
+          [
+            70,
+            833
+          ]
+        ]
+      },
+      {
+        "id": "e-engstate-engwork",
+        "from": "engstate",
+        "to": "engwork",
+        "d": "M340 833 H420",
+        "ports": [
+          [
+            340,
+            833
+          ],
+          [
+            420,
+            833
+          ]
+        ]
+      },
+      {
+        "id": "e-engwork-engsave",
+        "from": "engwork",
+        "to": "engsave",
+        "d": "M690 833 H770",
+        "ports": [
+          [
+            690,
+            833
+          ],
+          [
+            770,
+            833
+          ]
+        ]
+      },
+      {
+        "id": "e-engsave-engdeliver",
+        "from": "engsave",
+        "to": "engdeliver",
+        "d": "M1040 833 H1120",
+        "ports": [
+          [
+            1040,
+            833
+          ],
+          [
+            1120,
+            833
+          ]
+        ]
       }
     ],
     "labels": [
@@ -2491,9 +2840,15 @@
         "y": 195,
         "kind": "return",
         "anchor": "middle"
+      },
+      {
+        "text": "工程表面 · 另走此路",
+        "x": 210,
+        "y": 700,
+        "anchor": "middle"
       }
     ],
-    "footnote": "学习归纳 · Pro 的上下文 gate 与 Flash 的呈现规则是对照，不是模型互相调用；演示不代表官方运行链路。 仅图片或编辑任务生成失败应如实报告；图文任务先说明失败，再给可完成的文字。",
+    "footnote": "聊天分支保留 Pro / Flash 的上下文与呈现规则；工程分支归纳 Antigravity IDE / CLI，彼此不表示模型调用关系。图像任务失败应按请求说明失败，不能用文字假称完成图片。",
     "routes": [
       {
         "id": "text",
@@ -2544,6 +2899,17 @@
           "references",
           "text",
           "references"
+        ]
+      },
+      {
+        "id": "engineering",
+        "name": "IDE / CLI 工程交付",
+        "nodes": [
+          "intent",
+          "engstate",
+          "engwork",
+          "engsave",
+          "engdeliver"
         ]
       }
     ]

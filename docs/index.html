@@ -1923,20 +1923,20 @@
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!reducedMotion.matches) document.documentElement.classList.add("motion-ready");
 
-    const snapshotDate = "2026-09-30";
+    const snapshotDate = "2026-11-10";
 
     const notes = [
       {
         "slug": "gpt-5.6-codex-runtime",
-        "title": "GPT-6 / Codex Runtime",
-        "heading": "GPT-6 / Codex：授权、执行与验证",
+        "title": "Codex · 动作与成果",
+        "heading": "Codex：动作放行与成果验证",
         "group": "OpenAI runtimes",
         "family": "OpenAI · Codex",
         "badge": "Agent Runtime",
         "latest": true,
-        "snapshot": "源快照 · 2026-09-30",
-        "meta": "学会分清行为与完整运行时，按授权推进任务，用公共入口的证据判断完成。",
-        "learningPath": "先比较 Astra / Sol / Luna，再理解工具、状态与验证怎样装配。",
+        "snapshot": "核查 · 2026-11-10",
+        "meta": "把单次动作的风险、授权和策略结果，与成果质量分开判断。",
+        "learningPath": "先读持续执行，再看单次动作审查，最后用实际结果证明交付。",
         "file": "content/gpt-5.6-codex-runtime.md"
       },
       {
@@ -1954,67 +1954,67 @@
       },
       {
         "slug": "claude-opus-5-claude-code",
-        "title": "Claude.ai / Opus & Sonnet 5.5",
-        "heading": "Claude.ai / Opus & Sonnet 5.5",
+        "title": "Claude.ai · 行为与记忆",
+        "heading": "Claude.ai：行为、记忆与来源层次",
         "group": "Anthropic systems",
         "family": "Anthropic · Claude",
         "badge": "Assistant Memory",
         "latest": true,
-        "snapshot": "源快照 · 2026-09-30",
-        "meta": "让助手记住有用事实，同时把检索、隐私和交付目的地分清。",
-        "learningPath": "先理解助手行为，再学习文件记忆的读写与应用，最后选择真实交付表面。",
+        "snapshot": "核查 · 2026-11-10",
+        "meta": "从 Fable 5.2 对照样本理解助手行为，分清记忆、会话注入和工具契约。",
+        "learningPath": "先辨认规则来自哪一层，再学习记忆读写、隐私与真实交付。",
         "file": "content/claude-opus-5-claude-code.md"
       },
       {
         "slug": "claude-fable-5-claude-code-prompt-framework",
-        "title": "Claude Code · 执行与评审",
-        "heading": "Claude Code：执行、评审与状态续作",
+        "title": "Claude Code · 放行与评审",
+        "heading": "Claude Code：动作边界、质量评审与续作",
         "group": "Anthropic systems",
         "family": "Anthropic · Claude Code",
         "badge": "Execution & Review",
         "latest": true,
-        "snapshot": "源快照 · 2026-09-30",
-        "meta": "让长任务持续推进，让评审补上自测盲点，并保留可继续执行的状态。",
-        "learningPath": "先读 Harness 与表面差异，再看 advisor 两侧，最后接入记忆、配置和状态续作。",
+        "snapshot": "核查 · 2026-11-10",
+        "meta": "动作获准执行与成果质量过关分别判断，记忆只留下适用且持久的经验。",
+        "learningPath": "先区分动作分类器和 Advisor，再看记忆覆盖规则、compact 与交付表面。",
         "file": "content/claude-fable-5-claude-code-prompt-framework.md"
       },
       {
         "slug": "claude-design-skills",
-        "title": "Claude Design · 组件与交接",
-        "heading": "Claude Design：组件、验证与工程交接",
+        "title": "Claude Design · 设计与 Motion",
+        "heading": "Claude Design：可编辑设计与 Motion 成片",
         "group": "Anthropic systems",
         "family": "Anthropic · Design",
         "badge": "Design Handoff",
         "latest": true,
-        "snapshot": "源快照 · 2026-09-30",
-        "meta": "让设计保持可编辑、可定位反馈，并交给工程团队足够实现的参考。",
-        "learningPath": "从产物和组件入手，理解专用 skill、真实验证，再选择导出和工程交接。",
+        "snapshot": "核查 · 2026-11-10",
+        "meta": "分清设计文件与影片存储，从可编辑设计稿或影片初始状态走到成品与交付。",
+        "learningPath": "先选产物，再分别看设计反馈与 Motion 的制作、恢复、按需核查。",
         "file": "content/claude-design-skills.md"
       },
       {
         "slug": "grok-prompt-evolution",
-        "title": "Grok / CLI、Build 与 Bot",
-        "heading": "让不同工作表面完成任务",
+        "title": "Grok · 执行表面与交付",
+        "heading": "Grok：选对执行表面，让成果真正可达",
         "group": "Other model families",
         "family": "xAI",
         "badge": "Grok 4.7 CLI",
         "latest": true,
-        "snapshot": "源快照 · 2026-09-30",
-        "meta": "学会区分工程命令、应用预览与桌面代理，为记忆、后台任务和交付写清完成条件。",
-        "learningPath": "先选工作表面，再比较记忆范围、后台通知、应用验证与持续任务的停止条件。",
+        "snapshot": "核查 · 2026-11-10",
+        "meta": "区分工程命令、应用预览与 Bot 工作；云端路径不等于用户能打开的成果。",
+        "learningPath": "先选产品和执行位置，再看后台终态、可达产物与最终消息。",
         "file": "content/grok-prompt-evolution.md"
       },
       {
         "slug": "gemini-prompt-family",
-        "title": "Gemini / 澄清与视觉输出",
-        "heading": "让上下文和呈现各自有用",
+        "title": "Gemini · 对话与工程",
+        "heading": "Gemini：对话呈现与持久工程任务",
         "group": "Other model families",
         "family": "Google",
         "badge": "Gemini 3.8 Flash",
         "latest": true,
-        "snapshot": "源快照 · 2026-09-30",
-        "meta": "学会判断何时澄清、哪些个人信息有用，以及图片、组件和多图生成怎样接收真实数据。",
-        "learningPath": "先比较 Pro 与 Flash 的提问规则，再筛选上下文，沿事实检索、组件输出走到图像引用。",
+        "snapshot": "核查 · 2026-11-10",
+        "meta": "对照 Pro、Flash 与 Antigravity，理解上下文、视觉输出、会话记录和后台唤醒。",
+        "learningPath": "先分聊天与工程表面：聊天按内容选呈现，工程按状态推进并交付持久产物。",
         "file": "content/gemini-prompt-family.md"
       }
     ];
@@ -2225,7 +2225,7 @@
       app.innerHTML = `
         <section class="home-hero reveal">
           <div class="hero-copy">
-            <div class="home-kicker">Learning Snapshot · ${snapshotDate}</div>
+            <div class="home-kicker">Learning Review · ${snapshotDate}</div>
             <h1>AI Prompt Atlas</h1>
             <p>从真实提示词中，学习事实核查、授权执行、记忆维护与可复用框架。</p>
           </div>
@@ -2245,7 +2245,7 @@
           </div>
         </section>
         <div class="snapshot-band reveal" aria-label="快照信息">
-          <span><strong>${snapshotDate}</strong>当前学习快照</span>
+          <span><strong>${snapshotDate}</strong>本轮来源核查</span>
           <span><strong>${notes.length} 份学习图谱</strong>动态流程 + 原文式笔记</span>
           <span><strong>Source-pinned</strong>固定来源快照</span>
         </div>

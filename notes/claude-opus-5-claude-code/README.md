@@ -1,14 +1,16 @@
-# Claude.ai / Opus & Sonnet 5.5
+# Claude.ai：行为、长期记忆与交付
 
 这份笔记学习通用助手怎样把行为、事实检索、长期记忆和交付表面组合起来。读完后应能为自己的助手写出可执行的读写规则，并判断哪些上下文应该进入回答、哪些事实必须重新检索。Claude Code 的工程执行、配置诊断、评审和 compact 协议由[Claude Code 笔记](../claude-fable-5-claude-code-prompt-framework/)承载。
 
-> 源快照：`asgeirtj/system_prompts_leaks@87bdae7886aca455ad38eb60dfdedf093ef01e2a`。核查日为 2026-09-30（Asia/Shanghai；上游快照 UTC 日期为 9/29）。本页描述固定文件中的指令结构，不把泄露材料当作官方产品规格或当前账户能力。
+> 源快照：`asgeirtj/system_prompts_leaks@fc0108f594b63bca905f2c4815aaef430d13bd68`。核查日为 2026-11-10（Asia/Shanghai）。本页描述固定文件中的指令结构，不把泄露材料当作官方产品规格或当前账户能力。
 
 ## 先分清模型、助手和运行时
 
-固定树同时收录 `claude-opus-5.5.md` 与 `claude-sonnet-5.5.md`。两者都把助手行为放在前面，再展开 memory filesystem、应用规则和能力说明；它们不是模型权重的说明书。文件中的日期、产品名单和能力目录只说明这份 prompt 被如何装配，不能作为今天购买产品或判断账户可用性的依据。
+新版固定树加入 `claude-fable-5.2.md`，同时保留 Opus / Sonnet 5.5。Fable 的完整捕获在行为段后装配 Agentic behavior、文件记忆与工具；模型名称不能说明某个账户拥有这些能力，日期与产品名单也不能充当实时规格。
 
-Opus 文件以 `claude_behavior`、`product_information` 等下划线标题展开，Sonnet 使用可读标题；这是一种表达差别。本页合并它们共享的学习主题，不从名称推断模型强弱。长期记忆和行为方法在旧笔记中已有基础，收录 5.5 文件不等于它们全部在 5.5 首次出现。
+先区分三种材料：`official/2026-11-09-claude-fable-5.2.md` 属于仓库所归档的官方公开行为段；`claude-fable-5.2.md` 是含工具、记忆和应用规则的完整捕获；`raw/claude-fable-5.2-raw.md` 保留角色/标签形式，适合核对原始边界。official 的“官方”只描述该公开段的来源，不认证整份捕获。完整捕获更长，不代表它的每条注入都是所有会话的默认规则。
+
+本页保留 Opus / Sonnet 的可复用机制和下列 Opus 连续原文，不把同一主题在 Fable 出现说成首次新增。Opus 的下划线标题与 Sonnet / Fable 的可读标题是表达差别，跨文件复用仍须核对完整分支与真实工具。
 
 | 对象 | 它解决的问题 | 不能替代什么 |
 | --- | --- | --- |
@@ -23,7 +25,7 @@ Opus 文件以 `claude_behavior`、`product_information` 等下划线标题展�
 
 产品说明也有证据边界。两份 5.5 文件都明确承认产品细节可能变化，对账户、限额、价格和使用问题路由到支持材料，对 API 问题路由到开发文档。知识截止与当前日期分开：当前职位、重大事件、新闻和现在是否仍成立的问题需要搜索。实际使用时，把可变化的日期和产品资料作为运行时字段注入；不要让一个旧身份段落承担实时事实库的职责。
 
-下面节选 Opus 的纠错与知识段落，保留原措辞和顺序，只替换助手名、截止时间、当前日期与搜索工具这些部署字段。这是行为模块，不是完整安全策略的替代品。
+Fable 5.2 的知识段另写明：若没有 web search，就交付可能过时的已有信息，不通过委派另找搜索后门；这是工具可用性分支，不能靠一句“必须搜索”造出能力。下面节选 Opus 的纠错与知识段落，保留原措辞和顺序，只替换助手名、截止时间、当前日期与搜索工具这些部署字段。这是行为模块，不是完整安全策略的替代品。
 
 ```text
 ## responding_to_mistakes_and_criticism
@@ -74,9 +76,9 @@ Every file follows this structure:
 
 并发更新解决“别把另一表面的修改抹掉”。读取返回 version，下一次编辑传 `if_version`。小改用唯一匹配的 `memory_str_replace`；新增事实用 append；whole-file write 是完整替换，不是自动 merge。冲突结果给出当前内容和 version 时，就在当前正文上合并并重试。`if_version` 只防并发覆盖，不能替你合并；新文件才使用 `"new"`。
 
-隐私规则不能被压成“敏感内容都不存”。这两份助手 prompt 把 protected/sensitive 类别交给平台的保存时同意检查，同时保留无论同意与否都不保存的项目，例如凭证与特定隐私内容。另一方面，[import-memory skill](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-code/skills/import-memory/SKILL.md) 对跨助手导入采用更严格的过滤；不能拿导入规则覆盖普通聊天写入规则。适配自己的产品时，这一段需要真实平台的同意机制，不能仅复制一句“会检查同意”而没有执行层。
+隐私规则不能被压成“敏感内容都不存”。这两份助手 prompt 把 protected/sensitive 类别交给平台的保存时同意检查，同时保留无论同意与否都不保存的项目，例如凭证与特定隐私内容。另一方面，[import-memory skill](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/claude-code/skills/import-memory/SKILL.md) 对跨助手导入采用更严格的过滤；不能拿导入规则覆盖普通聊天写入规则。适配自己的产品时，这一段需要真实平台的同意机制，不能仅复制一句“会检查同意”而没有执行层。
 
-下面两段分别节选写入时机与操作选择。保持源句子，抽象具体工具名、显式用户示例与标签字段；隐私全规则仍需连同源文件阅读。
+下面两段分别节选 Opus 的写入时机与操作选择，保留句序，只抽象工具及部署字段；Fable 5.2 也保留后台 pass / 显式请求的分工，但其较长协议仍须单独读，不能据这两个片段覆盖全部隐私规则。
 
 ```text
 ## When to write
@@ -135,7 +137,10 @@ Pick the write op by the size of the change:
 
 ## 来源索引
 
-- [Claude.ai Opus 5.5：行为、文件记忆与应用规则](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-opus-5.5.md)
-- [Claude.ai Sonnet 5.5：助手、发布覆盖规则与工具装配](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-sonnet-5.5.md)
-- [Opus 5.5 官方目录中的短版材料（用于区分材料范围）](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/official/2026-09-22-claude-opus-5.5.md)
-- [Import memory：专用导入协议](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Anthropic/claude-code/skills/import-memory/SKILL.md)
+- [Claude.ai Opus 5.5：行为、文件记忆与应用规则](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/claude-opus-5.5.md)
+- [Claude.ai Sonnet 5.5：助手、发布覆盖规则与工具装配](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/claude-sonnet-5.5.md)
+- [Fable 5.2：完整捕获与 Agentic behavior](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/claude-fable-5.2.md)
+- [Fable 5.2：角色与标签形式的 raw](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/raw/claude-fable-5.2-raw.md)
+- [Fable 5.2：官方公开行为段的仓库归档](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/official/2026-11-09-claude-fable-5.2.md)
+- [官方目录：归档范围与公开来源说明](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/official/README.md)
+- [Import memory：专用导入协议](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Anthropic/claude-code/skills/import-memory/SKILL.md)

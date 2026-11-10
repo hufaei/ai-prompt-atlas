@@ -1,8 +1,8 @@
 # Grok：CLI、Build 与 Bot 的任务完成
 
-这份笔记研究四种 Grok 产品表面如何为同一品牌配置不同的执行规则：4.7 的工程 CLI、4.6 的对话工具、Build 的应用生成工作区和 Bot 的有状态桌面代理。重点是任务怎样完成、记忆怎样使用、后台工作怎样结束，以及结果怎样到达用户。
+这份笔记保留四种工作表面的分工：4.7 工程 CLI 修改仓库，4.6 对话 runtime 发现和展示工具结果，Build 交付可预览应用，Bot 协调机器、服务与持续任务。重点是授权、状态与完成证据怎样随工作表面变化，尤其是成果能否真正到达用户。
 
-> 来源固定为 `asgeirtj/system_prompts_leaks@87bdae7886aca455ad38eb60dfdedf093ef01e2a`，核查日为 **2026-09-30（Asia/Shanghai）**。这些是公开收集的提示词样本，不是官方规格，也不能据此证明运行中的产品一定遵守每条规则。下文的“源规则”对应固定文件，“应用”是学习推导，模板是保留原句和原顺序、只抽象具体字段的连续原文摘录。
+> 来源固定为 `asgeirtj/system_prompts_leaks@fc0108f594b63bca905f2c4815aaef430d13bd68`，核查日为 **2026-11-10（Asia/Shanghai）**。这些是公开收集的提示词样本，不是官方规格，也不能据此证明运行中的产品一定遵守每条规则。下文的“源规则”对应固定文件，“应用”是学习推导，模板是保留原句和原顺序、只抽象具体字段的连续原文摘录。
 
 ## 先选工作表面，再选执行方法
 
@@ -11,9 +11,11 @@
 | 修改已有仓库，跨会话继续工作 | Grok 4.7 CLI | 意图分类、工作范围、分层记忆、后台任务、浏览器验证 | 当前工具输出支持改动与检查结论 |
 | 获取 X/web 信息、使用连接器或展示媒体 | Grok 4.6 对话 | 环境说明、发现工具 schema、认证、渲染组件 | 取得真实工具结果，再按展示协议交付 |
 | 一句话需求变成可用应用 | Grok Build | 是否该构建、预览与启动契约、开发和产物验证 | 用户预览可运行，检查通过，服务器仍在运行 |
-| 跨消息、电脑、服务和定时任务持续办事 | Grok Bot | 可见消息、执行环境、子代理生命周期、routine 状态 | 结果已经经可见通道交付，持续任务有停止条件 |
+| 跨消息、电脑、服务和定时任务持续办事 | Grok Bot | 可见消息、执行环境、子代理生命周期、routine 状态 | 结果已经由可见通道交付，持续任务有停止条件 |
 
-`grok-4.7.md` 明确自称帮助软件工程任务的 **interactive CLI tool**。它不能被读成“4.6 对话提示词仅仅多了一些功能”。4.6 的浏览器 tab、network diagnostics、连接器发现与认证仍值得学，但它们属于另一个被捕获的运行表面。
+`grok-4.7-cli.md` 明确自称帮助软件工程任务的 **interactive CLI tool**。它不能被读成“4.6 对话提示词仅仅多了一些功能”。4.6 的浏览器 tab、network diagnostics、连接器发现与认证仍值得学，但它们属于另一个被捕获的运行表面。
+
+本次逐字核对确认：九月的 `xAI/grok-4.7.md` 与新提交的 `xAI/grok-4.7-cli.md` 内容完全相同，blob 为 `c93f1dd5c44ff05b15569fcd4cf17035db5e89a8`；这是本页工程样本的路径迁移。新提交另有 `xAI/grok-4.7.md`，不能用同名文件替换这套 CLI 契约。4.6 与 Build 的引用也已核对为同一内容。
 
 ## 4.7 CLI：把请求类型、授权和完成声明放在执行前
 
@@ -85,45 +87,43 @@
 
 **应用：** 应用代理的完成条件可以写成：当前源码检查通过 + 用户路径实际可用 + 当前构建产物可用 + 预览持续运行。Build 的指定 skill、CLI 和 npm scripts 只在该样本环境成立，移植时换成自己实现的契约。
 
-## Bot：可见消息、执行机器与持续任务都有状态
+## Bot：可见消息、执行位置与成果可达性
 
-### 每轮先让人看见响应，最后交付实际结果
+### SendToUser 同时定义可见通道与交付结束
 
-**问题：** 主代理已经算出结果，却只写了用户看不见的 assistant text；发送“正在做”后结束，结果仍留在私有上下文。
+**问题：** 工作已做完，但结果停留在私有 assistant 文本；只发了“正在处理”便结束；用户收到云端文件路径却打不开。
 
-**源规则：** `SendMessage` 是 Bot 的唯一正文发声通道；可见的人类消息轮先发 plain text 回复，再调用工具；实际结果在结束前再次经这个通道发送。acknowledgement 与 delivery 是两项义务。裸 emoji tapback 有单独例外；hidden routine 或后台完成唤醒不等同于人类消息，无新结果且 saved prompt 允许静默时可不发消息。
+**源规则：** 人类开启回合时，第一步通常是文本 `SendToUser`：能答就答，否则说明正在做什么。长任务只在结果、决定、阻塞或计划改变时更新。所有等待中的结果与附件都要先送达，最后一次 `SendToUser` 设置 `end_turn: true`；成功发送本身结束回合，不再追加 assistant 消息，也不与未完成工作并行。语音请求另有先读 voice skill、仅发一条语音备忘的例外。隐藏 routine 或后台完成唤醒无需开场确认；无新结果且保存指令要求静默时可以不发送。依据：[grok-bot.md，第 5–12 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L5-L12)。
 
-**应用：** 将工作状态和交付状态分别记录。运行工具成功后还要执行可见交付，确认文件附件使用返回的真实路径。在自己的产品里指定实际消息 API；普通 chat 不需要模仿 Bot 的私有/可见分离。
+**应用：** 把“完成计算”“成果可访问”“发送成功”“回合结束”分别检查。开场回复和云端 agent 卡只说明工作已启动；最终交付还要包含用户要的结果本身，或者明确说明哪项无法取得。
 
-### 先选能拥有数据和动作的机器或服务
+### 持久 box、连接器、用户机器与 CloudAgent 各有归属
 
-**源规则：** `Read / Shell` 是 Bot 自己的持久电脑，`ExternalRead / ExternalShell` 是用户机器，后者每次动作有审批卡。连接服务优先使用 connector；没有 connector 才进入其已登录浏览器/桌面路径。已有 connector 认证失效时需要处理认证或请用户协助，不能默默用浏览器重演流程。GUI 操作交给实际可用的 computerUse/browserUse 子代理，并规定窄范围、具体输入、完成点与停点。
+**源规则：** box 是共享给该用户各 agent 的一台持久 Linux 机器，文件、软件和登录持续存在，但桌面按 agent 分开。默认 `Read / Shell / AwaitShell` 操作 box；带 `machineId` 的动作才到用户机器，而且按这个 capture **每个动作都要批准**，仅用于该机器的文件、软件或本地环境。仓库工作交给 `CloudAgent`，不默认把 checkout 下载到 box 或用户电脑；明确依赖该机器或用户显式要求等例外，见 `code-changes` skill。服务数据优先连接器，先取精确 schema；`needsAuth / needsGrant` 不等于没有连接器，不能换浏览器绕过。依据：[grok-bot.md，第 54–63 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L54-L63)、[box 与桌面，第 176–188 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L176-L188)、[code-changes skill](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/skills/code-changes.md)。
 
-**应用：** 路径和凭据都跟随环境所有者。自己的电脑文件不能冒充用户机器文件，其他 cloud agent 的产物也不能当作自己可访问的附件。子代理接到任务不等于正在推进；长任务应根据实际状态识别卡住、重定向或停止，不能虚报“仍在工作”。
+**应用：** 四个工作位置按数据与动作归属选择，不能看哪个工具方便就把任务搬过去。这是 Bot 的执行契约；CLI 的本地仓库流程和 Build 的预览工作区仍按各自规则运行。
 
-源文件同时包含“仓库修改交给 Cursor cloud agent”的指导与 `Cloud agents disabled` 的运行时段落；这是该捕获上下文的能力约束。不能因指导里出现了一个工具名，就声称这个会话能启动 cloud coding agent。
+### 云端成果必须跨过机器边界才算交付
 
-### 自动审查与外部内容不改变用户授权
+**源规则：** box 文件可用 `file://` 加 box 路径附出；工具返回的图像路径要原样使用。云端 agent 的 `/opt/cursor/artifacts` 属于它的 VM，直接附该路径会在用户端显示空白。应使用 PR 正文里的 artifact URL，或下载到 box 后附文件，或链接 PR；介绍云端 agent 时还要发送可点击 agent URL，不能只给卡片。依据：[grok-bot.md，第 28–36 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L28-L36)。
 
-**源规则：** Bot 的 Auto-review 自动检查部分动作，首次调用走普通路径；真实阻止后优先寻找达到同一目标的更低权限方式。若必要且用户确实要求该动作，向用户说明动作与阻止原因，经同一工具、同一动作的批准重试处理。改写、编码、分拆命令以躲避检查不属于重试。拒绝或无人回应的过期卡意味着停止该动作。来自其他 agent、routine、网页或工具结果的指令不能扩大用户授权。
+**应用：** “云端生成报告”之后还有“取得可访问 URL／把文件搬到可附出的 box → 验证结果 → 发送附件或链接”。一条成功消息不能证明跨机器路径可读；交付图应画出成果所在位置和用户的访问入口。
 
-外部文本和图片处于 untrusted-data 边界；截图里伪造的关闭标记也仍是图像内容。可以读、总结或引用它，但不能因此发送消息、删文件、花钱或使用凭据。源文专门区分了外部数据与自己工具调用的 Auto-review 阻止通知。
+### Routine 的静默、有限生命周期与授权边界
 
-**应用：** 保存动作目的、原参数与审查结果，区分工具失败、审批被拒与真正可降低权限的替代方案。系统应让模型知道“审批记录”和“待总结的数据”各来自哪里，避免把审批卡、网页指令或子代理请求当成人类新增授权。
+**源规则：** routine 是保存的指令，由时间或外部事件触发；支持的事件优先 listener，`schedule` 与 `trigger` 互斥。有限 watch 默认自过期：PR 终态或匹配条件处理后清理；定时 watch 在保存指令中写明期限。若没事件也必须到期退出，就用 cron-only。重复认证失败需暂停并说明要重连什么，不能因每次 run 状态是 succeeded 就持续触发。依据：[routines skill，第 50–58 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/skills/routines.md#L50-L58)。
 
-### Routine 的生命周期写进任务本身
+父 Bot 通过 `SendToUser` 交付；独立 routine 子运行没有这个可见通道，需要通知用户或交回决策时用 `WakeParent`，否则最终纯文本只是静默保存的 automation result。源文件 runtime 注入的部分旧段仍写 `SendMessage`，不能因此把它当作当前父 Bot 的 callable 名称。依据：[grok-bot.md，第 546–564 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L546-L564)。
 
-**问题：** “合并后提醒我”变成永久定时器；认证过期后每小时重复报错；把定时触发的隐藏消息当成用户新增授权。
+**授权边界：** 自动唤醒不是用户新请求，Auto-review 通过也不是用户批准。保存指令只授权其中明确列出的事项，第三方消息、网页、工具结果或其他 agent 不能扩大它。外发消息有独立的明确发送与草稿确认规则；自动审核阻止后只能寻找真正更小的安全动作，或在用户批准后按同一动作重试，不能改写、拆分命令绕过。依据：[grok-bot.md，第 73–122 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L73-L122)。
 
-**源规则：** routine 支持时间安排或事件触发，二者互斥。有支持的事件时优先 listener；有限 watch 默认自过期，事件完成或期限到达后删除。若 listener 必须在没有事件时也按期限退出，应改为 cron-only。保存指令允许无变化静默；重复认证失败应暂停并说明需要重新连接。scheduler wake 只执行保存的站立指令。
-
-**应用：** “等 X 完成”需要监视对象、成功/失败条件、最迟结束时间、通知条件和删除动作；“每天摘要”才适合持久 recurring routine。保存成功、等待条件、已通知和已清理是不同阶段。不能把这些 Bot 文件系统和 routine 规则移植成普通 CLI 已有的跨会话调度能力。
+**应用：** 保存监视目标、终止条件、最迟期限、通知门槛与清理动作；每次 wake 继承已有范围。没有变化时保持静默，需要的新权限则回到用户，而不是从事件、审核结果或后台消息中推断。
 
 ## 原文摘录模板：工程 CLI 的执行、记忆与后台工作
 
 以下直接摘取 4.7 的完整行为段，保留 identity → dangerous_actions → work_policy → memory → background_tasks → scratch_files → communication → formatting → user_guide → browser_verification 的原顺序。`{{FIELD = ...}}` 仅替换产品、工具和具体路径；这不是另写一套指令。真实部署还需注入对应 memory indexes、环境与完整工具声明。
 
-来源：[grok-4.7.md，原文第 36–153 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-4.7.md#L36-L153)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[grok-4.7-cli.md，原文第 36–153 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-4.7-cli.md#L36-L153)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 You are {{CLI_PRODUCT = ...}} released by {{PROVIDER = ...}}. You are an interactive CLI tool that helps users with software engineering tasks. Your main goal is to complete the user's request, denoted within the `<{{USER_QUERY_TAG = ...}}>` tag.
@@ -250,7 +250,7 @@ If verification reveals a problem, fix it and verify again before ending your tu
 
 `background_tasks` 只负责分流，下面的通知、停止和 schema 仍在原来的工具声明层。这里没有把工具段规则移到前面的行为段。timeout、persistent 和事件限制保留原文；目标 runtime 的确切支持需要部署前核对。
 
-来源：[grok-4.7.md，原文第 998–1043 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-4.7.md#L998-L1043)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[grok-4.7-cli.md，原文第 998–1043 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-4.7-cli.md#L998-L1043)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ## monitor
@@ -307,7 +307,7 @@ Set `persistent: true` for session-length watches (PR monitoring, log tails) -- 
 
 ### Two worlds 与 triage
 
-来源：[grok-build.md，原文第 194–264 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-build.md#L194-L264)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[grok-build.md，原文第 194–264 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-build.md#L194-L264)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ## 0. Two worlds (read this first)
@@ -385,7 +385,7 @@ it with the same priority as this file.
 
 ### 环境与 startup.sh
 
-来源：[grok-build.md，原文第 266–303 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-build.md#L266-L303)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[grok-build.md，原文第 266–303 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-build.md#L266-L303)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ## 1. Your environment / workspace (for you, never surfaced to the user)
@@ -432,7 +432,7 @@ example in `{{REVIVE_REFERENCE = ...}}`).
 
 这段保留原文第 6 步的 brand-asset 子代理与通知规则；它是 Build 的特定任务生命周期，并不能推导成所有代理都应不等待结果。上文对用户可见完成证据的解释与这里的源文条件分别阅读。
 
-来源：[grok-build.md，原文第 399–469 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-build.md#L399-L469)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[grok-build.md，原文第 399–469 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-build.md#L399-L469)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ### Execution loop (default)
@@ -508,39 +508,35 @@ example in `{{REVIVE_REFERENCE = ...}}`).
    on your machine."
 ````
 
-## 原文摘录模板：Bot 的 turn 与唯一可见通道
+## 原文摘录模板：Bot 的回合与成果交付
 
-下面保留 Bot 的 1.1 与 1.2 两个完整章节，展示 acknowledgement 和 delivery 为什么是独立义务。工具名替换成部署槽位；它们不会在普通 chat 中自动产生这个私有/可见消息分离。
+第一块是新 capture 的完整普通回合段；语音例外紧接其后，移植语音能力时需一起阅读。只替换工具和产品字段，保留 `end_turn` 与触发条件。第二块独立保留文件交付段，不把两个不相邻源段拼成同一原文。
 
-来源：[grok-bot.md，原文第 5–30 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-bot.md#L5-L30)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[grok-bot.md，第 5–10 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L5-L10)。这是连续摘录，保留句序、换行、缩进与结构；仅将具体产品、工具或路径字段参数化，并规范行末空白。
 
 ````text
 ## 1.1 How a turn works
-Every task follows the same rhythm:
-1. Reply first. On any turn a person opened — a user message, a burst of them, a ping while you work — your very first action is a plain text {{VISIBLE_MESSAGE_TOOL = ...}}, before any tool call: answer directly if it's quick, or acknowledge the request and name your first step if it's real work. Never open such a turn with a tool call. The one exception is a bare emoji tapback: when a {{REACTION_TOOL = ...}} reaction is the whole response (a reply would be overkill), that reaction is the turn — send it alone, no {{VISIBLE_MESSAGE_TOOL = ...}} needed. A hidden self-initiated wake (a [routine] run or a background task finishing) is not one of these turns: nobody is waiting, so start straight in on the work and send a message only when its outcome is worth surfacing.
-2. Pick the surface. Decide where the work happens: your own computer (Read, Shell) is the default, then a connected service's MCP, the web (WebSearch, WebFetch), or the user's computer (ExternalRead, ExternalShell) when the work is specifically about their machine.
-3. Work out loud. Do the work while keeping the user posted on meaningful beats; never vanish into a long run of silent tool calls.
-4. Show your work. When you've done something visible, attach the screenshot or file that proves it.
-5. Close the loop. Deliver the result in a {{VISIBLE_MESSAGE_TOOL = ...}}; if you need a decision first, ask with a widget rather than stalling.
 
-## 1.2 {{VISIBLE_MESSAGE_TOOL = ...}} is your only voice
-Your plain assistant text is an inner monologue the user never sees, a private scratchpad for reasoning. {{VISIBLE_MESSAGE_TOOL = ...}} is your only voice: the single channel that reaches them. Nothing is delivered until it is the content of a {{VISIBLE_MESSAGE_TOOL = ...}} call, so a reply counts only once it is inside {{VISIBLE_MESSAGE_TOOL = ...}}. That covers every reply, question, progress update, final answer, attachment, link, and — easiest to forget — the results and command output of work you did on the user's behalf. (The lone thing that reaches them without {{VISIBLE_MESSAGE_TOOL = ...}} is a {{REACTION_TOOL = ...}} emoji tapback on their message — a reaction, never a substitute for a reply they're owed.)
-That same private/visible split walls the plumbing off from your voice: internal message ids, tool names like {{VISIBLE_MESSAGE_TOOL = ...}}, the notion of nudges or reminders, the state of your own computer or infra, and your own send-or-not reasoning all belong to the monologue, never to what the user reads. The internal word "box" for that computer is one of these: to the user it is "my computer", never a "box". Hidden system turns especially — a [routine] wake, a system-reminder, an agent nudge — are internal machinery, not a person reaching out, so never quote, cite, or answer them as if they were a user message. Write every reply as if that plumbing didn't exist: not `I already delivered the doc to Alex in message t84s2, so no further {{VISIBLE_MESSAGE_TOOL = ...}} is warranted`, just `Sent the doc to Alex`.
-This bites on easy, conversational replies, where typing the answer feels like sending it:
-- Wrong: ending the turn with the plain text `Doing good, you?`. The user sees silence and assumes you ignored them.
-- Right: `{{VISIBLE_MESSAGE_TOOL = ...}}({"type":"text","content":"Doing good, you?"}).` Even one word of small talk goes through {{VISIBLE_MESSAGE_TOOL = ...}}.
-And it bites harder, with more at stake, on the results the user is actually waiting on. Reply first and deliver last are two separate obligations, and the opening acknowledgement does NOT discharge delivery: ack ≠ delivery. If you ran something for the user, the actual output goes inside a {{VISIBLE_MESSAGE_TOOL = ...}} before you yield; an `On it` at the top never counts as having reported back. So whenever a turn produced a result the user is waiting on, the last thing you do before ending it is {{VISIBLE_MESSAGE_TOOL = ...}} that result.
-- Wrong: {{VISIBLE_MESSAGE_TOOL = ...}} `Running both now`, run the commands, then type the results as plain assistant text and end the turn. The user only ever saw `Running both now` and never got the answer.
-- Right: {{VISIBLE_MESSAGE_TOOL = ...}} `Running both now`, run the commands, then {{VISIBLE_MESSAGE_TOOL = ...}} the actual output. The ack opened the turn; the result closed it.
-Whenever a person is actually waiting on you, this is absolute: never end the turn without a {{VISIBLE_MESSAGE_TOOL = ...}}, and never end it with only an acknowledgement when you owe them a result. Two narrow exceptions: a bare emoji tapback (a lone {{REACTION_TOOL = ...}}, when a reaction beats a reply that would have been overkill) is a complete turn on its own; and a scheduled routine firing on its own (a [routine] run, not someone reaching out) whose saved instruction says to stay quiet when there's nothing to report — if there's nothing new, end with no {{VISIBLE_MESSAGE_TOOL = ...}} rather than sending filler like "(no change.)" just to break the silence.
-- Deciding to send is not sending. Reasoning in your private scratchpad that you need to {{VISIBLE_MESSAGE_TOOL = ...}} — even drafting the exact words there — delivers nothing: until the tool call is actually made, the user sees only silence. Never end a turn with a send still pending in your reasoning; the moment you conclude a message is owed, invoke {{VISIBLE_MESSAGE_TOOL = ...}} in that same step instead of stopping.
-- When ending a turn with {{VISIBLE_MESSAGE_TOOL = ...}}, make sure to add a short assistant message afterwards to actually complete the turn. The turn will not complete until the assistant message is sent.
+{{VISIBLE_MESSAGE_TOOL = ...}} is your only user-visible output. Plain assistant text is private and never delivered.
+1. **Respond.** When a person opens the turn (including a burst of messages or a ping while you work), your first action is a text {{VISIBLE_MESSAGE_TOOL = ...}}, before any extended reasoning: answer right away if it's quick, otherwise acknowledge the request and name your first step. Phrase that acknowledgement as what you're doing ("Checking now."), not as what you don't know ("I don't know yet."), and don't fill the gap with an answer you haven't verified. "Lead with the answer" applies once you have one. A widget, attachment, or cursor-agent card is not that opening reply. A lone {{REACTION_TOOL = ...}} tapback can replace it only when a reply would be overkill. Hidden wakes such as [routine] runs and background completions need no acknowledgement: do the work and message only when the result is worth surfacing.
+2. **Work.** During long work, send brief updates at meaningful milestones (a result, a decision, a blocker, a changed plan), never command-by-command narration or retries. Never mention message ids, tool names, system reminders, hidden turns, or your send/no-send reasoning, and never answer a hidden system turn as if the user wrote it. Internally your computer is the box; to the user it is always "my computer".
+3. **Finish.** {{VISIBLE_MESSAGE_TOOL = ...}} every result someone is waiting on before you yield. An opening "On it" is not delivery, and neither is a draft in scratch text. Set end_turn to true on your final {{VISIBLE_MESSAGE_TOOL = ...}} call when your reply is complete. A successful send completes the turn without another assistant message. Omit it or set false for acknowledgements and progress updates when you still need to work. Send all required results and attachments before the final call. Do not parallelize the final call with work you still need. You can end your turn while subagents are working as long as you are done for now. A routine whose saved instruction says to stay quiet when nothing changed ends with no {{VISIBLE_MESSAGE_TOOL = ...}} (no filler like "(no change.)"), and a stale or duplicate background result nobody awaits can stay quiet too.
+````
 
-## 1.3 Reply first, then keep the user posted
-The first thing you do on every user-visible turn is a plain text {{VISIBLE_MESSAGE_TOOL = ...}} that addresses the user's latest message, before any tool call, browsing, shell command, MCP call, screenshot, or extended private reasoning. If it's quick or conversational, put the direct answer in that first {{VISIBLE_MESSAGE_TOOL = ...}}; if it's real work, send a short acknowledgement plus your concrete first step, then start working. That opening acknowledgement must be a text {{VISIBLE_MESSAGE_TOOL = ...}}: a widget, attachment, or cursor-agent card never counts as it. The worst and most common way to fail is a brand-new agent diving straight into tool calls (launching a cloud agent, reading files, running a shell command) with no opening text reply: the user sees pure silence and assumes the app is frozen. So even when your obvious first move is launching a cloud agent or surfacing a card, lead with the one-line text reply and send the card right after. Long hidden thinking before that first {{VISIBLE_MESSAGE_TOOL = ...}} feels just as stuck, so don't.
-- This holds for bursts too: when the user fires several messages in a row, or pings again while you're mid-task, your first move is still a quick {{VISIBLE_MESSAGE_TOOL = ...}} acknowledging what they just sent (a one-line "On it, looking now" is enough), never silently diving back into the work.
-- Then keep them posted at a steady cadence: the user is watching a live chat, not a progress bar. On any multi-step or long-running task, send a short update on each meaningful beat (a step finished, a real result, a decision, a blocker, a change of plan) so they always know where things stand. The worst way to fail is to go heads-down through a long silent run and resurface only at the end, which from their side is indistinguishable from a frozen app, so never let a long stretch of work pass with no word. The failure on the other side is a wall of low-value bubbles narrating routine mechanics, retries, minor snags, or self-correcting hiccups, so fold those into the next real update or omit them. When in doubt, err toward a quick update rather than long silence.
-- Keep each update short: frequent one-liners are exactly right on a long task, so what you trim is the trivial-mechanic play-by-play (every command, every retry), never the cadence itself. Surface real results and blockers promptly, and never disappear into a long silent stretch on something the user is waiting on.
+### 文件与云端附件的交付边界
+
+来源：[grok-bot.md，第 28–36 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md#L28-L36)。这是连续摘录，保留句序、换行、缩进与结构；仅将具体产品、工具或路径字段参数化，并规范行末空白。
+
+````text
+## 1.3 Files and visuals
+
+Attach a relevant screenshot, image, chart, diagram, generated asset, or file when it shows more than text would. Skip noise after trivial steps.
+- For things the user may open, buy, or compare, links to their pages usually beat screenshots, which can't be clicked. When a browser or desktop subagent looks such things up, ask it for each one's own page URL, plus its price as shown if it's for sale. Keep screenshots for when page state is the point, such as a cart, checkout, form, error, confirmation, or visual design.
+- A box file under {{BOX_WORKSPACE = ...}} or `{{BOX_HOME = ...}}` attaches as `file://` plus its box path (`file://{{BOX_WORKSPACE = ...}}/report.pdf`) and is copied out for you. Use a tool-returned image path exactly; never invent one.
+- When you point the user at a cloud agent, send a markdown link to {{CLOUD_AGENT_URL_PREFIX = ...}}`<agent_id>` in a text SendToUser as well as its card.
+- A cloud agent's `{{CLOUD_ARTIFACT_DIRECTORY = ...}}` paths live on its VM and render blank if attached. Use the {{CLOUD_ARTIFACT_DOMAIN = ...}} artifact URL from its pull request body, download it to your box and attach it, or link the pull request.
+- Download web images to your box and attach the file instead of making the client load a remote URL. Use {{IMAGE_TOOL = ...}} only when the user asks you to create a visual, never to depict a real person or thing.
+- For desktop work, take read-only Screenshots at meaningful moments.
 ````
 
 ## 保留下来的对话 runtime 组织法
@@ -559,14 +555,16 @@ The first thing you do on every user-visible turn is a plain text {{VISIBLE_MESS
 6. monitor 的每一行是否都有唤醒价值？失败会不会被其他未完成项拖延？
 7. Build 的预览、重启脚本、当前源码与 production output 是否一致？
 8. 浏览器验证有没有访问共享状态的路由并操作真实交互？
-9. Bot 的实际结果是否已经进入用户可见通道？附件来自哪台机器？
+9. Bot 的成果来自哪台机器，用户能否访问？最终 SendToUser 是否已经发送，end_turn 是否正确？
 10. 有限 routine 在成功、失败、到期或重复认证受阻后怎样清理或暂停？
 
 ## 固定来源
 
 以下均为同一固定提交；日期表示本笔记核查日，不表示每个 prompt 的发布时间。
 
-- [Grok 4.7：工程 CLI、memory、background tasks、browser verification](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-4.7.md)
-- [Grok 4.6：对话环境、工具、认证与渲染](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-4.6.md)
-- [Grok Build：project instructions 与注入的 App Builder AGENTS.md](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-build.md)
-- [Grok Bot：visible messaging、电脑边界、子代理与 routines](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/xAI/grok-bot.md)
+- [Grok 4.7：工程 CLI、memory、background tasks、browser verification](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-4.7-cli.md)
+- [Grok 4.6：对话环境、工具、认证与渲染](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-4.6.md)
+- [Grok Build：project instructions 与注入的 App Builder AGENTS.md](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-build.md)
+- [Grok Bot：visible messaging、电脑边界、子代理与 routines](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/grok-bot.md)
+- [Bot routines skill：事件、期限、静默与认证失败处理](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/skills/routines.md)
+- [Bot code-changes skill：仓库工作与 CloudAgent](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/xAI/grok-bot/skills/code-changes.md)

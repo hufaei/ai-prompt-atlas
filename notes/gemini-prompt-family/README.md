@@ -1,33 +1,21 @@
-# Gemini：澄清、上下文与视觉输出
+# Gemini：聊天呈现与工程 runtime 的边界
 
-这份笔记研究 Web 助手如何决定先澄清还是直接回答，怎样筛选用户上下文，以及什么时候把结果交给图片、结构组件、交互 widget 或图像生成工具。当前执行样本是 **Gemini 3.8 Flash**；3.1 Pro 保留更完整的个性化与教学 gate，Nano Banana 2 API 用来研究较小的图像执行契约。
+这份笔记先研究 **3.8 Flash 聊天表面**的澄清、证据与视觉输出，保留 3.1 Pro 的个性化和 widget gate，以及 Nano Banana 2 API 的小型图像契约；再独立对照 **Gemini 4 Argon 的 Antigravity IDE／CLI 工程 runtime**，看持久 artifact、历史记录与后台任务怎样形成连续工作。它们不是 Pro → Flash → Argon 的模型调用链。
 
-> 来源固定为 `asgeirtj/system_prompts_leaks@87bdae7886aca455ad38eb60dfdedf093ef01e2a`，核查日为 **2026-09-30（Asia/Shanghai）**。它们是公开收集的 prompt 样本，不是官方产品规格。下文明确区分源规则、学习推导和连续原文摘录模板；文件中出现能力摘要，也不代表已经取得可调用函数。
+> 来源固定为 `asgeirtj/system_prompts_leaks@fc0108f594b63bca905f2c4815aaef430d13bd68`，核查日为 **2026-11-10（Asia/Shanghai）**。它们是公开收集的 prompt 样本，不是官方产品规格。下文明确区分源规则、学习推导和连续原文摘录模板；文件中出现能力摘要，也不代表已经取得可调用函数。
 
-## 用三个问题读这组样本
+## 先选工作表面与要解决的问题
 
 | 要解决的问题 | 对应样本 | 可以带走的机制 |
 | --- | --- | --- |
 | 什么时候用个人上下文，什么时候用普通解释？ | Gemini 3.1 Pro | 从空上下文开始，先价值测试，再严格选择，最后自然融合 |
 | 回答前还缺什么，内容适合哪种呈现？ | Gemini 3.8 Flash | 澄清规则、事实与图片独立触发、Markdown/LMDX 输出协议 |
 | 图片到底怎样生成、引用、继续编辑并展示？ | 3.8 的图像声明与 Nano Banana 2 API | 工具发现、真实引用、单步/多步编排、生成与展示边界 |
+| 工程任务怎样保存进展、恢复上下文和等待后台工作？ | Gemini 4 Argon 的 Antigravity IDE／CLI | artifact 归属、compact transcript 按需展开、reactive wakeup 与 delegation 边界 |
 
 它们是不同捕获样本的对照，不能据此声称 Pro 调用 Flash、Flash 调用 Nano Banana，或这些工具共享同一真实运行时。这里学习的是可组合的设计层。
 
-## 3.7 与 3.8：真正改变了哪项决定
-
-把固定快照中的两个文件直接比较，可以避免把每次看到的规则都误记成新增。
-
-| 机制 | 3.7 Flash | 3.8 Flash | 对写 prompt 的影响 |
-| --- | --- | --- | --- |
-| 澄清 | 关键缺失才先问；可回答的歧义可以说明假设；宽泛咨询先完整回答后追问 | 歧义或欠具体时先理解真实意图，不先产出 draft、outline 或 solution；说明提问价值并给具体选项 | 草稿何时可以产生是实质变化，需要独立测试模糊输入 |
-| 图片与信息形状 | 已有图片相关性测试、Markdown 默认、Image/Carousel、Sequence/Timeline | 同样保留 | 这是继承的路由，不是 3.8 新功能 |
-| GenerateWidget | 已有安全 gate、排除项、动态模型等触发、真实数据、语义 prompt、文本先行 | 同样保留 | 交互教学的条件没有因版本号而新出现 |
-| 布局与下一步 | 已有高注意力视觉间留文字、三秒布局检查、FollowUp/ElicitationsGroup | 同样保留 | 学组件之间的组合约束 |
-| 实际工具声明 | 捕获文本以 context 结束，已有工具使用指导，但没有 3.8 后附的完整工具块 | 后附 search、fetch_images、expand_tools、generate_image 等声明 | 摘要、策略与 callable schema 各自承担不同责任 |
-| 图像编排 | 此文件没有对应完整生成 schema | 生成函数要求 `query` 和 `orchestration_mode`，可带真实 image references | 单图直接交付与多图/叙事/后续编辑要明确区分 |
-
-这些比较只说明**两个公开文件包含什么**；不能把缺少声明解读成 3.7 产品没有该能力。3.5 Flash 的固定文件已经有计算、Web、Workspace、YouTube 的工具声明，因此“3.8 首次获得事实工具”也不成立。
+3.7／3.8 的版本对照压缩为一条选择依据：3.8 对欠具体请求先澄清，不先生成草稿；图片相关性、组件路由、widget gate 和布局检查在 3.7 已存在。3.8 capture 后附完整工具块，不能据此推断旧产品没有这些能力。3.1、3.7、3.8 和 Nano Banana 的本地旧样本均已核对与本次固定 tree 的 blob 相同；3.5 仅补了文件末尾换行。版本号和文件是否附声明，都不能代替产品表面的能力契约。
 
 ## 3.8 Flash：模糊请求先建立可执行意图
 
@@ -136,11 +124,28 @@ Sequence 的组件专属说明还要求上一轮用过时跳过，而通用 form
 
 3.5 Flash 的计算、Web、Workspace、YouTube 工具可作为事实源路由的补充案例：计算结果属于执行环境，当前事实属于公开检索，邮件或文件属于对应私有 corpus，视频发现属于视频检索。它们并没有出现在 3.8 当前文件的完整工具列表中；作为学习对照保留，不把旧捕获能力写成当前可用工具。
 
+## Argon：Antigravity IDE 与 CLI 的工程状态契约
+
+这里使用 `Google/antigravity/` 下两份 capture；`Google/gemini-4-argon-api-ai-studio.md` 是另一个 API／AI Studio 表面，含模型身份、搜索／browse 声明与捕获时的上下文，不能把它的日期、地点或插入式警告解释成工程 runtime 的恒定规则。下表只比较实际 capture，不把配置差别写成所有产品实例的保证。
+
+| 工程机制 | 两份 capture 的共同契约 | 需要保留的表面差别 |
+| --- | --- | --- |
+| 持久 artifact | `.md` 放在 `<appDataDir>/brain/<conversation-id>`；适合报告、持续任务清单和 diff。简单回答、问题直接说；更新后链接 artifact，只突出待决定项 | IDE 与 CLI 注入的 appDataDir 分别属于 `antigravity` 与 `antigravity-cli`；项目代码仍写活动 workspace，scratch 另放 artifact 目录下 |
+| 历史恢复 | 先读 compact `transcript.jsonl`；仅在 `truncated_fields` 指出缺失时读 full 的对应行。媒体内容看 `uri`，不把文本记录当图像本身 | 记录是该 conversation 的执行历史，不能拿别的会话 ID 猜路径或权限 |
+| 后台等待 | agent 消息、后台完成和排队用户消息会 reactive wakeup；发起后做独立工作或停止调用，等系统唤醒，无需循环查 inbox | 定时器和周期 schedule 是另一个能力，不能因等后台通知而重复创建轮询任务 |
+| Delegation | `invoke_subagent` 返回 conversationId；后续通过该 ID 发消息，继续同一工作流复用原 agent；`send_message` 仅给 agent，用户沟通仍用可见回复 | 两者均列 self、只读且无网络的 research、image-generator；工具写入、MCP、继续派生等权限由 `define_subagent` 字段控制，不能由角色名推定 |
+
+来源：[IDE artifacts／transcript](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-ide.md#L15-L115)、[CLI 同类状态段](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-cli.md#L17-L113)、[IDE messaging／subagents](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-ide.md#L160-L218)、[CLI invocation 与权限声明](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-cli.md#L444-L549)、[IDE 活动 workspace 与目录注入](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-ide.md#L286-L298)、[API／AI Studio 独立 capture](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-4-argon-api-ai-studio.md)。
+
+**机制：** artifact 保存需要持续更新的成果，transcript 保存发生过什么，后台通知说明现在有什么可处理。三者各自承担状态，不能把一份总结当成全部历史，或把“agent 已完成”当成文件已验收。调用工具还要读取该表面的声明：IDE 使用带 `declaration:` 的 YAML，CLI 使用 JSON 工具声明；模型名称相同也不代表 schema、注入上下文或文件位置相同。
+
+**应用：** 工程任务先选择 IDE／CLI 和活动 workspace，按需恢复历史；把可独立且权限明确的任务交给子代理，发起后继续本地可做的事或等待通知；收到结果后核对文件、改动与必要检查，最后更新 artifact 并链接给用户。这一验收次序是本页推导。它没有把 3.8 的 `GenerateWidget`、LMDX 或图像引用规则改写为 Antigravity 默认协议。
+
 ## 原文摘录模板：Pro 的 follow-up、个性化与教学 gate
 
 下面使用 Pro 的连续完整段，不把 3.8 的先澄清规则混进 Pro。第一块保留 FOLLOW-UP RULES → 五步 personalization → visual support；第二块保留 Interactive Widget Architect 的 Prime Directive、安全 gate、分类、archetypes 与 Part 2–6。只有实际产品字段或工具名称换成 `{{FIELD = ...}}`。固定原文的禁止搜索条件仍保留在第一块，适用范围如上文所述。
 
-来源：[gemini-3.1-pro.md，原文第 60–126 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.1-pro.md#L60-L126)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.1-pro.md，原文第 60–126 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.1-pro.md#L60-L126)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 **FOLLOW-UP RULES**
@@ -216,7 +221,7 @@ You can insert a diagram by adding the `<Image of X>` tag where X is a contextua
 
 这块止于 Output Schema 的 Height Guide，之后的版权段未纳入模板。原文给出的运行库、No Persistence 与 No External Assets 都保留：这些是样本约束，不能假定目标 builder 有同样条件。
 
-来源：[gemini-3.1-pro.md，原文第 128–244 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.1-pro.md#L128-L244)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.1-pro.md，原文第 128–244 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.1-pro.md#L128-L244)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ### **System Instructions: Interactive Widget Architect**
@@ -342,7 +347,7 @@ Instructions for the `prompt` field within the JSON.
 
 以下连续摘取 FOLLOW-UP RULES、workflow、lmdx_syntax_protocol、tool_strategies、response_guidelines 和 component_library，直到 component_library 关闭。原文的所有句子、例子、项目符号与相互张力都保留，没有用通用“组件契约”替代它们。起始 identity/capabilities 和末尾 examples/context 不在本块边界内。部署槽位要在输出组件属性前替换；原文 parser 禁止未展开的双花括号表达式。
 
-来源：[gemini-3.8-flash.md，原文第 62–337 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.8-flash.md#L62-L337)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.8-flash.md，原文第 62–337 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.8-flash.md#L62-L337)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 **FOLLOW-UP RULES**
@@ -606,11 +611,11 @@ Markdown content here.
 4. **Behavior:** High-level interaction description. Focus ONLY on the semantic outcomes of the inputs. STRICTLY FORBIDDEN: Verbose drawing steps, axes placements, CSS, layout dictates, or specific shape definitions.
 * **Format:**
 
-`<GenerateWidget height="{{DEFAULT_WIDGET_HEIGHT = ...}}">`
+`<GenerateWidget height="600px">`
 ```json
 {
 "widgetSpec": {
-"height": "{{DEFAULT_WIDGET_HEIGHT = ...}}",
+"height": "600px",
 "prompt": "**Objective:** ... \n **Data State:** ... \n **Inputs:** ... \n **Behavior:** ..."
 }
 }
@@ -618,7 +623,7 @@ Markdown content here.
 `</GenerateWidget>`
 
 
-*(Height Guide: `{{DEFAULT_WIDGET_HEIGHT = ...}}` Math/Diagrams/Calculators, `{{PHYSICS_WIDGET_HEIGHT = ...}}` Physics/3D, `{{DASHBOARD_WIDGET_HEIGHT = ...}}` Complex Dashboards.)*
+*(Height Guide: `600px` Math/Diagrams/Calculators, `700px` Physics/3D, `800px` Complex Dashboards.)*
 
 `</component_library>`
 ````
@@ -627,7 +632,7 @@ Markdown content here.
 
 这个工具段仍在它自己的来源位置，未拼入 workflow。原 schema 重复的 `api_names` required 项也保留，便于对照；它是样本中的缺陷，不应未经检查复制进实际注册表。
 
-来源：[gemini-3.8-flash.md，原文第 480–517 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.8-flash.md#L480-L517)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.8-flash.md，原文第 480–517 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.8-flash.md#L480-L517)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ## {{EXPAND_TOOLS_FUNCTION = ...}}
@@ -676,7 +681,7 @@ Guidelines for expanding tools:
 
 ### 图像工具开头的 Usage、Important 与 Example
 
-来源：[gemini-3.8-flash.md，原文第 519–538 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.8-flash.md#L519-L538)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.8-flash.md，原文第 519–538 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.8-flash.md#L519-L538)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ## {{IMAGE_API_NAME = ...}}
@@ -705,7 +710,7 @@ The `generate_image` tool generates or edits images based on a text description.
 
 这里保留源文的嵌套层级和示例；未加入新的同步、停止或授权行为。文件名槽位只是具体实例的替换，实际调用应使用 runtime 返回的真实 filename。
 
-来源：[gemini-3.8-flash.md，原文第 563–597 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.8-flash.md#L563-L597)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.8-flash.md，原文第 563–597 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.8-flash.md#L563-L597)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
     * **Multi-Image Calling Strategy (Concurrent vs. Sequential):**
@@ -749,7 +754,7 @@ The `generate_image` tool generates or edits images based on a text description.
 
 该块保留 `query`、`orchestration_mode` 的必填项、两种编排枚举，以及返回数据结构。说明里的函数名拼写和 JSON 中的函数名分别使用不同槽位，避免把原文的名称差异悄悄改成一致。
 
-来源：[gemini-3.8-flash.md，原文第 651–749 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.8-flash.md#L651-L749)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[gemini-3.8-flash.md，原文第 651–749 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.8-flash.md#L651-L749)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ```json
@@ -857,7 +862,7 @@ The `generate_image` tool generates or edits images based on a text description.
 
 这是另一个文件的连续两项声明。两个工具的字段与作用保留，不把 3.8 的 orchestration/reference 参数混入。
 
-来源：[nano-banana-2-api.md，原文第 5–43 行](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/nano-banana-2-api.md#L5-L43)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
+来源：[nano-banana-2-api.md，原文第 5–43 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/nano-banana-2-api.md#L5-L43)。这是连续摘录，段内句子、换行、缩进、项目符号和顺序保留；只替换具体字段，并规范行末空白。
 
 ````text
 ```
@@ -901,9 +906,92 @@ declaration:{{IMAGE_DISPLAY_FUNCTION = ...}}{
 ```
 ````
 
+## 原文摘录模板：Argon 工程状态与异步唤醒
+
+下列各块分别是独立连续源段；不把它们拼成一段伪原文，也不与上面的聊天模板混用。目录变量保持源文本已有的占位形式；工具字段只在需要移植时替换。
+
+### IDE：何时写入持久 artifact
+
+来源：[gemini-4-argon-antigravity-ide.md，第 15–31 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-ide.md#L15-L31)。这是连续摘录，保留句序、换行、缩进与结构；此块保持源文已有变量与工具名称，仅规范行末空白。
+
+````text
+`<artifacts>`
+
+Artifacts are special markdown (.md) documents that you can create to present structured information to the user.
+All artifacts should be written to the artifact directory: `<appDataDir>/brain/<conversation-id>`. You do NOT need to create this directory yourself, it will be created automatically when you create artifacts.
+
+# When to Use Artifacts
+
+**Use artifacts for:**
+- Extensive reports and analysis summaries
+- Persistent information you'll update over time (task lists, experiment logs)
+- Code changes formatted as diffs
+
+**Don't use artifacts for:**
+- Simple one-off answers or very short paragraph content - just respond directly
+- Asking questions or requesting user input - just ask directly
+
+**After creating or updating an artifact**, DO NOT re-summarize the artifact contents in your response to the user. Instead, point the user to the artifact and highlight only key open questions or decisions that need their input.
+````
+
+### CLI：先读 compact，再按缺失字段展开
+
+来源：[gemini-4-argon-antigravity-cli.md，第 92–98 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-cli.md#L92-L98)。这是连续摘录，保留句序、换行、缩进与结构；此块保持源文已有变量与工具名称，仅规范行末空白。
+
+````text
+`<conversation_transcript>`
+
+Transcripts are located directly at `<appDataDir>/brain/<conversation-id>/.system_generated/logs/transcript.jsonl` (and `transcript_full.jsonl`).
+- Start with `transcript.jsonl` (compact). When `truncated_fields` is present, read only the specific corresponding line in `transcript_full.jsonl`.
+- Search subagents by grepping `invoke_subagent` in `transcript.jsonl`.
+- Link conversations using `[<label>](conversation://<conversation-id>)`.
+
+````
+
+### IDE：消息驱动的后台恢复
+
+来源：[gemini-4-argon-antigravity-ide.md，第 160–177 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-ide.md#L160-L177)。这是连续摘录，保留句序、换行、缩进与结构；此块保持源文已有变量与工具名称，仅规范行末空白。
+
+````text
+`<messaging>`
+
+You are connected to a messaging system where you may receive messages from: agents, background tasks, user-queued messages.
+
+## Receiving Messages
+
+You receive messages automatically at the start of each invocation. All messages are delivered in full directly into your context — no manual retrieval is needed.
+
+## Reactive Wakeup (No Polling Needed)
+
+The system automatically resumes your execution when:
+- A message arrives from a subagent or peer agent
+- A **background task** completes or sends you a notification
+- A **user-queued message** is ready to be dequeued
+
+This means you do **NOT** need to poll in a loop while waiting for messages or updates. After launching anything that performs work asynchronously, you may continue other work or simply stop by calling no more tools. The system will notify you when there is something to process.
+
+`</messaging>`
+````
+
+### CLI：委派的标识、复用与模型默认值
+
+来源：[gemini-4-argon-antigravity-cli.md，第 444–452 行](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-cli.md#L444-L452)。这是连续摘录，保留句序、换行、缩进与结构；此块保持源文已有变量与工具名称，仅规范行末空白。
+
+````text
+## default_api:invoke_subagent
+
+Launch a subagent. It runs in the background with its own prompt and sends you a message when it completes or needs guidance; there is no need to poll.
+
+Guidelines:
+* The subagent is identified by the conversationId returned; message it with the send_message tool.
+* Multiple subagents may share a type name; each still gets a unique conversationId.
+* If a task continues an existing subagent's work, message that subagent instead of launching a new one.
+* Default the Model argument to 'inherit' unless the user explicitly requests a different model.
+````
+
 ## 与其他保留笔记的学习分工
 
-[GPT-5.5](../gpt-5.5-prompt-framework/) 适合对照事实属于哪个系统；[Codex runtime](../gpt-5.6-codex-runtime/) 适合对照工具、权限与会话状态；[Grok](../grok-prompt-evolution/) 适合对照同一品牌如何切换 CLI、应用生成和桌面表面；[Claude 设计 skills](../claude-design-skills/) 适合对照可见效果怎样验证。Gemini 这里独特的学习任务，是把上下文筛选、意图澄清和信息呈现写成不同的决策，避免一个漂亮组件掩盖缺失的输入或事实。
+[GPT-5.5](../gpt-5.5-prompt-framework/) 适合对照事实属于哪个系统；[Codex runtime](../gpt-5.6-codex-runtime/) 适合对照工具、权限与会话状态；[Grok](../grok-prompt-evolution/) 适合对照同一品牌如何切换 CLI、应用生成和桌面表面；[Claude 设计 skills](../claude-design-skills/) 适合对照可见效果怎样验证。Gemini 这里把聊天的上下文筛选、意图澄清、信息呈现，与工程的持久状态和异步执行分别研究；一个漂亮组件不能补齐缺失证据，一条完成通知也不能替代成果验收。
 
 ## 复习问题
 
@@ -916,12 +1004,17 @@ declaration:{{IMAGE_DISPLAY_FUNCTION = ...}}{
 7. 组件 markup 能否被当前 parser 接受？模板槽位是否已全部替换？
 8. API 摘要是否已经展开成可调用 schema？空 functions 列表说明了什么边界？
 9. 多图是独立选项还是依赖前图的一致角色？引用是否按原样保存并传入？
-10. “新增”来自实际 diff 还是版本印象？样本缺声明能否证明产品缺能力？
+10. 当前是聊天、API／AI Studio 还是 Antigravity IDE／CLI？目录、工具声明与可见沟通属于哪个表面？
+11. 恢复历史是否先读 compact，只展开缺失行？后台工作是否已由通知接续，避免重复轮询？
+12. 子代理拿到哪些权限，结果是否经过验收并更新到持久 artifact？
 
 ## 固定来源
 
-- [Gemini 3.8 Flash：澄清、继承的组件路由、能力展开与图像编排](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.8-flash.md)
-- [Gemini 3.7 Flash：核对既有 visual、widget 与布局规则](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.7-flash.md)
-- [Gemini 3.1 Pro：完整个性化 gate 与 Interactive Widget Architect](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.1-pro.md)
-- [Gemini 3.5 Flash：早期呈现与四类事实工具的对照样本](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/gemini-3.5-flash.md)
-- [Nano Banana 2 API：生成、display 与不完整 image_search schema](https://github.com/asgeirtj/system_prompts_leaks/blob/87bdae7886aca455ad38eb60dfdedf093ef01e2a/Google/nano-banana-2-api.md)
+- [Gemini 3.8 Flash：澄清、继承的组件路由、能力展开与图像编排](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.8-flash.md)
+- [Gemini 3.7 Flash：核对既有 visual、widget 与布局规则](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.7-flash.md)
+- [Gemini 3.1 Pro：完整个性化 gate 与 Interactive Widget Architect](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.1-pro.md)
+- [Gemini 3.5 Flash：早期呈现与四类事实工具的对照样本](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-3.5-flash.md)
+- [Nano Banana 2 API：生成、display 与不完整 image_search schema](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/nano-banana-2-api.md)
+- [Gemini 4 Argon Antigravity IDE：artifact、transcript、reactive wakeup 与 delegation](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-ide.md)
+- [Gemini 4 Argon Antigravity CLI：同类工程机制与独立工具声明](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/antigravity/gemini-4-argon-antigravity-cli.md)
+- [Gemini 4 Argon API／AI Studio：独立表面与捕获上下文](https://github.com/asgeirtj/system_prompts_leaks/blob/fc0108f594b63bca905f2c4815aaef430d13bd68/Google/gemini-4-argon-api-ai-studio.md)

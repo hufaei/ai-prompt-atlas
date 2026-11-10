@@ -12,15 +12,15 @@ https://hufaei.github.io/ai-prompt-atlas/
 
 The reader curates seven current learning topics. New source captures replace stale versions; overlapping notes are merged around the method they teach rather than retained as a growing model catalog.
 
-- `notes/gpt-5.6-codex-runtime`: GPT-6 Astra, Sol, Luna and GPT-6.1 Sol; permission, persistence, workspace tools, and evidence-based completion.
+- `notes/gpt-5.6-codex-runtime`: persistent execution and evidence-based completion; separate action risk, user authorization, and policy outcomes from output quality.
 - `notes/gpt-5.5-prompt-framework`: authoritative sources, retrieval, tool contracts, and Qwen's minimal schema and call-envelope comparison.
-- `notes/claude-opus-5-claude-code`: Claude.ai Opus and Sonnet 5.5; assistant behavior, durable memory, privacy, and useful personalization.
-- `notes/claude-fable-5-claude-code-prompt-framework`: Claude Code Fable 5.1; execution and Advisor review, memory and context, and CLI, desktop, headless, and Projects boundaries.
-- `notes/claude-design-skills`: design components, skills, starter components, visible verification, exports, and engineering handoff.
-- `notes/grok-prompt-evolution`: Grok 4.7 CLI, 4.6 conversation tools, Build, and Bot; memory scope, background work, monitoring, and public-surface verification.
-- `notes/gemini-prompt-family`: Gemini 3.8 Flash alongside Pro and image layers; evidence, visual selection, component contracts, and image-tool inputs.
+- `notes/claude-opus-5-claude-code`: Claude.ai behavior and memory, with Fable 5.2 as a newer sample; distinguish published behavior text, captured context, and tool contracts.
+- `notes/claude-fable-5-claude-code-prompt-framework`: Claude Code Fable 5.2, action classification versus Advisor quality review, durable memory, and context recovery.
+- `notes/claude-design-skills`: editable design, verification, exports, and engineering handoff; Motion adds a separate rough-cut-to-final-film workflow.
+- `notes/grok-prompt-evolution`: CLI, conversation, Build, and Bot; select the execution surface, consume background results, and deliver artifacts the user can actually access.
+- `notes/gemini-prompt-family`: Pro/Flash conversation and visual output alongside Antigravity IDE/CLI; distinguish answer presentation from persistent engineering work.
 
-The current source boundary is `asgeirtj/system_prompts_leaks@87bdae7886aca455ad38eb60dfdedf093ef01e2a`, reviewed on 2026-09-30 (Asia/Shanghai). Each note links to immutable source files. This is a source-backed learning snapshot, not a claim that every captured instruction or tool applies to every product account.
+The November review uses `asgeirtj/system_prompts_leaks@fc0108f594b63bca905f2c4815aaef430d13bd68`, reviewed on 2026-11-10 (Asia/Shanghai). Six topics are refreshed against that boundary. Source Routing retains its 2026-09-30 snapshot at `87bdae7886aca455ad38eb60dfdedf093ef01e2a`; explicitly labeled historical excerpts in other notes may also retain that pin. Dates are shown per topic, and each source link is immutable. Captured environment, user preferences, separate tool policies, and general assistant behavior are not interchangeable evidence. These notes do not claim that every captured capability applies to every product account.
 
 Notes explain the problem a rule addresses, the rule present in the source, and how to reuse it. Interpretation and adapted templates are labeled separately. Reusable templates preserve the source's recognizable wording, order, and structure, with specific products, tools, paths, schemas, and variable policies abstracted as `{{FIELD = ...}}` slots.
 

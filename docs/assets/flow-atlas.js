@@ -156,7 +156,7 @@
           const edge = edgeBetween(seq[index], seq[index + 1]);
           edge?.el.classList.add('current');
           status.textContent = (edge?.retry ? '返回 · ' : '前往 · ') + (nodes.find(n => n.id === seq[index + 1])?.title || '下一节点');
-        } else status.textContent = hold ? '流程完成 · 即将切换路径' : '正在演示 · ' + name.textContent;
+        } else status.textContent = hold ? '本条演示结束 · 即将切换路径' : '正在演示 · ' + name.textContent;
       }
       raf = requestAnimationFrame(tick);
     }
